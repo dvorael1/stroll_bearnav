@@ -51,11 +51,11 @@ do
 	    kill $P2
 	    kill $P4
         
-        mv left0000.jpg $index.jpg
-        
-        
+        mv left0000.jpg $index.jpg 
     fi 	
 done
+
+
 kill $P2
 kill $P1
 exit 0

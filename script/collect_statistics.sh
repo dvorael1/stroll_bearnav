@@ -16,6 +16,11 @@ rosparam set use_sim_time true
 roslaunch stroll_bearnav stroll-core.launch folder:=$1 &            	 
 P1=$!
 
+sleep 3s
+rosparam set use_sim_time true
+rosrun stroll_bearnav map_match_info_listener $2 &
+P2=$!
+
 
 rosrun dynamic_reconfigure dynparam set /feature_extraction detector 2
 rosrun dynamic_reconfigure dynparam set /feature_extraction descriptor 2
@@ -26,18 +31,21 @@ cd $3
 
 TXT_FILES=( `ls` )
 
-#Udelat to neprustrelny!  treba jako kontrolovat priponu
-
 for i in ${TXT_FILES[*]}
 do
-	echo "playing rosbag $i"
-    rostopic pub -1 /navigator/goal stroll_bearnav/navigatorActionGoal '{ header: { seq: 1, stamp: now, frame_id: ""}, goal_id: { stamp: now, id: "/Action_client_navigator-1-0.000"}, goal: {traversals: 0}}' 
-    rosbag play $i --clock &
-	P4=$!
-	sleep 60s
-	kill $P4
+	rosparam set use_sim_time true
+	end=${i##*.}
+	if [ "$end" = "bag" ]; then
+        echo "playing rosbag $i"
+        rostopic pub -1 /navigator/goal stroll_bearnav/navigatorActionGoal '{ header: { seq: 1, stamp: now, frame_id: ""}, goal_id: { stamp: now, id: "/Action_client_navigator-1-0.000"}, goal: {traversals: 0}}' 
+        rosbag play $i --clock &
+	    P4=$!
+	    #rostopic echo navigationInfo/histogram -n 5 
+		sleep 60s
+	    kill $P4
+    fi 
 	
 done
-
+sleep 120s
+kill -2 $P2
 kill $P1
-

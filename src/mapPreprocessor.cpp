@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include "statistics.h"
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -256,50 +257,18 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 			int stcs[keypoints_1.size()];
 			for(int i = 0; i<keypoints_1.size();i++){
-				stcs[i] = 0;
-			}
-			string line;
-			ifstream f("/home/eliska/stroll/statistics/statistics.txt");
-			int max = 0;
-			if (f.is_open())
-			{
-				while ( getline (f,line) )
-				{
-					int was_ok = 0;
-					vector<string> strings;
-					istringstream l(line);
-					string s;
-					int index = -1;
+		    stcs[i] = 0;
+		  }
+			int size = keypoints_1.size();
+			//int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+			int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
 
-					bool right_map_id = false;
-					if(getline(l, s, ' ')){
-						if(s.find(currentMapName) != string::npos){
-							right_map_id=true;
-							size_t pos = s.find("_");
-							string s_index = s.substr(0,pos);
-							index = atoi(s_index.c_str());
-							for(int i = 0; i<6;i++){
-								getline(l, s, ' ');
-							}
-						}
-					}
-					while (getline(l, s, ' ') && right_map_id)
-					{
-						getline(l, s, ' ');
-						was_ok += atoi(s.c_str());
-					}
-					if(max<was_ok){
-						max = was_ok;
-					}
-					stcs[index] = was_ok;
-				}
-				f.close();
-			}
-
-
+			//pick(stcs, max, size);
+			//pick_n_best(stcs,size, 100);
+			pick_kvantil(stcs, size, 0.5);
 			for(int i=0;i<keypoints_1.size();i++)
 			{
-				if(stcs[i]>=(max/2))
+				if(stcs[i]>0)
 				{
 					feature.x=keypoints_1[i].pt.x;
 					feature.y=keypoints_1[i].pt.y;
