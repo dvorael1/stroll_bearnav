@@ -62,14 +62,14 @@ vector<Mat> imagesMap;
 stroll_bearnav::FeatureArray featureArray;
 stroll_bearnav::Feature feature;
 
-/*joystick input parameters - axes that correspond to forward, turning and flipper speeds*/ 
+/*joystick input parameters - axes that correspond to forward, turning and flipper speeds*/
 int stopButton = 2;
 int pauseButton = 0;
 int linearAxis = 1;
 int angularAxis = 0;
 int flipperAxis = 4;
 
-/*these constants determine how quickly the robot moves based on the joystick input*/ 
+/*these constants determine how quickly the robot moves based on the joystick input*/
 double maxForwardSpeed = 0.2;
 double maxAngularSpeed = 0.2;
 double maxFlipperSpeed = 0.2;
@@ -99,9 +99,9 @@ EMappingState state = IDLE;
 void distanceEventCallback(const std_msgs::Float32::ConstPtr& msg);
 void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg);
 
-/* Total distance travelled recieved from the event */ 
+/* Total distance travelled recieved from the event */
 void distanceEventCallback(const std_msgs::Float32::ConstPtr& msg)
-{   
+{
 	if(state == MAPPING){
 		distanceTotalEvent=msg->data;
 		state = SAVING;
@@ -109,7 +109,7 @@ void distanceEventCallback(const std_msgs::Float32::ConstPtr& msg)
 }
 /*distance currently travelled */
 void distanceCallback(const std_msgs::Float32::ConstPtr& msg)
-{   
+{
 	distanceTravelled=msg->data;
 }
 
@@ -129,7 +129,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 		}
 		img.release();
 		img=cv_ptr->image;
-	}	
+	}
 }
 
 /*Action server */
@@ -171,7 +171,7 @@ void executeCB(const stroll_bearnav::mapperGoalConstPtr &goal, Server *serv)
 				fs.release();
 			}
 			result.fileName=name;
-		
+
 			/*save the path profile as well*/
 			sprintf(name,"%s/%s.yaml",folder.c_str(),baseName.c_str());
 			ROS_INFO("Saving path profile to %s",name);
@@ -194,19 +194,19 @@ void executeCB(const stroll_bearnav::mapperGoalConstPtr &goal, Server *serv)
 
 /*receiving joystick data*/
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
-{    
+{
 	angularSpeed = maxAngularSpeed*forwardSpeed*0.5*joy->axes[angularAxis];
 	forwardAcceleration = maxForwardAcceleration*joy->axes[linearAxis];;
 	flipperSpeed = maxFlipperSpeed*joy->axes[flipperAxis];
 	if  (joy->buttons[stopButton] || joy->buttons[pauseButton]) angularSpeed = forwardSpeed = flipperSpeed = 0;
 	if  (joy->buttons[stopButton]) userStop = true;
 	ROS_DEBUG("Joystick pressed");
-} 
+}
 
 /*flipper position -- for stair traverse*/
 void flipperCallback(const std_msgs::Float32::ConstPtr& msg)
 {
-	flipperPosition = msg->data;   
+	flipperPosition = msg->data;
 }
 
 /* save features and image recieved from camera as a local map*/
@@ -216,7 +216,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 		keypoints.clear();
 		descriptors.release();
 
-		for(int i=0; i<msg->feature.size();i++){
+		for(int i=0; i<50/*msg->feature.size()*/;i++){
 
 			keypoint.pt.x=msg->feature[i].x;
 			keypoint.pt.y=msg->feature[i].y;
@@ -248,7 +248,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 
 
 int main(int argc, char** argv)
-{ 
+{
 	ros::init(argc, argv, "mapper");
 	ros::NodeHandle nh("~");
 	image_transport::ImageTransport it_(nh);
@@ -320,4 +320,3 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
-

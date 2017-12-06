@@ -5,22 +5,27 @@
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>
+#include <time.h>
+#include <random>
+#include <math.h>
 
 using namespace std;
 
 struct ftr_stc{
   int index;
-  int stc;
+  double stc;
 };
 
 int compare (const void * a, const void * b)
 {
   ftr_stc d = *(ftr_stc*)b;
   ftr_stc c = *(ftr_stc*)a;
-  return ( c.stc - d.stc );
+  if (d.stc > c.stc) return -1;
+  else if (d.stc < c.stc) return 1;
+  else return 0;
 }
 
-void set_and_sort(ftr_stc* ftr_stcs, int* stcs, int size){
+void set_and_sort(ftr_stc* ftr_stcs, double* stcs, int size){
   for(int i = 0;i<size; i++){
     ftr_stcs[i].index = i;
     ftr_stcs[i].stc = stcs[i];
@@ -28,17 +33,17 @@ void set_and_sort(ftr_stc* ftr_stcs, int* stcs, int size){
   qsort (ftr_stcs, size, sizeof(ftr_stc), compare);
 }
 
-void pick(int* stcs, int max, int size){
+void pick(double* stcs, int max, int size){
   for(int i = 0;i<size;i++){
-    if(stcs[i]<max/2){
-      stcs[i] = 0;
+    if(stcs[i]< max/2){
+      stcs[i] = 0.0;
     }else{
-      stcs[i] = 1;
+      stcs[i] = 1.0;
     }
   }
 }
 
-void pick_n_best(int* stcs, int size, int n){
+void pick_n_best(double* stcs, int size, int n){
   if(n>=size){
     return;
   }
@@ -46,37 +51,85 @@ void pick_n_best(int* stcs, int size, int n){
   set_and_sort(features_stcs, stcs, size);
 
   for(int i = 0; i<size; i++){
-    if(i>=size-n){
-      stcs[features_stcs[i].index] = 1;
+    if(i>=size - (n+1)){
+      stcs[features_stcs[i].index] = 1.0;
     }else{
-      stcs[features_stcs[i].index] = 0;
+      stcs[features_stcs[i].index] = 0.0;
     }
   }
 }
 
-void pick_kvantil(int* stcs, int size, double p){
+void pick_kvantil(double* stcs, int size, double p){
   ftr_stc features_stcs[size];
   set_and_sort(features_stcs, stcs, size);
-  double index = size - (size*p);
+  double index = (size*p);
   double zero = 0.0;
   double dif = index - (int)index;
-  int k = 0;
+  double k = 0;
   if(dif==zero){
-    k = (stcs[(int)index]+stcs[((int)index)-1])/2;
+    k = (features_stcs[(int)index].stc+features_stcs[(int)index+1].stc)/2;
   }else{
-    k = stcs[(int)index];
+    k = features_stcs[(int)index].stc;
   }
-
+  printf("size = %d index = %d k = %f \n",size, (int)index,k);
   for(int i = 0;i<size;i++){
+    printf("index = %d stc = %f \n",i,features_stcs[i].stc);
     if(stcs[i]<k){
-      stcs[i] = 0;
+      stcs[i] = 0.0;
     }else{
-      stcs[i] = 1;
+      stcs[i] = 1.0;
     }
   }
 }
 
-int prepare_sum(char* fname, string mapName, int* stcs, int size){
+int find_min(double* stcs, int size){
+  double min = stcs[0];
+  for(int i = 1;i<size;++i){
+    if(min>stcs[i]){
+      min = stcs[i];
+    }
+  }
+  return min;
+}
+
+void pick_mnt_crl(double* stcs, int size, int n){
+  if (size==0){
+    return;
+  }
+  double min = find_min(stcs,size);
+  double add = 0;
+  if(min<=0){
+    add = 1 - min;
+  }
+
+  double all = 0;
+  double mnt_crl[size];
+  for (int i = 0; i<size;++i){
+    all += add + stcs[i];
+    mnt_crl[i] = all;
+    stcs[i]=0.0;
+  }
+  if(n>size){
+    n = size;
+  }
+  srand (time(NULL));
+  for (int i = 0; i<n;++i){
+    int r_next = rand() % int(all+0.5);
+    for(int j = 0; j<size;j++){
+      if(mnt_crl[j]>r_next){
+        if(stcs[j]>0.0){
+          n--;
+          break;
+        }else{
+          stcs[j] = 1.0;
+          break;
+        }
+      }
+    }
+  }
+}
+
+int prepare_sum(char* fname, string mapName, double* stcs, int size){
 
   string line;
   ifstream f(fname);
@@ -111,7 +164,7 @@ int prepare_sum(char* fname, string mapName, int* stcs, int size){
       if(max<was_ok){
         max = was_ok;
       }
-      stcs[index] = was_ok;
+      stcs[index] =(double) was_ok;
     }
     f.close();
   }
@@ -119,8 +172,9 @@ int prepare_sum(char* fname, string mapName, int* stcs, int size){
 }
 
 
-int prepare_w_sum(char* fname, string mapName, int* stcs, int size, int w1, int wm1){
+int prepare_w_sum(char* fname, string mapName, double* stcs, int size, int w1, int wm1){
   string line;
+
   ifstream f(fname);
   int max = 0;
   if (f.is_open())
@@ -159,9 +213,57 @@ int prepare_w_sum(char* fname, string mapName, int* stcs, int size, int w1, int 
       if(max<was_ok){
         max = was_ok;
       }
-      stcs[index] = was_ok;
+      stcs[index] = (double) was_ok;
     }
     f.close();
   }
   return max;
+}
+
+
+void prepare_mov_avg(char* fname, std::string mapName, double* stcs, int size){
+  string line;
+  int t = (int) time (NULL);
+  int tau = 60*60*12;
+  ifstream f(fname);
+  double W = 0.0;
+  double E = 0.0;
+
+  if (f.is_open())
+  {
+
+    while ( getline (f,line) )
+    {
+      int was_ok = 0;
+      vector<string> strings;
+      istringstream l(line);
+      string s;
+      int index = -1;
+
+      bool right_map_id = false;
+      if(getline(l, s, ' ')){
+        if(s.find(mapName) != string::npos){
+          right_map_id=true;
+          size_t pos = s.find("_");
+          string s_index = s.substr(0,pos);
+          index = atoi(s_index.c_str());
+          for(int i = 0; i<6;i++){
+            getline(l, s, ' ');
+          }
+        }
+      }
+      while (getline(l, s, ' ') && right_map_id)
+      {
+        int t1 = atoi(s.c_str());
+        double wi = exp(-1*((t-t1)/tau));
+        W += wi;
+        getline(l, s, ' ');
+        int stc = atoi(s.c_str());
+        E += wi*stc;
+      }
+
+      stcs[index] = (double) E/W;
+    }
+    f.close();
+  }
 }

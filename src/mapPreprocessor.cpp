@@ -254,21 +254,31 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 			ROS_INFO("Current distance is %.3f Closest map found at %i, last was %i",distanceT,mindex,lastLoadedMap);
 			loadMap(mindex);
 //			ROS_INFO("Sending a map %i features with %i descriptors",(int)keypoints_1.size(),descriptors_1.rows);
-
-			int stcs[keypoints_1.size()];
-			for(int i = 0; i<keypoints_1.size();i++){
-		    stcs[i] = 0;
-		  }
+			bool with_stcs = false;
 			int size = keypoints_1.size();
-			//int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
-			int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
+			int len =max(size,1);
+			double stcs[len];
+			if(keypoints_1.size()>0){
+				for(int i = 0; i<keypoints_1.size();i++){
+					stcs[i] = 0.0;
+				}
+				ifstream f("/home/eliska/stroll/statistics/statistics.txt");
+				if (f.is_open())
+				{
+					f.close();
+					with_stcs = true;
+					//int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+					//int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
+					prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
 
-			//pick(stcs, max, size);
-			//pick_n_best(stcs,size, 100);
-			pick_kvantil(stcs, size, 0.5);
+					pick_n_best(stcs,size, 100);
+					//pick_kvantil(stcs,size,0.75);
+					//pick_mnt_crl(stcs,size, 25);
+				}
+			}
 			for(int i=0;i<keypoints_1.size();i++)
 			{
-				if(stcs[i]>0)
+				if(!with_stcs||stcs[i]>0)
 				{
 					feature.x=keypoints_1[i].pt.x;
 					feature.y=keypoints_1[i].pt.y;

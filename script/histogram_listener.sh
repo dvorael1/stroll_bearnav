@@ -39,23 +39,26 @@ for i in ${TXT_FILES[*]}
 do
     end=${i##*.}
     if [ "$end" = "bag" ]; then
-        index=$(($index+1))
+        index=0
         echo "playing rosbag $i"
-        
+        rosservice call setDistance "distance: 0.0"
         rosrun image_view image_saver image:=navigationMatches &
         P2=$!
         rostopic pub -1 /navigator/goal stroll_bearnav/navigatorActionGoal '{ header: { seq: 1, stamp: now, frame_id: ""}, goal_id: { stamp: now, id: "/Action_client_navigator-1-0.000"}, goal: {traversals: 0}}' 
         rosbag play $i --clock &
 	    P4=$!
-        rostopic echo navigationInfo/histogram -n 1 >> $2 
+        rostopic echo navigationInfo/histogram -n 3 >> $2 
 	    kill $P2
 	    kill $P4
         
-        mv left0000.jpg $index.jpg 
-    fi 	
+        mv left0000.jpg $index$i.jpg 
+        index=$(($index+1))
+        mv left0001.jpg $index$i.jpg 
+        index=$(($index+1))
+        mv left0002.jpg $index$i.jpg 
+
+fi 	
 done
 
-
-kill $P2
 kill $P1
 exit 0

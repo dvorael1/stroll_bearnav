@@ -41,7 +41,7 @@ vector<int> idBuffer;
 /* Feature message */
 stroll_bearnav::FeatureArray currentFeatures;
 stroll_bearnav::FeatureArray mapFeatures;
- 
+
 
 /* dynamic reconfigure of showing images, velocity gain and matching ratio constant */
 /*void callback(stroll_bearnav::navigatorConfig &config, uint32_t level)
@@ -52,7 +52,7 @@ stroll_bearnav::FeatureArray mapFeatures;
 
 /* reference map received */
 void mapFeatureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
-{	 
+{
 	mapFeatures = *msg;
 	ROS_DEBUG("Received a new reference map");
 	mapKeypoints.clear();
@@ -86,8 +86,8 @@ void currentImageCallback(const sensor_msgs::ImageConstPtr& msg)
 	ROS_INFO("Current image ID %i",msg->header.seq);
 	imageBuffer.push_back(cv_ptr->image);
 	idBuffer.push_back(msg->header.seq);
-	while (imageBuffer.size() > imageQueueLength) imageBuffer.erase(imageBuffer.begin()); 
-	while (idBuffer.size() > imageQueueLength) idBuffer.erase(idBuffer.begin()); 
+	while (imageBuffer.size() > imageQueueLength) imageBuffer.erase(imageBuffer.begin());
+	while (idBuffer.size() > imageQueueLength) idBuffer.erase(idBuffer.begin());
 }
 
 /* get image from map */
@@ -149,10 +149,10 @@ void navigationInfoCallback(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 			match.queryIdx = i;
 			match.trainIdx = msg->mapMatchIndex[i];
 			matches.push_back(match);
-			if (msg->mapMatchEval[i] == 1) goodMatches.push_back(match); 
-		} 
+			if (msg->mapMatchEval[i] == 1) goodMatches.push_back(match);
+		}
 	}
-	int id = atoi(&(msg->view.id.c_str())[7]); 
+	int id = atoi(&(msg->view.id.c_str())[7]);
 	ROS_INFO("Image ID: %s %i",msg->view.id.c_str(),id);
 
 	/*find the relevant image*/
@@ -175,20 +175,20 @@ void navigationInfoCallback(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 		if (currentImage.rows >0 && mapKeypoints.size() >0 && currentKeypoints.size() >0)
 		{
 			if (mapImage.rows==0) mapImage = currentImage;
-			Mat mapIm = mapImage.t();  
+			Mat mapIm = mapImage.t();
 			Mat curIm = currentImage.t();
 			vector<KeyPoint> kpMap,kpCur;
 			KeyPoint tmp;
 			for (int i = 0;i<mapKeypoints.size();i++)
 			{
-				tmp = mapKeypoints[i];	
+				tmp = mapKeypoints[i];
 				tmp.pt.y = mapKeypoints[i].pt.x;
 				tmp.pt.x = mapKeypoints[i].pt.y;
 				kpMap.push_back(tmp);
-			} 
+			}
 			for (int i = 0;i<currentKeypoints.size();i++)
 			{
-				tmp = currentKeypoints[i];	
+				tmp = currentKeypoints[i];
 				tmp.pt.y = currentKeypoints[i].pt.x;
 				tmp.pt.x = currentKeypoints[i].pt.y;
 				kpCur.push_back(tmp);
