@@ -18,7 +18,7 @@ P1=$!
 
 sleep 3s
 
-
+rosrun dynamic_reconfigure dynparam set /navigator matchingRatio 1.0
 rosrun dynamic_reconfigure dynparam set /feature_extraction detector 2
 rosrun dynamic_reconfigure dynparam set /feature_extraction descriptor 2
 
@@ -41,6 +41,7 @@ do
     if [ "$end" = "bag" ]; then
         index=0
         echo "playing rosbag $i"
+		echo "rosbag $i" >> $2
         rosservice call setDistance "distance: 0.0"
         rosrun image_view image_saver image:=navigationMatches &
         P2=$!
@@ -51,11 +52,11 @@ do
 	    kill $P2
 	    kill $P4
         
-        mv left0000.jpg $index$i.jpg 
+        mv left0000.jpg $index\_$i.jpg 
         index=$(($index+1))
-        mv left0001.jpg $index$i.jpg 
+        mv left0001.jpg $index\_$i.jpg 
         index=$(($index+1))
-        mv left0002.jpg $index$i.jpg 
+        mv left0002.jpg $index\_$i.jpg 
 
 fi 	
 done

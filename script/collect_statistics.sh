@@ -17,11 +17,10 @@ roslaunch stroll_bearnav stroll-core.launch folder:=$1 &
 P1=$!
 
 sleep 3s
-#rosparam set use_sim_time true
 rosrun stroll_bearnav map_match_info_listener $2 &
 P2=$!
 
-
+rosrun dynamic_reconfigure dynparam set /navigator matchingRatio 1.0
 rosrun dynamic_reconfigure dynparam set /feature_extraction detector 2
 rosrun dynamic_reconfigure dynparam set /feature_extraction descriptor 2
 
@@ -33,7 +32,7 @@ TXT_FILES=( `ls` )
 
 for i in ${TXT_FILES[*]}
 do
-	#rosparam set use_sim_time true
+	
 	end=${i##*.}
 	if [ "$end" = "bag" ]; then
         echo "playing rosbag $i"

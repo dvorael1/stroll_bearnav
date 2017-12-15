@@ -114,18 +114,21 @@ void pick_mnt_crl(double* stcs, int size, int n){
   }
   srand (time(NULL));
   for (int i = 0; i<n;++i){
-    int r_next = rand() % int(all+0.5);
+    int r_next = 0.0 + double((all*rand())/RAND_MAX + 1.0);
+    bool picked = false;
     for(int j = 0; j<size;j++){
       if(mnt_crl[j]>r_next){
         if(stcs[j]>0.0){
-          n--;
+          i--;
           break;
         }else{
+          picked = true;
           stcs[j] = 1.0;
           break;
         }
       }
     }
+
   }
 }
 
