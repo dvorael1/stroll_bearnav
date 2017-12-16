@@ -80,7 +80,7 @@ void pick_kvantil(double* stcs, int size, double p){
   }
 }
 
-int find_min(double* stcs, int size){
+double find_min(double* stcs, int size){
   double min = stcs[0];
   for(int i = 1;i<size;++i){
     if(min>stcs[i]){
@@ -125,7 +125,6 @@ void pick_mnt_crl(double* stcs, int size, int n){
         if(stcs[j]>0.0){
           break;
         }else{
-          printf("picked %d\n",i);
           if(j==0){
             diff = mnt_crl[j];
           }else{
