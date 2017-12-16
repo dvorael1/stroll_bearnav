@@ -58,7 +58,7 @@ do
         mv left0001.jpg $index\_$i.jpg 
         index=$(($index+1))
         mv left0002.jpg $index\_$i.jpg 
-
+		rm left*
 fi 	
 done
 
