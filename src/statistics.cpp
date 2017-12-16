@@ -71,9 +71,7 @@ void pick_kvantil(double* stcs, int size, double p){
   }else{
     k = features_stcs[(int)index].stc;
   }
-  printf("size = %d index = %d k = %f \n",size, (int)index,k);
   for(int i = 0;i<size;i++){
-    printf("index = %d stc = %f \n",i,features_stcs[i].stc);
     if(stcs[i]<k){
       stcs[i] = 0.0;
     }else{
@@ -101,7 +99,7 @@ void pick_mnt_crl(double* stcs, int size, int n){
   if(min<=0){
     add = 1 - min;
   }
-
+  int count = 0;
   double all = 0;
   double mnt_crl[size];
   for (int i = 0; i<size;++i){
@@ -114,17 +112,30 @@ void pick_mnt_crl(double* stcs, int size, int n){
   }
   srand (time(NULL));
   for (int i = 0; i<n;++i){
-    int r_next = 0.0 + double((all*rand())/RAND_MAX + 1.0);
+    int r_next = 0.0 + double((all*rand())/(RAND_MAX + 1.0) );
     bool picked = false;
+    double diff = 0.0;
     for(int j = 0; j<size;j++){
       if(mnt_crl[j]>r_next){
+        if(picked){
+          mnt_crl[j]-=diff;
+          continue;
+        }
+
         if(stcs[j]>0.0){
-          i--;
           break;
         }else{
+          printf("picked %d\n",i);
+          if(j==0){
+            diff = mnt_crl[j];
+          }else{
+            diff = mnt_crl[j] - mnt_crl[j-1];
+          }
+          mnt_crl[j] -= diff;
+          all -=diff;
           picked = true;
           stcs[j] = 1.0;
-          break;
+
         }
       }
     }

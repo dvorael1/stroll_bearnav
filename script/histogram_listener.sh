@@ -51,7 +51,7 @@ do
         rostopic echo navigationInfo/histogram -n 3 >> $2 
 	    kill $P2
 	    kill $P4
-        
+        sleep 1;
         mv left0000.jpg $index\_$i.jpg 
         index=$(($index+1))
         mv left0001.jpg $index\_$i.jpg 
