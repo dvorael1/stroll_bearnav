@@ -329,10 +329,11 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 				if (fabs(current.y) > maxVerticalDifference){
 					differences[i] = -1000000;
 				}else{
-					differences[i] = difference;
-					if (index <= 0) index = 0;
-					if (index >= numBins) index = numBins-1;
-					histogram[index]++;
+          differences[i] = difference;
+          // if (index <= 0) index = 0;
+          // if (index >= numBins) index = numBins-1;
+          //pustit na nejlepsi statistice
+          if (index >=0 && index < numBins) histogram[index]++;
 				}
 				count=0;
 			}

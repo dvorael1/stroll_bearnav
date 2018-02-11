@@ -267,13 +267,13 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 				{
 					f.close();
 					with_stcs = true;
-					//int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
-					//int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
-					prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+					// int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+					int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
+					//prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
 
 					pick_n_best(stcs,size, 100);
-					//pick_kvantil(stcs,size,0.75);
-					//pick_mnt_crl(stcs,size, 25);
+					// pick_kvantil(stcs,size,0.25);
+					// pick_mnt_crl(stcs,size, 50);
 				}
 			}
 			for(int i=0;i<keypoints_1.size();i++)

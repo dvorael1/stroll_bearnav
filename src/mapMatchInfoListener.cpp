@@ -74,11 +74,13 @@ void shutdownCallback(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result)
 
 void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
  {
-   //is_working = 1;
+   is_working = 1;
    int size = msg->mapMatchIndex.size();
+   printf("`size = %d\n",size);
    vector<MatchInfo> mi;
    if(size>0)
    {
+     printf("size>0\n");
      for(int i = 0; i<size;i++)
      {
          MatchInfo new_mi;
@@ -123,6 +125,7 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
            for(j = 0;j<mi.size();j++)
            {
              if(s.compare(mi[j].id) == 0){
+               printf("is writting\n");
                end_line.str("");
                end_line.clear();
                end_line << " " << mi[j].time << " " <<  mi[j].eval << endl;
@@ -130,6 +133,7 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
                break;
              }
            }
+           printf("is writting\n");
            file_content << line;
            file_content << end_line.str();
            i++;
