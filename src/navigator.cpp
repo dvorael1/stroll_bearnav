@@ -375,7 +375,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 			/*difference between features */
 
 			differenceRot=sum/count;
-cout << "correct: " << feedback.correct << " out: " << feedback.outliers << " map " << mapKeypoints.si
+			cout << "correct: " << feedback.correct << " out: " << feedback.outliers << " map " << mapKeypoints.size() << " cur " << currentKeypoints.size() << " gm " << feedback.matches << " difference " << differenceRot << endl;
 			//cout << "Vektor: " << count << " " << differenceRot << endl;
 		}
 		velocityGain = fmin(fmax(count/20.0,minimalAdaptiveSpeed),maximalAdaptiveSpeed);
