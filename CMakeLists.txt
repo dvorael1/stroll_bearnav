@@ -100,6 +100,7 @@ add_service_files(
   	cfg/distance.cfg
 	cfg/featureExtraction.cfg
 	cfg/navigator.cfg
+    cfg/supervisor.cfg
  )
 
 ###################################
