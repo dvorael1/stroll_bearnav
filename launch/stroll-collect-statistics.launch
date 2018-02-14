@@ -1,0 +1,39 @@
+<launch>
+
+<!-- Default folders with maps-->
+
+<arg name="folder1" default="$(env HOME)/stroll/day_min"/>
+<arg name="folder2" default="$(env HOME)/stroll/day_min"/>
+
+<!-- Distance Measurement Node -->
+<node pkg="stroll_bearnav" type="odometry_monitor_node" name="odometry_monitor"/>
+
+<!-- feature extraction -->
+  <node pkg="stroll_bearnav" type="feature_extraction_node" name="feature_extraction">
+	  <remap from="image" to="/stereo/left/image_raw"/>
+  </node>
+
+<!-- mapping node -->
+<node pkg="stroll_bearnav" type="mapper_node" name="mapper" output="screen">
+  <remap from="image" to="/stereo/left/image_raw"/>
+  <param name="folder1" value="$(arg folder1)" />
+  <param name="folder2" value="$(arg folder2)" />
+  <param name="angularSpeed" value="1.1" />
+</node>
+
+<!-- map loader1 node -->
+<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor1">
+<param name="folder1" value="$(arg folder1)" />
+</node>
+
+<!-- map loader2 node -->
+<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor2">
+<param name="folder2" value="$(arg folder2)" />
+</node>
+
+<!-- navigator node -->
+<node pkg="stroll_bearnav" type="navigator_node" name="navigator" output="screen">
+  <param name="folder1" value="$(arg folder1)" />
+</node>
+
+</launch>

@@ -17,16 +17,15 @@ roslaunch stroll_bearnav stroll-core.launch folder:=$1 &
 P1=$!
 
 sleep 3s
-#rosrun stroll_bearnav map_match_info_listener $2 &
-#P2=$!
-#echo "running"
-sleep 3s
+rosrun stroll_bearnav map_match_info_listener $2 &
+P2=$!
+
 rosrun dynamic_reconfigure dynparam set /navigator matchingRatio 1.0
 rosrun dynamic_reconfigure dynparam set /feature_extraction detector 2
 rosrun dynamic_reconfigure dynparam set /feature_extraction descriptor 2
 
-rostopic pub -1 /map_preprocessor/goal stroll_bearnav/loadMapActionGoal '{ header: { seq: 1, stamp: now , frame_id: ""}, goal_id: { stamp: now, id: "/Action_client_loader-1-0.000"}, goal: {prefix: "day_hostibejk_0_repmap_0"}}'
-
+rostopic pub -1 /map_preprocessor/goal stroll_bearnav/loadMapActionGoal '{ header: { seq: 1, stamp: now , frame_id: ""}, goal_id: { stamp: now, id: "/Action_client_loader-1-0.000"}, goal: {prefix: "day_hostibejk_0"}}'
+sleep 20s
 if [ ! -e $2 ]; then
     echo "File not found!"
     touch $2
