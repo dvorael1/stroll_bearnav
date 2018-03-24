@@ -23,7 +23,7 @@ rosrun dynamic_reconfigure dynparam set /feature_extraction detector 2
 rosrun dynamic_reconfigure dynparam set /feature_extraction descriptor 2
 
 rostopic pub -1 /map_preprocessor/goal stroll_bearnav/loadMapActionGoal '{ header: { seq: 1, stamp: now , frame_id: ""}, goal_id: { stamp: now, id: "/Action_client_loader-1-0.000"}, goal: {prefix: "day_hostibejk_0"}}'
-
+sleep 20s
 cd $3
 
 if [ ! -e $2 ]; then
