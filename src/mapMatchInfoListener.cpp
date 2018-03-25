@@ -35,20 +35,16 @@ struct MatchInfo{
   string t;
 };
 
-bool volatile is_running = 1;
+bool volatile exitting = false;
 bool volatile is_working = 0;
 ros::CallbackQueue* my_queue;
 
 void mySigHandler(int sig)
 {
   my_queue = ros::getGlobalCallbackQueue();
-  while(!my_queue->isEmpty() || is_working){
-    printf("Is NOT Empty or working -> WAIT\n");
-    sleep(10000);
-    my_queue = ros::getGlobalCallbackQueue();
-  }
-  printf("Is Empty -> Quitting\n");
-  is_running = 0;
+  exitting = true;
+
+  printf("exitting\n");
 }
 
 
@@ -59,14 +55,9 @@ void shutdownCallback(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result)
     num_params = params.size();
   if (num_params > 1)
   {
-    my_queue = ros::getGlobalCallbackQueue();
-    while(!my_queue->isEmpty() || is_working){
-      printf("Is NOT Empty or working -> WAIT\n");
-      sleep(10000);
-      my_queue = ros::getGlobalCallbackQueue();
-    }
-    printf("Is Empty -> Quitting for misterious reasons \n");
-    is_running = 0;
+    exitting = true;
+
+    printf("exitting from second\n");
   }
 
   result = ros::xmlrpc::responseInt(1, "", 0);
@@ -74,6 +65,9 @@ void shutdownCallback(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result)
 
 void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
  {
+   if(exitting){
+     return;
+   }
    is_working = 1;
    int size = msg->mapMatchIndex.size();
    vector<MatchInfo> mi;
@@ -116,7 +110,7 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
          int i = 0;
          int j = 0;
          ostringstream end_line;
-         end_line<<"\n";
+         end_line<<endl;
          while (getline(l, s, ' ') && i == 0)
          {
 
@@ -187,8 +181,11 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
-  while(is_running && ros::ok )
+  while(ros::ok && !exitting)
   {
+    if(exitting && !is_working){
+      return 0;
+    }
     ros::spinOnce();
     usleep(100000);
   }

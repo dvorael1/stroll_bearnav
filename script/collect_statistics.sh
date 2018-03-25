@@ -40,18 +40,20 @@ do
 	
 	end=${i##*.}
 	if [ "$end" = "bag" ]; then
+		rosservice call setDistance "distance: 0.0"
         echo "playing rosbag $i"
         rostopic pub -1 /navigator/goal stroll_bearnav/navigatorActionGoal '{ header: { seq: 1, stamp: now, frame_id: ""}, goal_id: { stamp: now, id: "/Action_client_navigator-1-0.000"}, goal: {traversals: 0}}' 
-        rosbag play $i --clock
-		rosservice call setDistance "distance: 0.0"
+        rosbag play $i --clock #&
 	    #P4=$!
-	    #rostopic echo navigationInfo/histogram -n 10 
+	    
+		rostopic echo navigationInfo/histogram -n 3
 		#rostopic pub -1 /navigator/cancel actionlib_msgs/GoalID '{ stamp: now, id: "/Action_client_navigator-1-0.000"}' 
 	    #kill $P4
     fi 
 	
 done
 
-sleep 10s
 kill -2 $P2
 kill $P1
+
+exit 0

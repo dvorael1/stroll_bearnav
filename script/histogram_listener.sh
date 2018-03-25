@@ -34,7 +34,7 @@ fi
 TXT_FILES=( `ls` )
 
 index=0
-sleep 35s
+sleep 30s
 for i in ${TXT_FILES[*]}
 do	
     end=${i##*.}

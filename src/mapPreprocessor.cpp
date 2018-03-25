@@ -280,12 +280,12 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					}
 
 					// CBestStrategy strategy(10);
-					// CQuantilStrategy strategy(0.5);
-					CMonteCarloStrategy strategy(15);
+					CQuantilStrategy strategy(0.5);
+					//CMonteCarloStrategy strategy(150);
 					strategy.filterFeatures(&keypoints_1, score);
 					//pick_n_best(stcs,size, 100);
 					// pick_kvantil(stcs,size,0.5);
-					// pick_mnt_crl(stcs,size, 50);
+					//pick_mnt_crl(stcs,size, 15);
 				}
 			}
 			int j = 0;
@@ -302,7 +302,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					feature.class_id=keypoints_1[i].class_id;
 					feature.descriptor=descriptors_1.row(i);
 					featureArray.feature.push_back(feature);
-					// printf("x = %f, y = %f\n", feature.x,feature.y);
+					printf("x = %f, y = %f\n", feature.x,feature.y);
 					j++;
 				// }
 			}
