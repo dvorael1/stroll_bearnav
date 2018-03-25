@@ -15,9 +15,9 @@ CQuantilStrategy::~CQuantilStrategy(){
 
 }
 
-vector<KeyPoint> CQuantilStrategy::filterFeatures(vector<KeyPoint> keypoints, vector<double> score){
+void CQuantilStrategy::filterFeatures(vector<KeyPoint> *keypoints, vector<double> score){
 
-  int size = keypoints.size();
+  int size = keypoints->size();
   ftr_stc features_stcs[size];
   CStrategy::set_and_sort(features_stcs, score);
   double index = (size*p);
@@ -30,15 +30,9 @@ vector<KeyPoint> CQuantilStrategy::filterFeatures(vector<KeyPoint> keypoints, ve
   }else{
     k = features_stcs[(int)index].stc;
   }
-  printf("k = %f\n", k);
-
-  vector<KeyPoint> out;
-  for(int i = 0;i<size;i++){
-    if(score[i]>=k){
-      out.push_back(keypoints[i]);
-    }else{
-      printf("filtering %d\n", i);
+  for(int i = size -1 ;i>-1;i--){
+    if(score[i]<k){
+      keypoints->erase(keypoints->begin() + i);
     }
   }
-  return out;
 }

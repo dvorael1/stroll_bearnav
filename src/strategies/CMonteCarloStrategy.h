@@ -1,6 +1,5 @@
-#ifndef CBESTSTRATEGY_H
-#define CBESTSTRATEGY_H
-
+#ifndef CMONTECARLOSTRATEGY_H
+#define CMONTECARLOSTRATEGY_H
 
 #include <vector>
 #include "CStrategy.h"
@@ -8,11 +7,11 @@
 
 using namespace std;
 
-class CBestStrategy: public CStrategy{
+class CMonteCarloStrategy: public CStrategy{
   public:
-    CBestStrategy(int n_init);
-    CBestStrategy();
-		~CBestStrategy();
+    CMonteCarloStrategy(int n_init);
+    CMonteCarloStrategy();
+		~CMonteCarloStrategy();
 
     void filterFeatures(vector<KeyPoint> *keypoints, vector<double> score);
 

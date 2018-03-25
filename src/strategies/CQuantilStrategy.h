@@ -1,8 +1,7 @@
 #ifndef CQUANTILSTRATEGY_H
 #define CQUANTILSTRATEGY_H
 
-#include <stroll_bearnav/FeatureArray.h>
-#include <stroll_bearnav/Feature.h>
+
 #include <vector>
 #include "CStrategy.h"
 #include <stdlib.h>
@@ -15,7 +14,7 @@ class CQuantilStrategy: public CStrategy{
     CQuantilStrategy();
 		~CQuantilStrategy();
 
-    vector<KeyPoint> filterFeatures(vector<KeyPoint> keypoints, vector<double> score);
+    void filterFeatures(vector<KeyPoint> *keypoints, vector<double> score);
 
     double p = 0.5;
 };

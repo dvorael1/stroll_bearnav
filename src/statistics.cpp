@@ -31,6 +31,7 @@ void set_and_sort(ftr_stc* ftr_stcs, double* stcs, int size){
     ftr_stcs[i].stc = stcs[i];
   }
   qsort (ftr_stcs, size, sizeof(ftr_stc), compare);
+
 }
 
 void pick(double* stcs, int max, int size){

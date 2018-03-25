@@ -2,6 +2,7 @@
 #include "statistics.h"
 #include "strategies/CBestStrategy.h"
 #include "strategies/CQuantilStrategy.h"
+#include "strategies/CMonteCarloStrategy.h"
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -278,14 +279,16 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						score.push_back(stcs[i]);
 					}
 
-					//CBestStrategy strategy(10);
-					CQuantilStrategy strategy(0.5);
-					keypoints_1 = strategy.filterFeatures(keypoints_1, score);
+					// CBestStrategy strategy(10);
+					// CQuantilStrategy strategy(0.5);
+					CMonteCarloStrategy strategy(15);
+					strategy.filterFeatures(&keypoints_1, score);
 					//pick_n_best(stcs,size, 100);
 					// pick_kvantil(stcs,size,0.5);
 					// pick_mnt_crl(stcs,size, 50);
 				}
 			}
+			int j = 0;
 			for(int i=0;i<keypoints_1.size();i++)
 			{
 				// if(!with_stcs||stcs[i]>0)
@@ -299,10 +302,11 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					feature.class_id=keypoints_1[i].class_id;
 					feature.descriptor=descriptors_1.row(i);
 					featureArray.feature.push_back(feature);
-				// }else{
-					// printf("filtering %d\n",i);
+					// printf("x = %f, y = %f\n", feature.x,feature.y);
+					j++;
 				// }
 			}
+			printf("%d\n", j);
 			featureArray.distance = currentDistance;
 			featureArray.id = currentMapName;
 			numberOfUsedMaps++;
