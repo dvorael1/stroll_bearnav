@@ -16,4 +16,5 @@ void CStrategy::set_and_sort(ftr_stc* ftr_stcs, vector<double> score){
     ftr_stcs[i].stc = score[i];
   }
   qsort (ftr_stcs, (int) score.size(), sizeof(ftr_stc), comp);
+  
 }

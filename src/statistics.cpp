@@ -71,10 +71,12 @@ void pick_kvantil(double* stcs, int size, double p){
   }else{
     k = features_stcs[(int)index].stc;
   }
+  printf("k = %f\n", k);
   for(int i = 0;i<size;i++){
     if(stcs[i]<k){
       stcs[i] = 0.0;
     }else{
+      printf("pushing %d\n", i);
       stcs[i] = 1.0;
     }
   }

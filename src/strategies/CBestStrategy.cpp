@@ -24,7 +24,6 @@ vector<KeyPoint> CBestStrategy::filterFeatures(vector<KeyPoint> keypoints, vecto
   vector<KeyPoint> out;
   for(int i = 0; i<n; i++){
       out.push_back(keypoints[features_stcs[i].index]);
-      printf("pushing %d\n", i);
   }
   return out;
 }

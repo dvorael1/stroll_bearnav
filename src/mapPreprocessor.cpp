@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include "statistics.h"
 #include "strategies/CBestStrategy.h"
+#include "strategies/CQuantilStrategy.h"
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -277,16 +278,18 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						score.push_back(stcs[i]);
 					}
 
-					CBestStrategy strategy(10);
+					//CBestStrategy strategy(10);
+					CQuantilStrategy strategy(0.5);
 					keypoints_1 = strategy.filterFeatures(keypoints_1, score);
 					//pick_n_best(stcs,size, 100);
-					// pick_kvantil(stcs,size,0.25);
+					// pick_kvantil(stcs,size,0.5);
 					// pick_mnt_crl(stcs,size, 50);
 				}
 			}
 			for(int i=0;i<keypoints_1.size();i++)
 			{
-
+				// if(!with_stcs||stcs[i]>0)
+				// {
 					feature.x=keypoints_1[i].pt.x;
 					feature.y=keypoints_1[i].pt.y;
 					feature.size=keypoints_1[i].size;
@@ -296,7 +299,9 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					feature.class_id=keypoints_1[i].class_id;
 					feature.descriptor=descriptors_1.row(i);
 					featureArray.feature.push_back(feature);
-				
+				// }else{
+					// printf("filtering %d\n",i);
+				// }
 			}
 			featureArray.distance = currentDistance;
 			featureArray.id = currentMapName;
