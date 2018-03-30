@@ -30,6 +30,13 @@ void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descr
   if (size==0){
     return;
   }
+
+  Mat tmp_mat = descriptors->clone();
+  descriptors->release();
+
+  vector<KeyPoint> tmp(*keypoints);
+  keypoints->clear();
+
   double min = find_min(score,size);
   double add = 0.0;
   if(min<=0.0){
@@ -47,9 +54,6 @@ void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descr
     n = size;
   }
   srand (time(NULL));
-
-  vector<KeyPoint> tmp(*keypoints);
-  keypoints->clear();
 
   for (int i = 0; i<n;++i){
     int r_next = 0.0 + double((all*rand())/(RAND_MAX + 1.0) );
@@ -75,6 +79,7 @@ void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descr
           picked = true;
           score[j] = 1.0;
           keypoints->push_back(tmp[j]);
+          descriptors->push_back(tmp_mat.row(j));
         }
       }
     }

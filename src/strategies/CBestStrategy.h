@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 using namespace std;
+using namespace cv;
 
 class CBestStrategy: public CStrategy{
   public:
