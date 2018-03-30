@@ -282,9 +282,9 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					// CBestStrategy strategy(10);
 					CQuantilStrategy strategy(0.5);
 					//CMonteCarloStrategy strategy(150);
-					strategy.filterFeatures(&keypoints_1, score);
+					strategy.filterFeatures(&keypoints_1,&descriptors_1, score);
 					//pick_n_best(stcs,size, 100);
-					// pick_kvantil(stcs,size,0.5);
+					//pick_kvantil(stcs,size,0.5);
 					//pick_mnt_crl(stcs,size, 15);
 				}
 			}

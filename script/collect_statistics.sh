@@ -46,7 +46,7 @@ do
         rosbag play $i --clock #&
 	    #P4=$!
 	    
-		rostopic echo navigationInfo/histogram -n 3
+		#rostopic echo navigationInfo/histogram -n 3
 		#rostopic pub -1 /navigator/cancel actionlib_msgs/GoalID '{ stamp: now, id: "/Action_client_navigator-1-0.000"}' 
 	    #kill $P4
     fi 

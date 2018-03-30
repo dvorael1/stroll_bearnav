@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 using namespace std;
+using namespace cv;
 
 class CQuantilStrategy: public CStrategy{
   public:
@@ -14,7 +15,7 @@ class CQuantilStrategy: public CStrategy{
     CQuantilStrategy();
 		~CQuantilStrategy();
 
-    void filterFeatures(vector<KeyPoint> *keypoints, vector<double> score);
+    void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<double> score);
 
     double p = 0.5;
 };

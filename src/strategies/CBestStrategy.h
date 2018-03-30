@@ -14,7 +14,7 @@ class CBestStrategy: public CStrategy{
     CBestStrategy();
 		~CBestStrategy();
 
-    void filterFeatures(vector<KeyPoint> *keypoints, vector<double> score);
+    void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<double> score);
 
     int n = 100;
 };

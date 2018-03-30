@@ -25,7 +25,7 @@ double find_min(vector<double> stcs, int size){
   return min;
 }
 
-void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, vector<double> score){
+void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<double> score){
   int size=keypoints->size();
   if (size==0){
     return;

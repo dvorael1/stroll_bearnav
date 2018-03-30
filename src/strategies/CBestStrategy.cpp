@@ -15,7 +15,7 @@ CBestStrategy::~CBestStrategy(){
 
 }
 
-void CBestStrategy::filterFeatures(vector<KeyPoint> *keypoints, vector<double> score){
+void CBestStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<double> score){
   if(n>=keypoints->size()){
     return;
   }

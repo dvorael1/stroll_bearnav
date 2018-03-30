@@ -34,7 +34,7 @@ fi
 TXT_FILES=( `ls` )
 
 index=0
-sleep 30s
+sleep 5s
 for i in ${TXT_FILES[*]}
 do	
     end=${i##*.}
@@ -49,7 +49,6 @@ do
         rosbag play $i --clock &
 	    P4=$!
         rostopic echo navigationInfo/histogram -n 3 >> $2 
-        sleep 1;
 		
 	    kill $P2
 	    kill $P4

@@ -15,7 +15,7 @@ struct ftr_stc{
 class CStrategy
 {
   public:
-    virtual void filterFeatures(vector<KeyPoint> *keypoints, vector<double> score) = 0;
+    virtual void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<double> score) = 0;
 
     void set_and_sort(ftr_stc* ftr_stcs, vector<double> score);
 
