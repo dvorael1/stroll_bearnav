@@ -12,6 +12,12 @@ struct ftr_stc{
   double stc;
 };
 
+typedef enum{
+	TT_BEST	= 0,
+	TT_MONTE_CARLO,
+	TT_QUANTIL
+}EStrategyType;
+
 class CStrategy
 {
   public:
@@ -20,5 +26,9 @@ class CStrategy
     void set_and_sort(ftr_stc* ftr_stcs, vector<double> score);
 
 };
+
+
+CStrategy* spawnStrategy(const char* type);
+CStrategy* spawnStrategy(EStrategyType type);
 
 #endif
