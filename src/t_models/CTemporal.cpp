@@ -15,8 +15,8 @@ CTemporal* spawnTemporalModel(ETemporalType type,int maxPeriod,int elements,int 
 	switch (type)
 	{
 		case TT_SUM: 		temporalModel = new CSum(0);		break;
-		case TT_W_SUM: 		temporalModel = new CWSum(0);		break;
-		case TT_MOV_AVG:	temporalModel = new CMovAvg(0);		break;
+		// case TT_W_SUM: 		temporalModel = new CWSum(0);		break;
+		// case TT_MOV_AVG:	temporalModel = new CMovAvg(0);		break;
 		default: 		temporalModel = new CSum(0);
 	}
 	temporalModel->init(maxPeriod,elements,numClasses);

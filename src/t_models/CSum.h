@@ -6,9 +6,12 @@
 #include <iostream>
 #include <algorithm>
 #include <math.h>
-#include <string.h>
 #include <stdint.h>
-#include "CTimer.h"
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>
 #include "CTemporal.h"
 
 #define	MAX_TEMPORAL_MODEL_SIZE 10000
@@ -16,35 +19,42 @@
 
 using namespace std;
 
+struct SSum{
+  string map_id;
+  vector<double> f_score;
+};
 
-
-class CSum:CTemporal
-{
+class CSum: public CTemporal{
 	public:
-
+    CSum(int idd);
+    ~CSum();
 		//adds a serie of measurements to the data
-		int add(uint32_t time,float state) = 0;
+		int add(uint32_t time,float state);
 
 		//initialize
-    void init(int maxPeriod,int elements,int numActivities) = 0;
+    void init(int maxPeriod,int elements,int numActivities);
 
 		//estimates the probability for the given times
-    float estimate(uint32_t time) = 0;
-    float predict(uint32_t time) = 0;
+    float estimate(uint32_t time);
+    float predict(uint32_t time);
 
-    void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0) = 0;
-    void print(bool verbose=true) = 0;
+    void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0);
+    void print(bool verbose=true);
 
-    int exportToArray(double* array,int maxLen) = 0;
-    int importFromArray(double* array,int len) = 0;
-    int save(FILE* file,bool lossy = false) = 0;
-    int load(FILE* file) = 0;
-    int save(const char* name,bool lossy = false) = 0;
-    int load(const char* name) = 0;
+    int exportToArray(double* array,int maxLen);
+    int importFromArray(double* array,int len);
+    int save(FILE* file,bool lossy = false);
+    int load(FILE* file);
+    int save(const char* name,bool lossy = false);
+    int load(const char* name);
 
+    int get_map_id(string map_name);
+    void prepare(char* fname);
+    vector<double> get_map_score(string map_name);
+
+
+    vector<SSum> scores;
 
 };
 
-CTemporal* spawnTemporalModel(const char* type,int maxPeriod,int elements,int numClasses);
-CTemporal* spawnTemporalModel(ETemporalType type,int maxPeriod,int elements,int numClasses);
 #endif

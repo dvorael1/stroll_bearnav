@@ -8,14 +8,11 @@
 #include <math.h>
 #include <string.h>
 #include <stdint.h>
-#include "CTimer.h"
 
 #define	MAX_TEMPORAL_MODEL_SIZE 10000
 #define MAX_ID_LENGTH 100
 
 using namespace std;
-
-
 
 typedef enum{
 	TT_SUM	= 0,
@@ -46,6 +43,8 @@ class CTemporal
 		virtual int load(FILE* file) = 0;
 		virtual int save(const char* name,bool lossy = false) = 0;
 		virtual int load(const char* name) = 0;
+		virtual void prepare(char* fname) = 0;
+		virtual vector<double> get_map_score(string map_name)=0;
 
 		int measurements,order;
 		int64_t firstTime;
@@ -53,6 +52,7 @@ class CTemporal
 		int numElements;
 		int maxPeriod;
 		ETemporalType type;
+
 };
 
 CTemporal* spawnTemporalModel(const char* type,int maxPeriod,int elements,int numClasses);

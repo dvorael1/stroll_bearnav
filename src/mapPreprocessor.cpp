@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include "statistics.h"
 #include "strategies/CStrategy.h"
+#include "t_models/CTemporal.h"
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -267,16 +268,21 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 				if (f.is_open())
 				{
 					f.close();
+					string type;
 					// int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
-					int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
+					//int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
 					//prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+					type = "Sum";
+					CTemporal* model = spawnTemporalModel(type.c_str(),1,1,1);
+					model->prepare("/home/eliska/stroll/statistics/statistics.txt");
 
-					vector<double> score;
-					for(int i = 0; i<size; i++){
-						score.push_back(stcs[i]);
-					}
+					vector<double> score = model->get_map_score(currentMapName);
+					// vector<double> score;
+					// for(int i = 0; i<size; i++){
+					// 	score.push_back(stcs[i]);
+					// }
 
-					string type = "Quantil";
+					type = "Best";
 					CStrategy* strategy = spawnStrategy(type.c_str());
 					strategy->filterFeatures(&keypoints_1,&descriptors_1, score);
 				}
