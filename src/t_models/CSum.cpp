@@ -24,7 +24,6 @@ void CSum::init(int iMaxPeriod,int elements,int numClasses)
 {
 	string line;
 	ifstream f(fname);
-
 	if (f.is_open())
 	{
 		while ( getline (f,line) )

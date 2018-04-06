@@ -277,14 +277,22 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 					type = "Sum";
 					for(int i = 0; i<f_ids.size();i++){
-
+							if(f_ids[i].find(currentMapName)!=string::npos){
+								map_models_found =true;
+								for(int j = 0; j<keypoints_1.size();j++){
+									CTemporal* model = models[i+j];
+									double score = model->predict(t);
+									scores.push_back(score);
+								}
+								break;
+							}
 
 					}
 					if(!map_models_found){
 						for(int i = 0; i<keypoints_1.size();i++){
-							string id = i + "_" + currentMapName;
+							string id = to_string(i) + "_" + currentMapName;
 							char* fname = "/home/eliska/stroll/statistics/statistics.txt";
-							CTemporal* model = spawnTemporalModel(type.c_str(),fname, id,nullptr,0);
+							CTemporal* model = spawnTemporalModel(type.c_str(),fname, id, nullptr, 0);
 							f_ids.push_back(id);
 							models.push_back(model);
 							double score = model->predict(t);

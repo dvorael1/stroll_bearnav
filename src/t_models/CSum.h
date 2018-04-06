@@ -52,7 +52,7 @@ class CSum: public CTemporal{
     int id;
     string fid;
     const char* fname;
-    double score;
+    double score=0.0;
 
 };
 

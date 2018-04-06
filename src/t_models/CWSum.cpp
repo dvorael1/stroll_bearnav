@@ -10,7 +10,7 @@ CWSum::CWSum(int idd)
 	type = TT_W_SUM;
 }
 
-CWSum(char* f_name, string f_id,float wneg = 2.0f, float wpos = 1.0f){
+CWSum::CWSum(char* f_name, string f_id){
 	fname = f_name;
 	fid = f_id;
 	order = 0;
@@ -18,8 +18,6 @@ CWSum(char* f_name, string f_id,float wneg = 2.0f, float wpos = 1.0f){
 	lastTime = -1;
 	measurements = 0;
 	type = TT_W_SUM;
-	w_neg = wneg;
-	w_pos = wpos;
 }
 
 void CWSum::init(int iMaxPeriod,int elements,int numClasses)
@@ -86,7 +84,7 @@ int CWSum::add(uint32_t time,float state)
 
 void CWSum::update(int modelOrder,unsigned int* times,float* signal,int length)
 {
-	
+
 }
 
 /*text representation of the fremen model*/
