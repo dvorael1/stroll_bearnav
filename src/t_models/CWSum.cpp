@@ -7,17 +7,19 @@ CWSum::CWSum(int idd)
 	firstTime = -1;
 	lastTime = -1;
 	measurements = 0;
-	type = TT_SUM;
+	type = TT_W_SUM;
 }
 
-CWSum(char* f_name, string f_id){
+CWSum(char* f_name, string f_id,float wneg = 2.0f, float wpos = 1.0f){
 	fname = f_name;
 	fid = f_id;
 	order = 0;
 	firstTime = -1;
 	lastTime = -1;
 	measurements = 0;
-	type = TT_SUM;
+	type = TT_W_SUM;
+	w_neg = wneg;
+	w_pos = wpos;
 }
 
 void CWSum::init(int iMaxPeriod,int elements,int numClasses)
@@ -43,17 +45,18 @@ void CWSum::init(int iMaxPeriod,int elements,int numClasses)
 
 					while (getline(l, s, ' '))
 					{
+						uint32_t t = atoi(s.c_str());
 						if(firstTime == -1){
-							firstTime = atoi(s.c_str());
+							firstTime = t;
 						}
-						lastTime = atoi(s.c_str());
+						lastTime = t;
 						measurements++;
 						getline(l, s, ' ');
-						int s = atoi(s.c_str());;
-						if(s<0){
-							score += w_neg*s;
+						int state = atoi(s.c_str());;
+						if(state<0){
+							score += w_neg*state;
 						}else{
-							score += w_pos*s;
+							score += w_pos*state;
 						}
 					}
 			}
@@ -83,7 +86,7 @@ int CWSum::add(uint32_t time,float state)
 
 void CWSum::update(int modelOrder,unsigned int* times,float* signal,int length)
 {
-	return -1;
+	
 }
 
 /*text representation of the fremen model*/
@@ -139,7 +142,7 @@ int CWSum::exportToArray(double* array,int maxLen)
 {
 	int pos = 0;
 	array[pos++] = type;
-	array[pos++] = positive;
+	array[pos++] = score;
 	array[pos++] = measurements;
 	return pos;
 }
@@ -149,7 +152,7 @@ int CWSum::importFromArray(double* array,int len)
 	int pos = 0;
 	type = (ETemporalType)array[pos++];
 	if (type != TT_SUM) fprintf(stderr,"Error loading the model, type mismatch.\n");
-	positive = array[pos++];
+	score = array[pos++];
 	measurements = array[pos++];
 	update(0);
 	return pos;

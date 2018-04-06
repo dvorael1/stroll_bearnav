@@ -43,8 +43,6 @@ class CTemporal
 		virtual int load(FILE* file) = 0;
 		virtual int save(const char* name,bool lossy = false) = 0;
 		virtual int load(const char* name) = 0;
-		virtual void prepare(char* fname) = 0;
-		virtual vector<double> get_map_score(string map_name)=0;
 
 		int measurements,order;
 		int64_t firstTime;
@@ -56,5 +54,7 @@ class CTemporal
 };
 
 CTemporal* spawnTemporalModel(const char* type,int maxPeriod,int elements,int numClasses);
+CTemporal* spawnTemporalModel(const char* type,const char* f_name, string f_id, char* args, int size);
 CTemporal* spawnTemporalModel(ETemporalType type,int maxPeriod,int elements,int numClasses);
+CTemporal* spawnTemporalModel(ETemporalType type, const char* f_name, string f_id, char* args, int size);
 #endif

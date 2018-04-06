@@ -1,11 +1,13 @@
 #include "CTemporal.h"
 #include "CSum.h"
+// #include "CWSum.h"
+// #include "CMovAvg.h"
 
 const char *temporalModelName[] =
 {
-	"Mov_Avg",
 	"Sum",
 	"W_Sum"
+	"Mov_Avg",
 };
 
 
@@ -28,4 +30,25 @@ CTemporal* spawnTemporalModel(const char* type,int maxPeriod,int elements,int nu
 	int i = TT_SUM;
 	for (i=0;i<TT_MOV_AVG && strcmp(type,temporalModelName[i])!=0;i++){}
 	return spawnTemporalModel( (ETemporalType)i,maxPeriod,elements,numClasses);
+}
+
+CTemporal* spawnTemporalModel(ETemporalType type, const char* f_name, string f_id, char* args=0, int size=0)
+{
+	CTemporal *temporalModel;
+	switch (type)
+	{
+		case TT_SUM: 		temporalModel = new CSum(f_name,f_id);		break;
+		// case TT_W_SUM: 		temporalModel = new CWSum(f_name,f_id);		break;
+		// case TT_MOV_AVG:	temporalModel = new CMovAvg(f_name,f_id));		break;
+		default: 		temporalModel = new CSum(0);
+	}
+	temporalModel->init(0,0,0);
+	return temporalModel;
+}
+
+CTemporal* spawnTemporalModel(const char* type,const char* f_name, string f_id, char* args, int size)
+{
+	int i = TT_SUM;
+	for (i=0;i<TT_MOV_AVG && strcmp(type,temporalModelName[i])!=0;i++){}
+	return spawnTemporalModel( (ETemporalType)i,f_name,f_id,args,size);
 }

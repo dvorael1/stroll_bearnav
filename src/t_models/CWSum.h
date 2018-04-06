@@ -22,7 +22,7 @@ class CWSum: public CTemporal
 	public:
 
 		CWSum(int idd,float Wpos,float Wneg);
-    CWSum(char* f_name, string f_id, float Wpos,float Wneg);
+    CWSum(char* f_name, string f_id, float wpos,float wneg);
     ~CWSum();
 
     //adds a serie of measurements to the data
@@ -46,8 +46,11 @@ class CWSum: public CTemporal
     int load(const char* name);
     void prepare(char* fname);
 
+		int id;
 		double score;
 		double, w_neg,w_pos;
+		string fid;
+		const char* fname;
 
 };
 

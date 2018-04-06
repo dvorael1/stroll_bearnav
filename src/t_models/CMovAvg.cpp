@@ -10,14 +10,15 @@ CMovAvg::CMovAvg(int idd)
 	type = TT_SUM;
 }
 
-CMovAvg(char* f_name, string f_id){
+CMovAvg(char* f_name, string f_id, tau_in = 604800){
+  tau = tau_in;
 	fname = f_name;
 	fid = f_id;
 	order = 0;
 	firstTime = -1;
 	lastTime = -1;
 	measurements = 0;
-	type = TT_SUM;
+	type = TT_MOV_AVG;
 }
 
 void CMovAvg::init(int iMaxPeriod,int elements,int numClasses)
@@ -43,13 +44,16 @@ void CMovAvg::init(int iMaxPeriod,int elements,int numClasses)
 
 					while (getline(l, s, ' '))
 					{
+            uint32_t t = atoi(s.c_str());
 						if(firstTime == -1){
-							firstTime = atoi(s.c_str());
+							firstTime = t;
 						}
-						lastTime = atoi(s.c_str());
+            times.push_back(t)
+						lastTime = t;
 						measurements++;
 						getline(l, s, ' ');
-						score += atoi(s.c_str());
+            int state = atoi(s.c_str());
+						score +=0;//TODO doplnit;
 					}
 			}
 		}
@@ -73,7 +77,7 @@ int CMovAvg::add(uint32_t time,float state)
 
 void CMovAvg::update(int modelOrder,unsigned int* times,float* signal,int length)
 {
-	return -1;
+  
 }
 
 /*text representation of the fremen model*/
@@ -129,7 +133,7 @@ int CMovAvg::exportToArray(double* array,int maxLen)
 {
 	int pos = 0;
 	array[pos++] = type;
-	array[pos++] = positive;
+	array[pos++] = score;
 	array[pos++] = measurements;
 	return pos;
 }
@@ -139,7 +143,7 @@ int CMovAvg::importFromArray(double* array,int len)
 	int pos = 0;
 	type = (ETemporalType)array[pos++];
 	if (type != TT_SUM) fprintf(stderr,"Error loading the model, type mismatch.\n");
-	positive = array[pos++];
+	score = array[pos++];
 	measurements = array[pos++];
 	update(0);
 	return pos;

@@ -21,6 +21,8 @@
 #include <opencv2/features2d.hpp>
 #include <actionlib/server/simple_action_server.h>
 #include <stroll_bearnav/loadMapAction.h>
+#include <time.h>
+
 using namespace cv;
 using namespace cv::xfeatures2d;
 using namespace std;
@@ -59,6 +61,8 @@ int numFeatures;
 float distanceT;
 string prefix;
 bool stop = false;
+std::vector<string> f_ids;
+std::vector<CTemporal*> models;
 
 /*map to be preloaded*/
 vector<vector<KeyPoint> > keypointsMap;
@@ -261,30 +265,36 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 			int len =max(size,1);
 			double stcs[len];
 			if(keypoints_1.size()>0){
-				for(int i = 0; i<keypoints_1.size();i++){
-					stcs[i] = 0.0;
-				}
+
 				ifstream f("/home/eliska/stroll/statistics/statistics.txt");
 				if (f.is_open())
 				{
 					f.close();
 					string type;
-					// int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
-					//int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
-					//prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
-					type = "Sum";
-					CTemporal* model = spawnTemporalModel(type.c_str(),1,1,1);
-					model->prepare("/home/eliska/stroll/statistics/statistics.txt");
+					bool map_models_found = false;
+					vector<double> scores;
+					uint32_t t = time(NULL);
 
-					vector<double> score = model->get_map_score(currentMapName);
-					// vector<double> score;
-					// for(int i = 0; i<size; i++){
-					// 	score.push_back(stcs[i]);
-					// }
+					type = "Sum";
+					for(int i = 0; i<f_ids.size();i++){
+
+
+					}
+					if(!map_models_found){
+						for(int i = 0; i<keypoints_1.size();i++){
+							string id = i + "_" + currentMapName;
+							char* fname = "/home/eliska/stroll/statistics/statistics.txt";
+							CTemporal* model = spawnTemporalModel(type.c_str(),fname, id,nullptr,0);
+							f_ids.push_back(id);
+							models.push_back(model);
+							double score = model->predict(t);
+							scores.push_back(score);
+						}
+					}
 
 					type = "Best";
 					CStrategy* strategy = spawnStrategy(type.c_str());
-					strategy->filterFeatures(&keypoints_1,&descriptors_1, score);
+					strategy->filterFeatures(&keypoints_1,&descriptors_1, scores);
 				}
 			}
 			for(int i=0;i<keypoints_1.size();i++)

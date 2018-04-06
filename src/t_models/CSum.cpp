@@ -10,7 +10,7 @@ CSum::CSum(int idd)
 	type = TT_SUM;
 }
 
-CSum(char* f_name, string f_id){
+CSum::CSum(const char* f_name, string f_id){
 	fname = f_name;
 	fid = f_id;
 	order = 0;
@@ -43,10 +43,11 @@ void CSum::init(int iMaxPeriod,int elements,int numClasses)
 
 					while (getline(l, s, ' '))
 					{
+						uint32_t t = atoi(s.c_str());
 						if(firstTime == -1){
-							firstTime = atoi(s.c_str());
+							firstTime = t;
 						}
-						lastTime = atoi(s.c_str());
+						lastTime = t;
 						measurements++;
 						getline(l, s, ' ');
 						score += atoi(s.c_str());
@@ -73,7 +74,7 @@ int CSum::add(uint32_t time,float state)
 
 void CSum::update(int modelOrder,unsigned int* times,float* signal,int length)
 {
-	return -1;
+
 }
 
 /*text representation of the fremen model*/
@@ -129,7 +130,7 @@ int CSum::exportToArray(double* array,int maxLen)
 {
 	int pos = 0;
 	array[pos++] = type;
-	array[pos++] = positive;
+	array[pos++] = score;
 	array[pos++] = measurements;
 	return pos;
 }
@@ -139,7 +140,7 @@ int CSum::importFromArray(double* array,int len)
 	int pos = 0;
 	type = (ETemporalType)array[pos++];
 	if (type != TT_SUM) fprintf(stderr,"Error loading the model, type mismatch.\n");
-	positive = array[pos++];
+	score = array[pos++];
 	measurements = array[pos++];
 	update(0);
 	return pos;
