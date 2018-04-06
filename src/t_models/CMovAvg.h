@@ -20,6 +20,10 @@ class CMovAvg: public CTemporal
 {
 	public:
 
+		CMovAvg(int idd);
+    CMovAvg(char* f_name, string f_id);
+    ~CMovAvg();
+
     //adds a serie of measurements to the data
     int add(uint32_t time,float state);
 
@@ -41,6 +45,11 @@ class CMovAvg: public CTemporal
     int load(const char* name);
     void prepare(char* fname);
 
+		std::vector<uint32_t> times;
+		std::vector<float> states;
+		double score;
+		char *fname;
+		uint32_t tau;
 
 };
 

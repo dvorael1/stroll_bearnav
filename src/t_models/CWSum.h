@@ -21,6 +21,10 @@ class CWSum: public CTemporal
 {
 	public:
 
+		CWSum(int idd,float Wpos,float Wneg);
+    CWSum(char* f_name, string f_id, float Wpos,float Wneg);
+    ~CWSum();
+
     //adds a serie of measurements to the data
     int add(uint32_t time,float state);
 
@@ -41,6 +45,9 @@ class CWSum: public CTemporal
     int save(const char* name,bool lossy = false);
     int load(const char* name);
     void prepare(char* fname);
+
+		double score;
+		double, w_neg,w_pos;
 
 };
 

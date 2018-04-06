@@ -27,6 +27,7 @@ struct SSum{
 class CSum: public CTemporal{
 	public:
     CSum(int idd);
+    CSum(char* f_name, string f_id);
     ~CSum();
 		//adds a serie of measurements to the data
 		int add(uint32_t time,float state);
@@ -48,12 +49,10 @@ class CSum: public CTemporal{
     int save(const char* name,bool lossy = false);
     int load(const char* name);
 
-    int get_map_id(string map_name);
-    void prepare(char* fname);
-    vector<double> get_map_score(string map_name);
 
-
-    vector<SSum> scores;
+    string fid;
+    const char* fname;
+    double score;
 
 };
 

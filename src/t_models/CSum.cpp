@@ -2,10 +2,61 @@
 
 CSum::CSum(int idd)
 {
+	id = idd;
+	order = 0;
+	firstTime = -1;
+	lastTime = -1;
+	measurements = 0;
+	type = TT_SUM;
+}
+
+CSum(char* f_name, string f_id){
+	fname = f_name;
+	fid = f_id;
+	order = 0;
+	firstTime = -1;
+	lastTime = -1;
+	measurements = 0;
+	type = TT_SUM;
 }
 
 void CSum::init(int iMaxPeriod,int elements,int numClasses)
 {
+	string line;
+	ifstream f(fname);
+
+	if (f.is_open())
+	{
+		while ( getline (f,line) )
+		{
+			string map_name;
+			istringstream l(line);
+			string s;
+
+			if(getline(l, s, ' ')){
+					if(fid.compare(s)){
+						continue;
+					}
+					for(int i = 0; i<6;i++){
+						getline(l, s, ' ');
+					}
+
+					while (getline(l, s, ' '))
+					{
+						if(firstTime == -1){
+							firstTime = atoi(s.c_str());
+						}
+						lastTime = atoi(s.c_str());
+						measurements++;
+						getline(l, s, ' ');
+						score += atoi(s.c_str());
+					}
+			}
+		}
+		f.close();
+	}
+
+
 }
 
 CSum::~CSum()
@@ -15,11 +66,14 @@ CSum::~CSum()
 // adds new state observations at given times
 int CSum::add(uint32_t time,float state)
 {
-	return -1;
+	score += (int)state;
+	lastTime = time;
+	measurements++;
 }
 
 void CSum::update(int modelOrder,unsigned int* times,float* signal,int length)
 {
+	return -1;
 }
 
 /*text representation of the fremen model*/
@@ -29,106 +83,65 @@ void CSum::print(bool verbose)
 
 float CSum::estimate(uint32_t time)
 {
-	return 0.0f;//estimation;
+	return score;
 }
 
 float CSum::predict(uint32_t time)
 {
-	return -1;
+	return score;
 }
 int CSum::save(const char* name,bool lossy)
 {
-	return -1;
+	FILE* file = fopen(name,"w");
+	save(file);
+	fclose(file);
+	return 0;
 }
 
 int CSum::load(const char* name)
 {
-	return -1;
+	FILE* file = fopen(name,"r");
+	load(file);
+	fclose(file);
+	return 0;
 }
 
 
 int CSum::save(FILE* file,bool lossy)
 {
-	return -1;
+	double array[10000];
+	int len = exportToArray(array,10000);
+	fwrite(array,sizeof(double),len,file);
+	return 0;
 }
 
 int CSum::load(FILE* file)
 {
-	return -1;
+	double *array = (double*)malloc(MAX_TEMPORAL_MODEL_SIZE*sizeof(double));
+	int len = fread(array,sizeof(double),MAX_TEMPORAL_MODEL_SIZE,file);
+	importFromArray(array,len);
+	free(array);
+	return 0;
 }
 
 
 int CSum::exportToArray(double* array,int maxLen)
 {
-	return -1;
+	int pos = 0;
+	array[pos++] = type;
+	array[pos++] = positive;
+	array[pos++] = measurements;
+	return pos;
 }
 
 int CSum::importFromArray(double* array,int len)
 {
-	return -1;
-}
+	int pos = 0;
+	type = (ETemporalType)array[pos++];
+	if (type != TT_SUM) fprintf(stderr,"Error loading the model, type mismatch.\n");
+	positive = array[pos++];
+	measurements = array[pos++];
+	update(0);
+	return pos;
 
-int CSum::get_map_id(string map_name){
-  int i = 0;
-  for(i = 0; i<scores.size();i++){
-    if(scores[i].map_id.compare(map_name)==0){
-      break;
-    }
-  }
-  return i;
-}
-
-vector<double> CSum::get_map_score(string map_name){
-  int map_id = get_map_id(map_name);
-  if(scores.size()==0){
-    vector<double> ept;
-    return ept;
-  }else{
-    return scores[map_id].f_score;
-  }
-}
-
-void CSum::prepare(char* fname){
-  string line;
-  ifstream f(fname);
-
-  if (f.is_open())
-  {
-    while ( getline (f,line) )
-    {
-      string map_name;
-      vector<string> strings;
-      istringstream l(line);
-      string s;
-      double cur_score = 0.0;
-      int index = -1;
-
-      if(getline(l, s, ' ')){
-          size_t pos = s.find("_");
-          string s_index = s.substr(0,pos);
-          map_name = s.substr(pos+1,s.length()-1);
-          int map_id = get_map_id(map_name);
-          index = atoi(s_index.c_str());
-          for(int i = 0; i<6;i++){
-            getline(l, s, ' ');
-          }
-
-
-          while (getline(l, s, ' '))
-          {
-            getline(l, s, ' ');
-            cur_score += (double)atoi(s.c_str());
-
-          }
-          if(((int)scores.size()-1 ) < map_id )
-          {
-            SSum el;
-            el.map_id = map_name;
-            scores.push_back(el);
-          }
-          scores[map_id].f_score.push_back(cur_score);
-      }
-    }
-    f.close();
-  }
 }
