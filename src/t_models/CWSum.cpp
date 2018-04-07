@@ -10,7 +10,7 @@ CWSum::CWSum(int idd)
 	type = TT_W_SUM;
 }
 
-CWSum::CWSum(char* f_name, string f_id){
+CWSum::CWSum(const char* f_name, string f_id){
 	fname = f_name;
 	fid = f_id;
 	order = 0;
@@ -22,9 +22,9 @@ CWSum::CWSum(char* f_name, string f_id){
 
 void CWSum::init(int iMaxPeriod,int elements,int numClasses)
 {
+
 	string line;
 	ifstream f(fname);
-
 	if (f.is_open())
 	{
 		while ( getline (f,line) )
@@ -50,11 +50,11 @@ void CWSum::init(int iMaxPeriod,int elements,int numClasses)
 						lastTime = t;
 						measurements++;
 						getline(l, s, ' ');
-						int state = atoi(s.c_str());;
-						if(state<0){
-							score += w_neg*state;
-						}else{
+						int state = atoi(s.c_str());
+						if(state>0){
 							score += w_pos*state;
+						}else{
+							score += w_neg*state;
 						}
 					}
 			}

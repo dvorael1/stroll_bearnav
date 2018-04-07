@@ -6,8 +6,12 @@
 #include <iostream>
 #include <algorithm>
 #include <math.h>
-#include <string.h>
 #include <stdint.h>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>
 #include "CTemporal.h"
 
 #define	MAX_TEMPORAL_MODEL_SIZE 10000
@@ -21,7 +25,7 @@ class CWSum: public CTemporal
 	public:
 
 		CWSum(int idd);
-    CWSum(char* f_name, string f_id);
+    CWSum(const char* f_name, string f_id);
     ~CWSum();
 
     //adds a serie of measurements to the data
@@ -46,7 +50,7 @@ class CWSum: public CTemporal
     void prepare(char* fname);
 
 		int id;
-		double score;
+		double score = 0.0;
 		double w_neg = 2.0, w_pos = 1.0;
 		string fid;
 		const char* fname;

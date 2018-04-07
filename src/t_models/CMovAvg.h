@@ -6,9 +6,13 @@
 #include <iostream>
 #include <algorithm>
 #include <math.h>
-#include <string.h>
+#include <time.h>
 #include <stdint.h>
-#include "CTimer.h"
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>
 #include "CTemporal.h"
 
 #define	MAX_TEMPORAL_MODEL_SIZE 10000
@@ -21,7 +25,7 @@ class CMovAvg: public CTemporal
 	public:
 
 		CMovAvg(int idd);
-    CMovAvg(char* f_name, string f_id,tau_in = 604800);
+    CMovAvg(char* f_name, string f_id, uint32_t tau_in = 604800);
     ~CMovAvg();
 
     //adds a serie of measurements to the data
@@ -49,7 +53,8 @@ class CMovAvg: public CTemporal
 		std::vector<float> states;
 		double score;
 		const char *fname;
-		uint32_t tau;
+		uint32_t tau = 604800;
+		uint32_t max_dif;
 		string fid;
 
 };

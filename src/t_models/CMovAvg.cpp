@@ -10,7 +10,7 @@ CMovAvg::CMovAvg(int idd)
 	type = TT_SUM;
 }
 
-CMovAvg(char* f_name, string f_id, tau_in = 604800){
+CMovAvg(char* f_name, string f_id, uint32_t tau_in){
   tau = tau_in;
 	fname = f_name;
 	fid = f_id;
@@ -25,6 +25,11 @@ void CMovAvg::init(int iMaxPeriod,int elements,int numClasses)
 {
 	string line;
 	ifstream f(fname);
+	max_dif = 1800;
+	score = 0.0;
+
+  double W = 0.0;
+  double E = 0.0;
 
 	if (f.is_open())
 	{
@@ -33,6 +38,7 @@ void CMovAvg::init(int iMaxPeriod,int elements,int numClasses)
 			string map_name;
 			istringstream l(line);
 			string s;
+			uint32_t t_now = time(NULL);
 
 			if(getline(l, s, ' ')){
 					if(fid.compare(s)){
@@ -53,6 +59,11 @@ void CMovAvg::init(int iMaxPeriod,int elements,int numClasses)
 						measurements++;
 						getline(l, s, ' ');
             int state = atoi(s.c_str());
+		        double wi = exp(-1*((t_now-t)/tau));
+		        W += wi;
+		        getline(l, s, ' ');
+		        int stc = atoi(s.c_str());
+		        E += wi*stc;
 						score +=0;//TODO doplnit;
 					}
 			}
@@ -77,7 +88,7 @@ int CMovAvg::add(uint32_t time,float state)
 
 void CMovAvg::update(int modelOrder,unsigned int* times,float* signal,int length)
 {
-  
+
 }
 
 /*text representation of the fremen model*/

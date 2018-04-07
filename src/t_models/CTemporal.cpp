@@ -6,8 +6,8 @@
 const char *temporalModelName[] =
 {
 	"Sum",
-	"W_Sum"
-	"Mov_Avg",
+	"W_Sum",
+	"Mov_Avg"
 };
 
 
@@ -40,8 +40,9 @@ CTemporal* spawnTemporalModel(ETemporalType type, const char* f_name, string f_i
 		case TT_SUM: 		temporalModel = new CSum(f_name,f_id);		break;
 		case TT_W_SUM: 		temporalModel = new CWSum(f_name,f_id);		break;
 		// case TT_MOV_AVG:	temporalModel = new CMovAvg(f_name,f_id));		break;
-		default: 		temporalModel = new CSum(0);
+		default: 		temporalModel = new CSum(f_name,f_id);
 	}
+
 	temporalModel->init(0,0,0);
 	return temporalModel;
 }

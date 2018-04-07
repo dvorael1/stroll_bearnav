@@ -22,6 +22,7 @@ CSum::CSum(const char* f_name, string f_id){
 
 void CSum::init(int iMaxPeriod,int elements,int numClasses)
 {
+	printf("in sum\n");
 	string line;
 	ifstream f(fname);
 	if (f.is_open())
@@ -69,6 +70,7 @@ int CSum::add(uint32_t time,float state)
 	score += (int)state;
 	lastTime = time;
 	measurements++;
+	return 0;
 }
 
 void CSum::update(int modelOrder,unsigned int* times,float* signal,int length)
