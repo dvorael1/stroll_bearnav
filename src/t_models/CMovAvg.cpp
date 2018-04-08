@@ -10,7 +10,7 @@ CMovAvg::CMovAvg(int idd)
 	type = TT_SUM;
 }
 
-CMovAvg(char* f_name, string f_id, uint32_t tau_in){
+CMovAvg::CMovAvg(const char* f_name, string f_id, uint32_t tau_in){
   tau = tau_in;
 	fname = f_name;
 	fid = f_id;
@@ -35,11 +35,10 @@ void CMovAvg::init(int iMaxPeriod,int elements,int numClasses)
 	{
 		while ( getline (f,line) )
 		{
-			string map_name;
 			istringstream l(line);
 			string s;
 			uint32_t t_now = time(NULL);
-
+			t_now = 1523128924;
 			if(getline(l, s, ' ')){
 					if(fid.compare(s)){
 						continue;
@@ -54,19 +53,22 @@ void CMovAvg::init(int iMaxPeriod,int elements,int numClasses)
 						if(firstTime == -1){
 							firstTime = t;
 						}
-            times.push_back(t)
-						lastTime = t;
+            times.push_back(t);
+						lastTime = t_now;
 						measurements++;
 						getline(l, s, ' ');
             int state = atoi(s.c_str());
-		        double wi = exp(-1*((t_now-t)/tau));
+						states.push_back(state);
+		        double wi = exp(-1*(((double)t_now-(double)t)/(double)tau));
 		        W += wi;
-		        getline(l, s, ' ');
-		        int stc = atoi(s.c_str());
-		        E += wi*stc;
-						score +=0;//TODO doplnit;
+		        E += wi*(double)state;
 					}
 			}
+		}
+		if(W==0.0){
+			score = 0.0;
+		}else{
+			score = E/W;
 		}
 		f.close();
 	}
@@ -81,9 +83,24 @@ CMovAvg::~CMovAvg()
 // adds new state observations at given times
 int CMovAvg::add(uint32_t time,float state)
 {
-	score += (int)state;
-	lastTime = time;
-	measurements++;
+	if(time-lastTime>max_dif){
+		score = 0.0;
+	  double W = 0.0;
+	  double E = 0.0;
+
+		for (size_t i = 0; i < times.size(); i++) {
+			uint32_t t = times[i];
+			double wi = exp(-1*(((double)time-(double)t)/(double)tau));
+			int state = states[i];
+			W += wi;
+			E += wi*(double)state;
+		}
+		if(W==0.0){
+			score = 0.0;
+		}else{
+			score = E/W;
+		}
+	}
 }
 
 void CMovAvg::update(int modelOrder,unsigned int* times,float* signal,int length)
@@ -96,12 +113,12 @@ void CMovAvg::print(bool verbose)
 {
 }
 
-float CMovAvg::estimate(uint32_t time)
+double CMovAvg::estimate(uint32_t time)
 {
 	return score;
 }
 
-float CMovAvg::predict(uint32_t time)
+double CMovAvg::predict(uint32_t time)
 {
 	return score;
 }

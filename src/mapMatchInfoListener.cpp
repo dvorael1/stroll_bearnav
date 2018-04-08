@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <stdio.h>
+#include <time.h>
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
@@ -31,7 +32,7 @@ struct MatchInfo{
   float angle;
   float response;
   int octave;
-  int time;
+  uint32_t time;
   string t;
 };
 
@@ -89,7 +90,8 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
          new_mi.angle = msg->map.feature[i].angle;
          new_mi.response = msg->map.feature[i].response;
          new_mi.octave = msg->map.feature[i].octave;
-         new_mi.time = msg->view.header.stamp.sec;
+         // new_mi.time = msg->view.header.stamp.sec;
+         new_mi.time = time(NULL);
          mi.push_back(new_mi);
      }
 

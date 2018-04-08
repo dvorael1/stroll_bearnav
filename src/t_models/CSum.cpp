@@ -83,12 +83,12 @@ void CSum::print(bool verbose)
 {
 }
 
-float CSum::estimate(uint32_t time)
+double CSum::estimate(uint32_t time)
 {
 	return score;
 }
 
-float CSum::predict(uint32_t time)
+double CSum::predict(uint32_t time)
 {
 	return score;
 }

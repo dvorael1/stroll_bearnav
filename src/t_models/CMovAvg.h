@@ -25,7 +25,7 @@ class CMovAvg: public CTemporal
 	public:
 
 		CMovAvg(int idd);
-    CMovAvg(char* f_name, string f_id, uint32_t tau_in = 604800);
+    CMovAvg(const char* f_name, string f_id, uint32_t tau_in = 60);
     ~CMovAvg();
 
     //adds a serie of measurements to the data
@@ -35,8 +35,8 @@ class CMovAvg: public CTemporal
     void init(int maxPeriod,int elements,int numActivities);
 
     //estimates the probability for the given times
-    float estimate(uint32_t time);
-    float predict(uint32_t time);
+    double estimate(uint32_t time);
+    double predict(uint32_t time);
 
     void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0);
     void print(bool verbose=true);
@@ -50,12 +50,13 @@ class CMovAvg: public CTemporal
     void prepare(char* fname);
 
 		std::vector<uint32_t> times;
-		std::vector<float> states;
+		std::vector<int> states;
 		double score;
 		const char *fname;
-		uint32_t tau = 604800;
+		uint32_t tau;
 		uint32_t max_dif;
 		string fid;
+		int id;
 
 };
 

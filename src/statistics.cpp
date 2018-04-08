@@ -72,12 +72,10 @@ void pick_kvantil(double* stcs, int size, double p){
   }else{
     k = features_stcs[(int)index].stc;
   }
-  printf("k = %f\n", k);
   for(int i = 0;i<size;i++){
     if(stcs[i]<k){
       stcs[i] = 0.0;
     }else{
-      printf("pushing %d\n", i);
       stcs[i] = 1.0;
     }
   }
@@ -240,7 +238,8 @@ int prepare_w_sum(char* fname, string mapName, double* stcs, int size, int w1, i
 void prepare_mov_avg(char* fname, std::string mapName, double* stcs, int size){
   string line;
   int t = (int) time (NULL);
-  int tau = 60*60*12;
+  t = 1523128924;
+  int tau = 60;
   ifstream f(fname);
   double W = 0.0;
   double E = 0.0;
@@ -270,15 +269,23 @@ void prepare_mov_avg(char* fname, std::string mapName, double* stcs, int size){
       }
       while (getline(l, s, ' ') && right_map_id)
       {
-        int t1 = atoi(s.c_str());
-        double wi = exp(-1*((t-t1)/tau));
+        uint32_t t1 = atoi(s.c_str());
+        double wi = exp(-1*(((double)t-(double)t1)/(double)tau));
         W += wi;
         getline(l, s, ' ');
         int stc = atoi(s.c_str());
-        E += wi*stc;
+        E += wi*(double)stc;
+
+      }
+      if(right_map_id){
+        if(W==0.0){
+          stcs[index] = 0.0;
+        }else{
+          stcs[index] =  E/W;
+        }
+
       }
 
-      stcs[index] = (double) E/W;
     }
     f.close();
   }

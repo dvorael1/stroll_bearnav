@@ -275,13 +275,13 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					f.close();
 					string type;
 					// int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
-					int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
-					//prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+					// int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
+					prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
 					bool map_models_found = false;
 					vector<double> scores;
 					uint32_t t = time(NULL);
-
-					type = "W_Sum";
+					t = 1523128924;
+					type = "Mov_Avg";
 					for(int i = 0; i<f_ids.size();i++){
 							if(f_ids[i].find(currentMapName)!=string::npos){
 								map_models_found =true;
@@ -303,11 +303,12 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 							models.push_back(model);
 							double score = model->predict(t);
 							scores.push_back(score);
-							printf("i = %d score = %f\n",i,score );
+							printf("stcs[%d] = %f\n",i, stcs[i] );
+							printf("score[%d] = %f\n",i, scores[i] );
+
 						}
 					}
 
-					// vector<double> score;
 					scores.clear();
 					for(int i = 0; i<size; i++){
 						scores.push_back(stcs[i]);

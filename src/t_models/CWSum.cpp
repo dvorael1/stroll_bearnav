@@ -92,12 +92,12 @@ void CWSum::print(bool verbose)
 {
 }
 
-float CWSum::estimate(uint32_t time)
+double CWSum::estimate(uint32_t time)
 {
 	return score;
 }
 
-float CWSum::predict(uint32_t time)
+double CWSum::predict(uint32_t time)
 {
 	return score;
 }

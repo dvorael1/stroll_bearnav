@@ -31,8 +31,8 @@ class CTemporal
 		virtual void init(int maxPeriod,int elements,int numActivities) = 0;
 
 		//estimates the probability for the given times
-		virtual float estimate(uint32_t time) = 0;
-		virtual float predict(uint32_t time) = 0;
+		virtual double estimate(uint32_t time) = 0;
+		virtual double predict(uint32_t time) = 0;
 
 		virtual void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0) = 0;
 		virtual void print(bool verbose=true) = 0;
