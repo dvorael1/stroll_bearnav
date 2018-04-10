@@ -30,7 +30,7 @@ void CBestStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors
   vector<KeyPoint> tmp(*keypoints);
   keypoints->clear();
   for(int i = 0; i<n; i++){
-      keypoints->push_back(tmp[features_stcs[i].index]);
-      descriptors->push_back(tmp_mat.row(features_stcs[i].index));
+      // keypoints->push_back(tmp[features_stcs[i].index]);
+      // descriptors->push_back(tmp_mat.row(features_stcs[i].index));
   }
 }

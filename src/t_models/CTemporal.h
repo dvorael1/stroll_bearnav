@@ -54,7 +54,7 @@ class CTemporal
 };
 
 CTemporal* spawnTemporalModel(const char* type,int maxPeriod,int elements,int numClasses);
-CTemporal* spawnTemporalModel(const char* type,const char* f_name, string f_id, char* args, int size);
+CTemporal* spawnTemporalModel(const char* type, string f_id);
 CTemporal* spawnTemporalModel(ETemporalType type,int maxPeriod,int elements,int numClasses);
-CTemporal* spawnTemporalModel(ETemporalType type, const char* f_name, string f_id, char* args, int size);
+CTemporal* spawnTemporalModel(ETemporalType type, string f_id);
 #endif

@@ -25,7 +25,7 @@ class CMovAvg: public CTemporal
 	public:
 
 		CMovAvg(int idd);
-    CMovAvg(const char* f_name, string f_id, uint32_t tau_in = 60);
+    CMovAvg(string f_id);
     ~CMovAvg();
 
     //adds a serie of measurements to the data

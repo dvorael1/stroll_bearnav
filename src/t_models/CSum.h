@@ -27,7 +27,7 @@ struct SSum{
 class CSum: public CTemporal{
 	public:
     CSum(int idd);
-    CSum(const char* f_name, string f_id);
+    CSum(string f_id);
     ~CSum();
 		//adds a serie of measurements to the data
 		int add(uint32_t time,float state);
@@ -51,7 +51,6 @@ class CSum: public CTemporal{
 
     int id;
     string fid;
-    const char* fname;
     double score=0.0;
 
 };

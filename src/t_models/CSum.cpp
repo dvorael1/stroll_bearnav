@@ -10,8 +10,9 @@ CSum::CSum(int idd)
 	type = TT_SUM;
 }
 
-CSum::CSum(const char* f_name, string f_id){
-	fname = f_name;
+CSum::CSum(string f_id){
+	score = 0.0;
+
 	fid = f_id;
 	order = 0;
 	firstTime = -1;
@@ -22,42 +23,8 @@ CSum::CSum(const char* f_name, string f_id){
 
 void CSum::init(int iMaxPeriod,int elements,int numClasses)
 {
-	printf("in sum\n");
-	string line;
-	ifstream f(fname);
-	if (f.is_open())
-	{
-		while ( getline (f,line) )
-		{
-			string map_name;
-			istringstream l(line);
-			string s;
 
-			if(getline(l, s, ' ')){
-					if(fid.compare(s)){
-						continue;
-					}
-					for(int i = 0; i<6;i++){
-						getline(l, s, ' ');
-					}
-
-					while (getline(l, s, ' '))
-					{
-						uint32_t t = atoi(s.c_str());
-						if(firstTime == -1){
-							firstTime = t;
-						}
-						lastTime = t;
-						measurements++;
-						getline(l, s, ' ');
-						score += atoi(s.c_str());
-					}
-			}
-		}
-		f.close();
-	}
-
-
+	score = 0.0;
 }
 
 CSum::~CSum()

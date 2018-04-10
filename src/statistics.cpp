@@ -239,7 +239,7 @@ void prepare_mov_avg(char* fname, std::string mapName, double* stcs, int size){
   string line;
   int t = (int) time (NULL);
   t = 1523128924;
-  int tau = 60;
+  int tau =60;
   ifstream f(fname);
   double W = 0.0;
   double E = 0.0;

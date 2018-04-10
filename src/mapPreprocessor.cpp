@@ -272,16 +272,16 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 				}
 				if (f.is_open())
 				{
-					f.close();
 					string type;
-					// int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+					int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
 					// int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
-					prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+					// prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
 					bool map_models_found = false;
 					vector<double> scores;
 					uint32_t t = time(NULL);
 					t = 1523128924;
-					type = "Mov_Avg";
+					type = "Sum";
+
 					for(int i = 0; i<f_ids.size();i++){
 							if(f_ids[i].find(currentMapName)!=string::npos){
 								map_models_found =true;
@@ -295,30 +295,75 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 					}
 					if(!map_models_found){
-						for(int i = 0; i<keypoints_1.size();i++){
-							string id = to_string(i) + "_" + currentMapName;
-							char* fname = "/home/eliska/stroll/statistics/statistics.txt";
-							CTemporal* model = spawnTemporalModel(type.c_str(),fname, id, nullptr, 0);
-							f_ids.push_back(id);
-							models.push_back(model);
-							double score = model->predict(t);
-							scores.push_back(score);
-							printf("stcs[%d] = %f\n",i, stcs[i] );
-							printf("score[%d] = %f\n",i, scores[i] );
+						string line;
+						bool id_found = false;
+						CTemporal* model;
+						int start_index = f_ids.size();
+							for(int i = 0; i<keypoints_1.size();i++){
+								string id = to_string(i) + "_" + currentMapName;
+
+								f_ids.push_back(id);
+								models.push_back(spawnTemporalModel(type.c_str(), id));
+							}
+								id_found = false;
+
+								while ( getline (f,line))
+								{
+									string id;
+									string map_name;
+									istringstream l(line);
+									string s;
+
+									if(getline(l, s, ' ')){
+										for(int j = 0;j<keypoints_1.size();j++){
+											id = f_ids[start_index +j];
+											if(id.compare(s)==0){
+												id_found = true;
+												model = models[start_index + j];
+												break;
+
+											}
+										}
+										if(!id_found){
+											continue;
+										}
+										for(int i = 0; i<6;i++){
+											getline(l, s, ' ');
+										}
+
+										while (getline(l, s, ' '))
+										{
+											uint32_t t = atoi(s.c_str());
+
+											getline(l, s, ' ');
+											float state = (float)atoi(s.c_str());
+											model->add(t,state);
+										}
+										id_found = false;
+									}
+									double score = model->predict(t);
+									scores.push_back(score);
+								}
 
 						}
-					}
 
-					scores.clear();
+					f.close();
+					// scores.clear();
 					for(int i = 0; i<size; i++){
-						scores.push_back(stcs[i]);
+						// scores.push_back(stcs[i]);
+
+						printf("stcs[%d] = %f\n",i, stcs[i] );
+						printf("score[%d] = %f\n",i, scores[i] );
+
 					}
 
 					type = "Best";
 					CStrategy* strategy = spawnStrategy(type.c_str());
 					strategy->filterFeatures(&keypoints_1,&descriptors_1, scores);
+					}
+
 				}
-			}
+
 			for(int i=0;i<keypoints_1.size();i++)
 			{
 					feature.x=keypoints_1[i].pt.x;

@@ -7,12 +7,11 @@ CMovAvg::CMovAvg(int idd)
 	firstTime = -1;
 	lastTime = -1;
 	measurements = 0;
-	type = TT_SUM;
+	type = TT_MOV_AVG;
 }
 
-CMovAvg::CMovAvg(const char* f_name, string f_id, uint32_t tau_in){
-  tau = tau_in;
-	fname = f_name;
+CMovAvg::CMovAvg(string f_id){
+  tau = 60;
 	fid = f_id;
 	order = 0;
 	firstTime = -1;
@@ -27,9 +26,9 @@ void CMovAvg::init(int iMaxPeriod,int elements,int numClasses)
 	ifstream f(fname);
 	max_dif = 1800;
 	score = 0.0;
-
   double W = 0.0;
   double E = 0.0;
+	tau = 60;
 
 	if (f.is_open())
 	{

@@ -10,8 +10,9 @@ CWSum::CWSum(int idd)
 	type = TT_W_SUM;
 }
 
-CWSum::CWSum(const char* f_name, string f_id){
-	fname = f_name;
+CWSum::CWSum(string f_id){
+	score = 0.0;
+	
 	fid = f_id;
 	order = 0;
 	firstTime = -1;
@@ -22,46 +23,9 @@ CWSum::CWSum(const char* f_name, string f_id){
 
 void CWSum::init(int iMaxPeriod,int elements,int numClasses)
 {
-
-	string line;
-	ifstream f(fname);
-	if (f.is_open())
-	{
-		while ( getline (f,line) )
-		{
-			string map_name;
-			istringstream l(line);
-			string s;
-
-			if(getline(l, s, ' ')){
-					if(fid.compare(s)){
-						continue;
-					}
-					for(int i = 0; i<6;i++){
-						getline(l, s, ' ');
-					}
-
-					while (getline(l, s, ' '))
-					{
-						uint32_t t = atoi(s.c_str());
-						if(firstTime == -1){
-							firstTime = t;
-						}
-						lastTime = t;
-						measurements++;
-						getline(l, s, ' ');
-						int state = atoi(s.c_str());
-						if(state>0){
-							score += w_pos*state;
-						}else{
-							score += w_neg*state;
-						}
-					}
-			}
-		}
-		f.close();
-	}
-
+	w_neg = 2.0;
+	w_pos = 1.0;
+	score = 0.0;
 
 }
 
