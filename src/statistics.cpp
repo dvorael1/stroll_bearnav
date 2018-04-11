@@ -241,14 +241,14 @@ void prepare_mov_avg(char* fname, std::string mapName, double* stcs, int size){
   t = 1523128924;
   int tau =60;
   ifstream f(fname);
-  double W = 0.0;
-  double E = 0.0;
 
   if (f.is_open())
   {
 
     while ( getline (f,line) )
     {
+      double W = 0.0;
+      double E = 0.0;
       int was_ok = 0;
       vector<string> strings;
       istringstream l(line);
@@ -262,6 +262,7 @@ void prepare_mov_avg(char* fname, std::string mapName, double* stcs, int size){
           size_t pos = s.find("_");
           string s_index = s.substr(0,pos);
           index = atoi(s_index.c_str());
+          stcs[index] = 0.0;
           for(int i = 0; i<6;i++){
             getline(l, s, ' ');
           }
