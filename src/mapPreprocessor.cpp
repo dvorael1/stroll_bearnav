@@ -1,5 +1,4 @@
 #include <ros/ros.h>
-#include "statistics.h"
 #include "strategies/CStrategy.h"
 #include "t_models/CTemporal.h"
 #include <image_transport/image_transport.h>
@@ -267,20 +266,13 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 			if(keypoints_1.size()>0){
 
 				ifstream f("/home/eliska/stroll/statistics/statistics.txt");
-				for(int i = 0; i<keypoints_1.size();i++){
-					stcs[i] = 0.0;
-				}
 				if (f.is_open())
 				{
 					string type;
-					// int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
-					// int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
-					prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
 					bool map_models_found = false;
 					vector<double> scores;
 					uint32_t t = time(NULL);
-					t = 1523128924;
-					type = "Mov_Avg";
+					type = "Time_Mean";
 
 					for(int i = 0; i<f_ids.size();i++){
 							if(f_ids[i].find(currentMapName)!=string::npos){
@@ -348,17 +340,11 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						}
 
 					f.close();
-					for(int i = 0; i<10	; i++){
-						printf("stcs[%d] = %f\n",i, stcs[i] );
-						printf("score[%d] = %f\n",i, scores[i] );
-
-					}
 
 					type = "Best";
 					CStrategy* strategy = spawnStrategy(type.c_str());
 					strategy->filterFeatures(&keypoints_1,&descriptors_1, scores);
 					}
-					printf("size = %d",keypoints_1.size());
 
 				}
 

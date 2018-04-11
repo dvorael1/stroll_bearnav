@@ -14,11 +14,23 @@ CTimeMean::CTimeMean(int idd)
 	type = TT_MEAN;
 }
 
+CTimeMean::CTimeMean(string f_id)
+{
+	fid=f_id;
+	firstTime = -1;
+	lastTime = -1;
+	measurements = 0;
+	maxPeriod = 0;
+	numElements = 0;
+	positive = 0;
+	type = TT_MEAN;
+}
+
 void CTimeMean::init(int iMaxPeriod,int elements,int numClasses)
 {
 	maxPeriod = iMaxPeriod;
 	numElements = 1;
-	estimation = 1.0/numClasses; 
+	estimation = 1.0/numClasses;
 }
 
 CTimeMean::~CTimeMean()
@@ -33,7 +45,7 @@ int CTimeMean::add(uint32_t time,float state)
 	lastTime = time;
 	positive=positive+state;
 	measurements++;
-	return 0; 
+	return 0;
 }
 
 /*not required in incremental version*/
@@ -47,15 +59,15 @@ void CTimeMean::print(bool verbose)
 {
 	std::cout << "Model " << id << " Size: " << measurements << " ";
 	if (verbose){
-		printf("Mean: "); 
+		printf("Mean: ");
 		printf("%.3f ",positive/measurements);
 	}
-	printf("\n"); 
+	printf("\n");
 }
 
 float CTimeMean::estimate(uint32_t time)
 {
-	float estimate = estimation;//positive/measurements; 
+	float estimate = estimation;//positive/measurements;
 	float saturation = 0.001;
 	if (estimate > 1.0-saturation) estimate =  1.0-saturation;
 	if (estimate < 0.0+saturation) estimate =  0.0+saturation;
@@ -64,7 +76,7 @@ float CTimeMean::estimate(uint32_t time)
 
 float CTimeMean::predict(uint32_t time)
 {
-	float estimate = estimation; 
+	float estimate = estimation;
 	float saturation = 0.001;
 	if (estimate > 1.0-saturation) estimate =  1.0-saturation;
 	if (estimate < 0.0+saturation) estimate =  0.0+saturation;
@@ -120,7 +132,7 @@ int CTimeMean::importFromArray(double* array,int len)
 	type = (ETemporalType)array[pos++];
 	if (type != TT_MEAN) fprintf(stderr,"Error loading the model, type mismatch.\n");
 	positive = array[pos++];
-	id = array[pos++];  
+	id = array[pos++];
 	measurements = array[pos++];
 	update(0);
 	return pos;
