@@ -36,8 +36,8 @@ class CSum: public CTemporal{
     void init(int maxPeriod,int elements,int numActivities);
 
 		//estimates the probability for the given times
-    double estimate(uint32_t time);
-    double predict(uint32_t time);
+    float estimate(uint32_t time);
+    float predict(uint32_t time);
 
     void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0);
     void print(bool verbose=true);

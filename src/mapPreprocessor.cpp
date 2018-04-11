@@ -273,14 +273,14 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 				if (f.is_open())
 				{
 					string type;
-					int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+					// int max = prepare_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
 					// int max = prepare_w_sum("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size,1,2);
-					// prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
+					prepare_mov_avg("/home/eliska/stroll/statistics/statistics.txt",currentMapName,stcs,size);
 					bool map_models_found = false;
 					vector<double> scores;
 					uint32_t t = time(NULL);
 					t = 1523128924;
-					type = "Sum";
+					type = "Mov_Avg";
 
 					for(int i = 0; i<f_ids.size();i++){
 							if(f_ids[i].find(currentMapName)!=string::npos){
@@ -348,10 +348,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						}
 
 					f.close();
-					// scores.clear();
-					for(int i = 0; i<size; i++){
-						// scores.push_back(stcs[i]);
-
+					for(int i = 0; i<10	; i++){
 						printf("stcs[%d] = %f\n",i, stcs[i] );
 						printf("score[%d] = %f\n",i, scores[i] );
 
@@ -361,6 +358,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					CStrategy* strategy = spawnStrategy(type.c_str());
 					strategy->filterFeatures(&keypoints_1,&descriptors_1, scores);
 					}
+					printf("size = %d",keypoints_1.size());
 
 				}
 

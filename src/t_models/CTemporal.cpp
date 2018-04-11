@@ -3,13 +3,14 @@
 #include "CWSum.h"
 #include "CMovAvg.h"
 #include "CMovAvg.h"
-// #include "CTimeMean.h"
+#include "CTimeMean.h"
 
 const char *temporalModelName[] =
 {
 	"Sum",
 	"W_Sum",
-	"Mov_Avg"
+	"Mov_Avg",
+	"Time_Mean"
 };
 
 
