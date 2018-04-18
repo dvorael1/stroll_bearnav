@@ -140,7 +140,7 @@ int loadMaps()
 			sprintf(fileName,"Loading map %i/%i",i+1,numMaps);
 			feedback.fileName = fileName;
 			feedback.numFeatures=numFeatures;
-			feedback.mapIndex=numMaps;
+			feedback.mapIndex=i;
 			server->publishFeedback(feedback);
 		}
 

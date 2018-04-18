@@ -11,11 +11,15 @@
 #include "std_msgs/Float32.h"
 #include <stroll_bearnav/NavigationInfo.h>
 #include <stroll_bearnav/FeatureArray.h>
-#include <actionlib/server/simple_action_server.h>
+//#include <actionlib/server/simple_action_server.h>
 #include <signal.h>
 #include <ros/xmlrpc_manager.h>
 #include <ros/callback_queue.h>
 #include <opencv2/opencv.hpp>
+#include <actionlib/client/simple_action_client.h>
+//#include <actionlib/client/terminal_state.h>
+#include <stroll_bearnav/loadMapAction.h>
+#include <stroll_bearnav/navigatorAction.h>
 
 #include <std_msgs/Int32.h>
 
@@ -39,6 +43,9 @@ struct MatchInfo{
 bool volatile exitting = false;
 bool volatile is_working = 0;
 ros::CallbackQueue* my_queue;
+ros::Publisher dist_pub_;
+std_msgs::Float32 dist_;
+float totalDist = 0;
 
 void mySigHandler(int sig)
 {
@@ -164,8 +171,46 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
      }
    }
   is_working = 0;
+  totalDist += 0.2;
+  dist_.data=totalDist;
+  dist_pub_.publish(dist_);
 }
 
+int numPrimaryMaps 	= 0;
+int primaryMapIndex 	= 0;
+int numSecondaryMaps 	= 0;
+int secondaryMapIndex 	= 0;
+int mapsResponded 	= 0;
+
+/*Map loader feedback for debugging*/
+void feedbackMapCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
+{
+	numPrimaryMaps = feedback->numberOfMaps;
+	primaryMapIndex = feedback->mapIndex;
+//	ROS_INFO("Primary map: %s",feedback->fileName.c_str());
+}
+
+void feedbackViewCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
+{
+	numSecondaryMaps = feedback->numberOfMaps;
+	secondaryMapIndex = feedback->mapIndex;
+//	ROS_INFO("Secondary map: %s",feedback->fileName.c_str());
+}
+
+void doneMapCb(const actionlib::SimpleClientGoalState& state,const stroll_bearnav::loadMapResultConstPtr& result)
+{ 
+	ROS_INFO("Primary map client reports %s: Map covers %.3f meters and contains %i features in %i submaps.", state.toString().c_str(),result->distance,result->numFeatures,result->numMaps);
+}
+
+void doneViewCb(const actionlib::SimpleClientGoalState& state,const stroll_bearnav::loadMapResultConstPtr& result)
+{
+	ROS_INFO("Secondary map client reports %s: Map covers %.3f meters and contains %i features in %i submaps.", state.toString().c_str(),result->distance,result->numFeatures,result->numMaps);
+}
+
+void activeCb()
+{
+	mapsResponded++;
+}
 
 int main(int argc, char **argv)
 {
@@ -184,6 +229,49 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
+	dist_pub_=n.advertise<std_msgs::Float32>("/distance",1);
+	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_view("map_preprocessor_view", true);
+	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_map("map_preprocessor_map", true);
+	actionlib::SimpleActionClient<stroll_bearnav::navigatorAction> nav("navigator", true);
+	mp_map.waitForServer(); 
+	ROS_INFO("Primary map server responding");
+	mp_view.waitForServer(); 
+	ROS_INFO("Secondary map server responding");
+	nav.waitForServer(); 
+	ROS_INFO("Navigator server responding");
+
+	bool finished_before_timeout = true;
+
+	stroll_bearnav::loadMapGoal mapGoal;
+	stroll_bearnav::navigatorGoal navGoal;
+	mapGoal.prefix = "B";
+	navGoal.traversals = 1;
+
+	mp_view.sendGoal(mapGoal,&doneMapCb,&activeCb,&feedbackMapCb);
+	mp_map.sendGoal(mapGoal,&doneViewCb,&activeCb,&feedbackViewCb);
+
+	while (mapsResponded < 2) sleep(1);
+	
+	while (primaryMapIndex != numPrimaryMaps)
+	{
+		sleep(1);
+		ROS_INFO("Waiting for primary map load %i of %i.",primaryMapIndex,numPrimaryMaps);
+	}
+	while (secondaryMapIndex != numSecondaryMaps)
+	{
+		sleep(1);
+		ROS_INFO("Waiting for secondary map load %i of %i.",secondaryMapIndex,numSecondaryMaps);
+	}
+
+	ROS_INFO("Goals send");
+	nav.sendGoal(navGoal);
+
+	is_working = 0;
+	totalDist += 0.2;
+	dist_.data=totalDist;
+	dist_pub_.publish(dist_);
+
+
 	while(ros::ok && !exitting)
 	{
 		if(exitting && !is_working){

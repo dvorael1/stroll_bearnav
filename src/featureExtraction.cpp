@@ -148,7 +148,6 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 		return;
 	}
 	img=cv_ptr->image;
-
 	/* Detect image features */
 	t = clock();
 	if(optimized && adaptThreshold){
@@ -202,7 +201,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 	feat_pub_.publish(featureArray);
 
 	/*and if there are any consumers, publish image with features*/
-	if (image_pub_.getNumSubscribers()>0)
+	if (image_pub_.getNumSubscribers()>0 && msg->height*msg->width > 0)
 	{
 		/* Show all detected features in image (Red)*/
 		drawKeypoints( img, keypoints, cv_ptr->image, Scalar(0,0,255), DrawMatchesFlags::DEFAULT );
@@ -262,7 +261,7 @@ int main(int argc, char** argv)
 
 	feat_pub_ = nh_.advertise<stroll_bearnav::FeatureArray>("/features",1);
 	image_sub_ = it_.subscribe( "/image", 1,imageCallback);
-    ros::Subscriber key_sub = nh_.subscribe("/targetKeypoints", 1, keypointCallback);
+	ros::Subscriber key_sub = nh_.subscribe("/targetKeypoints", 1, keypointCallback);
 	image_pub_ = it_.advertise("/image_with_features", 1);
 
 
