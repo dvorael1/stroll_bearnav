@@ -383,6 +383,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 
 
 		feedback.histogram.clear();
+		info.displacement = differenceRot;
 		if (count<minGoodFeatures) differenceRot = 0;
 		for (int i = 0;i<numBins;i++) feedback.histogram.push_back(histogram[i]);
 

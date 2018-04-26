@@ -1,4 +1,5 @@
 float32 ratio                           #matching ratio
+float32 displacement                    #pixelDisplacement
 stroll_bearnav/FeatureArray map         #features from the current map
 stroll_bearnav/FeatureArray view	#features from the current view
 int32[] histogram    			#navigation histogram

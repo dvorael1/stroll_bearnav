@@ -146,7 +146,7 @@ void executeCB(const stroll_bearnav::mapperGoalConstPtr &goal, Server *serv)
 	baseName = goal->fileName;
 	path.clear();
 	state = SAVING;
-	if (!client.call(srv)) ROS_ERROR("Failed to call service SetDistance provided by odometry_monitor node!"); else ROS_ERROR("Odometry reset called!");
+	if (!client.call(srv)) ROS_ERROR("Failed to call service SetDistance provided by odometry_monitor node!");
 	while(state == MAPPING || state == SAVING){
 
 		/*on preempt request end mapping and save current map */
@@ -216,7 +216,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 		keypoints.clear();
 		descriptors.release();
 
-		for(int i=0; i<msg->feature.size();i++){
+		for(int i=0; i<50/*msg->feature.size()*/;i++){
 
 			keypoint.pt.x=msg->feature[i].x;
 			keypoint.pt.y=msg->feature[i].y;

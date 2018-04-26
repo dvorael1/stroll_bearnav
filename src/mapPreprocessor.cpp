@@ -44,7 +44,7 @@ stroll_bearnav::FeatureArray featureArray;
 stroll_bearnav::Feature feature;
 
 /* map variables */
-Mat img,img2;
+Mat img;
 vector<KeyPoint> keypoints_1,keypoints_2;
 string currentMapName;
 float currentDistance = -1.0;
