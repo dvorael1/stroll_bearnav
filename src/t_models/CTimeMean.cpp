@@ -65,6 +65,11 @@ void CTimeMean::print(bool verbose)
 	printf("\n");
 }
 
+void CTimeMean::setParam(float param)
+{
+
+}
+
 float CTimeMean::estimate(uint32_t time)
 {
 	float estimate = estimation;//positive/measurements;

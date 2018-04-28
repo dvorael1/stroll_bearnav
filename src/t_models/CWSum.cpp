@@ -12,7 +12,7 @@ CWSum::CWSum(int idd)
 
 CWSum::CWSum(string f_id){
 	score = 0.0;
-	
+
 	fid = f_id;
 	order = 0;
 	firstTime = -1;
@@ -23,8 +23,7 @@ CWSum::CWSum(string f_id){
 
 void CWSum::init(int iMaxPeriod,int elements,int numClasses)
 {
-	w_neg = 2.0;
-	w_pos = 1.0;
+	w = 2.0;
 	score = 0.0;
 
 }
@@ -38,9 +37,9 @@ int CWSum::add(uint32_t time,float state)
 {
 	int s = (int)state;
 	if(s<0){
-		score += w_neg*s;
+		score += w*s;
 	}else{
-		score += w_pos*s;
+		score += s;
 	}
 	lastTime = time;
 	measurements++;
@@ -54,6 +53,11 @@ void CWSum::update(int modelOrder,unsigned int* times,float* signal,int length)
 /*text representation of the fremen model*/
 void CWSum::print(bool verbose)
 {
+}
+
+void CWSum::setParam(float param)
+{
+
 }
 
 float CWSum::estimate(uint32_t time)

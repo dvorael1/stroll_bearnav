@@ -44,6 +44,7 @@ class CFrelement: public CTemporal
 
 		void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0);
 		void print(bool verbose=true);
+		void setParam(float param);
 
 		int exportToArray(double* array,int maxLen);
 		int importFromArray(double* array,int len);

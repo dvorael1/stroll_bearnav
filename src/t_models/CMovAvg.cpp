@@ -54,6 +54,11 @@ void CMovAvg::print(bool verbose)
 {
 }
 
+void CMovAvg::setParam(float param)
+{
+	tau = param;
+}
+
 float CMovAvg::estimate(uint32_t time)
 {
 	if(time-lastTime>max_dif || lastTime == -1){

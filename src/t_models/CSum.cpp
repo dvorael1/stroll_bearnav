@@ -50,6 +50,11 @@ void CSum::print(bool verbose)
 {
 }
 
+void CSum::setParam(float param)
+{
+
+}
+
 float CSum::estimate(uint32_t time)
 {
 	return score;

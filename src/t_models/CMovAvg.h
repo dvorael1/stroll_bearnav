@@ -40,6 +40,7 @@ class CMovAvg: public CTemporal
 
     void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0);
     void print(bool verbose=true);
+		void setParam(float param);
 
     int exportToArray(double* array,int maxLen);
     int importFromArray(double* array,int len);
@@ -53,7 +54,7 @@ class CMovAvg: public CTemporal
 		std::vector<int> states;
 		double score;
 		const char *fname;
-		uint32_t tau;
+		float tau;
 		uint32_t max_dif;
 		string fid;
 		int id;
