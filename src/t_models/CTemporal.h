@@ -38,6 +38,7 @@ class CTemporal
 
 		virtual void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0) = 0;
 		virtual void print(bool verbose=true) = 0;
+		virtual void setParam(float param)=0;
 
 		virtual int exportToArray(double* array,int maxLen) = 0;
 		virtual int importFromArray(double* array,int len) = 0;

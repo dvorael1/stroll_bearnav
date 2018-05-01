@@ -62,6 +62,8 @@ string prefix;
 bool stop = false;
 std::vector<string> f_ids;
 std::vector<CTemporal*> models;
+string stc_fname;
+bool statistics = false;
 
 /*map to be preloaded*/
 vector<vector<KeyPoint> > keypointsMap;
@@ -263,9 +265,9 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 			int size = keypoints_1.size();
 			int len =max(size,1);
 			double stcs[len];
-			if(keypoints_1.size()>0){
+			if(keypoints_1.size()>0 && statistics){
 
-				ifstream f("/home/eliska/stroll/statistics/statistics.txt");
+				ifstream f(stc_fname.c_str());
 				if (f.is_open())
 				{
 					string type;
@@ -383,6 +385,10 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh_;
 	image_transport::ImageTransport it_(nh_);
 	ros::param::get("~folder", folder);
+	if(argc>2){
+		ros::param::get("~stc_fname", stc_fname);
+		statistics = true;
+	}
 	cmd_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd",1);
 	pathPub = nh_.advertise<stroll_bearnav::PathProfile>("/pathProfile",1);
 	dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance", 1,distCallback);

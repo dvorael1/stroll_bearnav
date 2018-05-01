@@ -142,6 +142,10 @@ void CFrelement::print(bool verbose)
 	}
 	std::cout << endl;
 }
+void CFrelement::setParam(float param)
+{
+
+}
 
 float CFrelement::estimate(uint32_t time)
 {
