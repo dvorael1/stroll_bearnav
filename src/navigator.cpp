@@ -315,7 +315,6 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 			int differences[num];
 
 			for (int i=0;i<num;i++){
-
 				int idx2=good_matches[i].trainIdx;
 				int idx1=good_matches[i].queryIdx;
 				matched_points1.push_back(mapKeypoints[idx1].pt);
@@ -437,9 +436,12 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 				}
 				if (showAllMatches){
 					drawMatches(mapIm,kpMap,curIm,kpCur,good_matches,outtran,Scalar(0,0,255),Scalar(0,0,255),vector<char>(),0);
+					//drawMatches(curIm,kpCur,mapIm,kpMap,good_matches,outtran,Scalar(0,0,255),Scalar(0,0,255),vector<char>(),0);
 					if (showGoodMatches) drawMatches(mapIm,kpMap,curIm,kpCur,best_matches,outtran,Scalar(0,255,0),Scalar(0,255,0),vector<char>(),3);
+					//if (showGoodMatches) drawMatches(curIm,kpCur,mapIm,kpMap,best_matches,outtran,Scalar(0,255,0),Scalar(0,255,0),vector<char>(),3);
 				}else{
 					if (showGoodMatches) drawMatches(mapIm,kpMap,curIm,kpCur,best_matches,outtran,Scalar(0,255,0),Scalar(0,255,0),vector<char>(),2);
+					//if (showGoodMatches) drawMatches(curIm,kpCur,mapIm,kpMap,best_matches,outtran,Scalar(0,255,0),Scalar(0,255,0),vector<char>(),2);
 				}
 				output = outtran.t();
 				std_msgs::Header header;
