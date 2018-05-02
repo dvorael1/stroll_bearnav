@@ -237,10 +237,15 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 		/*determine the norm for feature matching*/
 		if (msg->feature.size() > 0){
 			ROS_INFO("Norm is %i",msg->feature[0].class_id);
-			if (msg->feature[0].class_id != -1 && featureNorm != msg->feature[0].class_id)
+
+			if (/*msg->feature[0].class_id != -1 &&*/ featureNorm != msg->feature[0].class_id)
 			{
 				matcher.release();
-				featureNorm = (NormTypes) msg->feature[0].class_id;
+				if (msg->feature[0].class_id == -1){
+					featureNorm = NORM_HAMMING; //TODO how come its not in MAP????
+				}else{
+					featureNorm = (NormTypes) msg->feature[0].class_id;
+				}
 				if (featureNorm == NORM_HAMMING ||featureNorm == NORM_HAMMING2) descriptorType = CV_8U; else descriptorType = CV_32FC1;
 				matcher = BFMatcher::create(featureNorm);
 				ROS_INFO("Matcher switched to %i",featureNorm);
@@ -286,7 +291,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 		int count=0,bestc=0;
 		std::vector< DMatch > best_matches;
 		if (mapKeypoints.size() >0 && currentKeypoints.size() >0){
-
+			printf("mapKeypoints %zu curKeypoints %zu\n", mapKeypoints.size(),currentKeypoints.size());
 			/*feature matching*/
 			vector< vector<DMatch> > matches;
 			try{

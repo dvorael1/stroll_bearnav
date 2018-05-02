@@ -16,12 +16,15 @@
 #include <ros/xmlrpc_manager.h>
 #include <ros/callback_queue.h>
 #include <opencv2/opencv.hpp>
+#include <dynamic_reconfigure/server.h>
+#include <stroll_bearnav/listenerConfig.h>
 
 #include <std_msgs/Int32.h>
 
 using namespace cv;
 using namespace std;
 char* fname;
+uint32_t currentTime;
 
 struct MatchInfo{
   char id[300];
@@ -48,6 +51,10 @@ void mySigHandler(int sig)
   printf("exitting\n");
 }
 
+void callback(stroll_bearnav::listenerConfig &config, uint32_t level)
+{
+	currentTime=config.currentTime;
+}
 
 void shutdownCallback(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result)
 {
@@ -90,8 +97,9 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
          new_mi.angle = msg->map.feature[i].angle;
          new_mi.response = msg->map.feature[i].response;
          new_mi.octave = msg->map.feature[i].octave;
-         // new_mi.time = msg->view.header.stamp.sec;
-         new_mi.time = time(NULL);
+         new_mi.time = currentTime;
+         //TODO do navigation info pridat cas explicitne
+         // new_mi.time = time(NULL);
          mi.push_back(new_mi);
      }
 
@@ -184,6 +192,9 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
+  dynamic_reconfigure::Server<stroll_bearnav::listenerConfig> server;
+	dynamic_reconfigure::Server<stroll_bearnav::listenerConfig>::CallbackType f = boost::bind(&callback, _1, _2);
+	server.setCallback(f);
 	while(ros::ok && !exitting)
 	{
 		if(exitting && !is_working){

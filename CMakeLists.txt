@@ -101,6 +101,7 @@ add_service_files(
 	cfg/featureExtraction.cfg
 	cfg/navigator.cfg
     cfg/supervisor.cfg
+	 cfg/listener.cfg
  )
 
 ###################################

@@ -2,7 +2,7 @@
 
 <!-- Default folders with maps-->
 
-<arg name="folder_map" default="$(env HOME)/projects/eliska/maps/day_0"/>
+<arg name="folder_map" default="$(env HOME)/stroll/nova/"/>
 <arg name="folder_view" default="$(env HOME)/projects/eliska/maps/day_1"/>
 
 <!-- feature extraction -->

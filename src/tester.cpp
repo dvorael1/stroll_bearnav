@@ -43,7 +43,7 @@ struct MatchInfo{
 FILE *mapFile, *viewFile;
 string mapFolder,viewFolder;
 bool volatile exitting = false;
-bool generateDatasets = false;
+bool generateDatasets = true;
 bool volatile is_working = 0;
 ros::CallbackQueue* my_queue;
 ros::Publisher dist_pub_;
@@ -97,6 +97,12 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 		displacementGT = offsetView - offsetMap;
 	}
 	fprintf(stdout,"DISPLACEMENT: %.3f %.3f\n",displacementGT,msg->displacement);
+  ofstream f;
+  f.open("/home/eliska/stroll/displacement.txt",ios::app);
+  if(f.is_open()){
+    f<<displacementGT<<" "<<msg->displacement<<endl;
+    f.close();
+  }
 	if(size>0)
 	{
 		for(int i = 0; i<size;i++)
@@ -216,7 +222,7 @@ void feedbackViewCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
 }
 
 void doneMapCb(const actionlib::SimpleClientGoalState& state,const stroll_bearnav::loadMapResultConstPtr& result)
-{ 
+{
 	ROS_INFO("Primary map client reports %s: Map covers %.3f meters and contains %i features in %i submaps.", state.toString().c_str(),result->distance,result->numFeatures,result->numMaps);
 }
 
@@ -236,7 +242,7 @@ void mapImageCallback(const sensor_msgs::ImageConstPtr& msg)
 	cv_bridge::CvImagePtr cv_ptr;
 	cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
 	char fileName[1000];
-	sprintf(fileName,"%s/%09i.bmp",mapFolder.c_str(),mapImageNum++);	
+	sprintf(fileName,"%s/%09i.bmp",mapFolder.c_str(),mapImageNum++);
 	imwrite(fileName,cv_ptr->image);
 }
 
@@ -289,11 +295,11 @@ int main(int argc, char **argv)
 	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_view("map_preprocessor_view", true);
 	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_map("map_preprocessor_map", true);
 	actionlib::SimpleActionClient<stroll_bearnav::navigatorAction> nav("navigator", true);
-	mp_map.waitForServer(); 
+	mp_map.waitForServer();
 	ROS_INFO("Primary map server responding");
-	mp_view.waitForServer(); 
+	mp_view.waitForServer();
 	ROS_INFO("Secondary map server responding");
-	nav.waitForServer(); 
+	nav.waitForServer();
 	ROS_INFO("Navigator server responding");
 
 	bool finished_before_timeout = true;
