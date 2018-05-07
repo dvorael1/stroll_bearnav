@@ -55,7 +55,7 @@ find_package(OpenCV REQUIRED)
  add_message_files(DIRECTORY msg
    FILES
    Feature.msg
-   FeatureArray.msg	
+   FeatureArray.msg
    PathProfile.msg
    NavigationInfo.msg
 )
@@ -117,7 +117,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES cameleon_ros_driver
   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime actionlib_msgs
-#  DEPENDS 
+#  DEPENDS
 )
 
 ###########
@@ -152,6 +152,7 @@ add_executable(mapper_node src/mapper.cpp)
 add_executable(feature_extraction_node src/featureExtraction.cpp)
 add_executable(feature_testing_node src/featureTesting.cpp)
 add_executable(odometry_monitor_node src/odometryMonitor.cpp)
+add_executable(tester_image_extractor src/testerImageExtractor.cpp)
 add_executable(map_preprocessor_node src/mapPreprocessor.cpp src/strategies/CBestStrategy.cpp src/strategies/CQuantilStrategy.cpp src/strategies/CMonteCarloStrategy.cpp src/strategies/CStrategy.cpp src/t_models/CTemporal.cpp src/t_models/CSum.cpp src/t_models/CWSum.cpp src/t_models/CMovAvg.cpp  src/t_models/CTimeMean.cpp src/t_models/CFrelement.cpp)
 add_executable(navigator_node src/navigator.cpp)
 add_executable(visualisation_node src/visualisation.cpp)
@@ -169,6 +170,7 @@ add_dependencies(feature_extraction_node ${PROJECT_NAME}_generate_messages_cpp $
 add_dependencies(feature_testing_node ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
 add_dependencies(mapper_node ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
 add_dependencies(map_preprocessor_node ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
+add_dependencies(tester_image_extractor ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
 add_dependencies(odometry_monitor_node ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencfg  ${catkin_EXPORTED_TARGETS})
 add_dependencies(navigator_node ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
 add_dependencies(visualisation_node ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
@@ -188,6 +190,7 @@ target_link_libraries(feature_extraction_node ${catkin_LIBRARIES} ${OpenCV_LIBRA
 target_link_libraries(feature_testing_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(odometry_monitor_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(map_preprocessor_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(tester_image_extractor ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(navigator_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(visualisation_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(supervisor_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
