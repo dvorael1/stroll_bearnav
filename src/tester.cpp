@@ -42,7 +42,22 @@ struct MatchInfo{
   string t;
 };
 
-FILE *mapFile, *viewFile;
+int numPrimaryMaps 	= 0;
+int primaryMapIndex 	= 0;
+int numSecondaryMaps 	= 0;
+int secondaryMapIndex 	= 0;
+int clientsResponded 	= 0;
+
+float statSumCorrect = 0;
+float statSumMatches = 0;
+float statSumOutliers = 0;
+float statNumMaps = 0;
+
+stroll_bearnav::loadMapGoal mapGoal;
+stroll_bearnav::loadMapGoal viewGoal;
+stroll_bearnav::navigatorGoal navGoal;
+
+FILE *mapFile, *viewFile,*logFile;
 string mapFolder,viewFolder;
 bool volatile exitting = false;
 bool generateDatasets = true;
@@ -87,133 +102,25 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 	int size = msg->mapMatchIndex.size();
 	float displacementGT = 0;
 	vector<MatchInfo> mi;
-	if (generateDatasets){
-		fprintf(mapFile,"%i %i\n",0,0);
-		fprintf(viewFile,"%i %i\n",(int)msg->displacement,0);
-	}else{
-		int offsetMap = 0;
-		int offsetView = 0;
-		int dummy = 0;
-		fscanf(mapFile,"%i %i\n",&offsetMap,&dummy);
-		fscanf(viewFile,"%i %i\n",&offsetView,&dummy);
-		displacementGT = offsetView - offsetMap;
-	}
-	fprintf(stdout,"DISPLACEMENT: %.3f %.3f\n",displacementGT,msg->displacement);
-  ofstream f;
-  f.open("/home/eliska/stroll/displacement.txt",ios::app);
-  if(f.is_open()){
-    f<<displacementGT<<" "<<msg->displacement<<endl;
-    f.close();
-  }
-	if(size>0)
-	{
-		for(int i = 0; i<size;i++)
-		{
-			MatchInfo new_mi;
 
-			sprintf(new_mi.id,"%d",i);
-			strcat(new_mi.id, "_");
-			strcat(new_mi.id,msg->map.id.c_str());
-			strcat(new_mi.id, "\0");
-
-			new_mi.eval = msg->mapMatchEval[i];
-			new_mi.x = msg->map.feature[i].x;
-			new_mi.y = msg->map.feature[i].y;
-			new_mi.size = msg->map.feature[i].size;
-			new_mi.angle = msg->map.feature[i].angle;
-			new_mi.response = msg->map.feature[i].response;
-			new_mi.octave = msg->map.feature[i].octave;
-			// new_mi.time = msg->view.header.stamp.sec;
-			new_mi.time = time(NULL);
-			mi.push_back(new_mi);
-		}
-
-		ofstream file_content(".statistics.txt");
-		//ostringstream file_content;
-		string line;
-		ifstream f (fname);
-
-		if (f.is_open() && file_content.is_open())
-		{
-			while ( getline (f,line) )
-			{
-				vector<string> strings;
-				string line2;
-				line2.assign(line);
-				istringstream l(line2);
-				string s;
-				int i = 0;
-				int j = 0;
-				ostringstream end_line;
-				end_line<<endl;
-				while (getline(l, s, ' ') && i == 0)
-				{
-
-					for(j = 0;j<mi.size();j++)
-					{
-						if(s.compare(mi[j].id) == 0){
-							end_line.str("");
-							end_line.clear();
-							end_line << " " << mi[j].time << " " <<  mi[j].eval << endl;
-							mi.erase(mi.begin() +j );
-							break;
-						}
-					}
-					file_content << line;
-					file_content << end_line.str();
-					i++;
-				}
-			}
-			f.close();
-		}
-
-		if(mi.size()>0)
-		{
-			for(int i = 0; i<mi.size(); i++)
-			{
-				file_content << mi[i].id << " ";
-				file_content << mi[i].x << " ";
-				file_content << mi[i].y << " ";
-				file_content << mi[i].size << " ";
-				file_content << mi[i].angle << " ";
-				file_content << mi[i].response << " ";
-				file_content << mi[i].octave << " ";
-				file_content << mi[i].time << " ";
-				file_content << mi[i].eval << endl;
-			}
-		}
-		mi.clear();
-		file_content.close();
-		if( remove( fname ))
-		{
-			perror( "Error deleting file" );
-		}
-
-		char oldname[] =".statistics.txt";
-
-		if ( rename( oldname , fname ) )
-		{
-			perror( "Error renaming file" );
-		}
-	}
 	is_working = 0;
-	totalDist += 0.2;
-	dist_.data=totalDist;
-	dist_pub_.publish(dist_);
+	/*maps processed*/
+	if (primaryMapIndex < numPrimaryMaps-1){
+		totalDist = distanceMap[primaryMapIndex+1];
+		dist_.data=totalDist;
+		dist_pub_.publish(dist_);
+	}else{
+		 exitting = 1;
+	}
 }
-
-int numPrimaryMaps 	= 0;
-int primaryMapIndex 	= 0;
-int numSecondaryMaps 	= 0;
-int secondaryMapIndex 	= 0;
-int mapsResponded 	= 0;
 
 /*Map loader feedback for debugging*/
 void feedbackMapCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
 {
+	distanceMap.push_back(feedback->distance);
 	numPrimaryMaps = feedback->numberOfMaps;
 	primaryMapIndex = feedback->mapIndex;
-	//	ROS_INFO("Primary map: %s",feedback->fileName.c_str());
+	ROS_INFO("Primary map: %s %i %f",feedback->fileName.c_str(),primaryMapIndex,feedback->distance);
 }
 
 void feedbackViewCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
