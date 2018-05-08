@@ -36,7 +36,7 @@ CStrategy* spawnStrategy(EStrategyType type)
 	CStrategy *strategy;
 	switch (type)
 	{
-		case TT_BEST: 		strategy = new CBestStrategy(10000);		break;
+		case TT_BEST: 		strategy = new CBestStrategy(10);		break;
 		case TT_MONTE_CARLO: 		strategy = new CMonteCarloStrategy(100);		break;
 		case TT_QUANTIL:	strategy = new CQuantilStrategy(0.5);		break;
 		default: 		strategy = new CBestStrategy(10);

@@ -326,7 +326,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 											}
 											id = f_ids.at((int)(start_index +j)).c_str();
-											// ROS_ERROR("id = %s ",id.c_str());
+											// TODO pridat kdyz jmeno feature se neshoduje se stc
 											if(id.compare(s)==0){
 												id_found = true;
 												model = models[start_index + j];
@@ -334,24 +334,24 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 											}
 										}
-				// 						if(!id_found){
-				// 							continue;
-				// 						}
-				// 						for(int i = 0; i<6;i++){
-				// 							getline(l, s, ' ');
-				// 						}
-				// 						while (getline(l, s, ' '))
-				// 						{
-				// 							uint32_t t = atoi(s.c_str());
-				//
-				// 							getline(l, s, ' ');
-				// 							float state = (float)atoi(s.c_str());
-				// 							model->add(t,state);
-				// 						}
-				// 						id_found = false;
+										if(!id_found){
+											continue;
+										}
+										for(int i = 0; i<6;i++){
+											getline(l, s, ' ');
+										}
+										while (getline(l, s, ' '))
+										{
+											uint32_t t = atoi(s.c_str());
+
+											getline(l, s, ' ');
+											float state = (float)atoi(s.c_str());
+											model->add(t,state);
+										}
+										id_found = false;
 									}
-				// 					double score = model->predict(t);
-				// 					scores.push_back(score);
+									double score = model->predict(t);
+									scores.push_back(score);
 								}
 
 						}
@@ -359,10 +359,10 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					f.close();
 
 					Mat tmp_mat = descriptors_1.clone();
-				  // descriptors_1.release();
+				  descriptors_1.release();
 
 				  vector<KeyPoint> tmp(keypoints_1);
-				  // keypoints_1.clear();
+				  keypoints_1.clear();
 
 
 					type = "Best";
@@ -370,7 +370,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					// ROS_ERROR("key size: %lu score size %lu\n",keypoints_1.size(),scores.size());
 					CStrategy* strategy = spawnStrategy(type.c_str());
 					ROS_ERROR("size before %lu",tmp.size());
-					// strategy->filterFeatures(&keypoints_1,&descriptors_1,&tmp,&tmp_mat, scores);
+					strategy->filterFeatures(&keypoints_1,&descriptors_1,&tmp,&tmp_mat, scores);
 
 					ROS_ERROR("size after %lu",keypoints_1.size());
 					}
