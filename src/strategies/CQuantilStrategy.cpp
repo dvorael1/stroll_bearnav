@@ -18,7 +18,7 @@ CQuantilStrategy::~CQuantilStrategy(){
 
 }
 
-void CQuantilStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<double> score){
+void CQuantilStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *keypoints_out, Mat *descriptors_out, vector<double> score){
   int size = keypoints->size();
 
   Mat tmp_mat = descriptors->clone();

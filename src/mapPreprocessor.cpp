@@ -276,7 +276,9 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 			int size = keypoints_1.size();
 			int len =max(size,1);
 			double stcs[len];
-			if(keypoints_1.size()>0 && statistics){
+			if(keypoints_1.size()>0 && statistics)
+			{
+
 
 				ifstream f(stc_fname.c_str());
 				if (f.is_open())
@@ -284,8 +286,8 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					string type;
 					bool map_models_found = false;
 					vector<double> scores;
-					uint32_t t = time(NULL);
-					type = "Time_Mean";
+					uint32_t t = 1502788667;
+					type = "Sum";
 
 					for(int i = 0; i<f_ids.size();i++){
 							if(f_ids[i].find(currentMapName)!=string::npos){
@@ -303,25 +305,28 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						string line;
 						bool id_found = false;
 						CTemporal* model;
-						int start_index = f_ids.size();
+						int start_index = (int)f_ids.size();
 							for(int i = 0; i<keypoints_1.size();i++){
 								string id = to_string(i) + "_" + currentMapName;
-
-								f_ids.push_back(id);
+								f_ids.push_back("shit");
 								models.push_back(spawnTemporalModel(type.c_str(), id));
 							}
 								id_found = false;
 
 								while ( getline (f,line))
 								{
-									string id;
+									string id = "0_/home/eliska/stroll/datasets/small/super//X_0.000.yaml";
 									string map_name;
 									istringstream l(line);
 									string s;
 
 									if(getline(l, s, ' ')){
 										for(int j = 0;j<keypoints_1.size();j++){
-											id = f_ids[start_index +j];
+											if(f_ids.size()<=start_index +j){
+
+											}
+											id = f_ids.at((start_index +j));
+											// ROS_ERROR("id = %s ",id.c_str());
 											if(id.compare(s)==0){
 												id_found = true;
 												model = models[start_index + j];
@@ -329,34 +334,45 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 											}
 										}
-										if(!id_found){
-											continue;
-										}
-										for(int i = 0; i<6;i++){
-											getline(l, s, ' ');
-										}
-
-										while (getline(l, s, ' '))
-										{
-											uint32_t t = atoi(s.c_str());
-
-											getline(l, s, ' ');
-											float state = (float)atoi(s.c_str());
-											model->add(t,state);
-										}
-										id_found = false;
+				// 						if(!id_found){
+				// 							continue;
+				// 						}
+				// 						for(int i = 0; i<6;i++){
+				// 							getline(l, s, ' ');
+				// 						}
+				// 						while (getline(l, s, ' '))
+				// 						{
+				// 							uint32_t t = atoi(s.c_str());
+				//
+				// 							getline(l, s, ' ');
+				// 							float state = (float)atoi(s.c_str());
+				// 							model->add(t,state);
+				// 						}
+				// 						id_found = false;
 									}
-									double score = model->predict(t);
-									scores.push_back(score);
+				// 					double score = model->predict(t);
+				// 					scores.push_back(score);
 								}
 
 						}
 
 					f.close();
 
+					Mat tmp_mat = descriptors_1.clone();
+				  // descriptors_1.release();
+
+				  vector<KeyPoint> tmp(keypoints_1);
+				  // keypoints_1.clear();
+
+
 					type = "Best";
+
+					// ROS_ERROR("key size: %lu score size %lu\n",keypoints_1.size(),scores.size());
 					CStrategy* strategy = spawnStrategy(type.c_str());
-					strategy->filterFeatures(&keypoints_1,&descriptors_1, scores);
+					ROS_ERROR("size before %lu",tmp.size());
+					// strategy->filterFeatures(&keypoints_1,&descriptors_1,&tmp,&tmp_mat, scores);
+
+					ROS_ERROR("size after %lu",keypoints_1.size());
 					}
 
 				}
@@ -397,9 +413,10 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh_;
 	image_transport::ImageTransport it_(nh_);
 	ros::param::get("~folder", folder);
-	if(argc>2){
-		ros::param::get("~stc_fname", stc_fname);
-		statistics = true;
+	if(ros::param::get("~stc_file", stc_fname)){
+		ros::param::get("~stc_file", stc_fname);
+		ifstream f( stc_fname.c_str());
+		statistics = f.good();
 	}
 	cmd_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd",1);
 	pathPub = nh_.advertise<stroll_bearnav::PathProfile>("/pathProfile",1);

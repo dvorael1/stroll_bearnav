@@ -54,6 +54,7 @@ void mySigHandler(int sig)
 void callback(stroll_bearnav::listenerConfig &config, uint32_t level)
 {
 	currentTime=config.currentTime;
+  printf("%u\n", currentTime);
 }
 
 void shutdownCallback(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result)
