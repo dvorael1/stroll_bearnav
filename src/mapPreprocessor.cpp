@@ -308,14 +308,14 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						int start_index = (int)f_ids.size();
 							for(int i = 0; i<keypoints_1.size();i++){
 								string id = to_string(i) + "_" + currentMapName;
-								f_ids.push_back("shit");
+								f_ids.push_back(id);
 								models.push_back(spawnTemporalModel(type.c_str(), id));
 							}
 								id_found = false;
 
 								while ( getline (f,line))
 								{
-									string id = "0_/home/eliska/stroll/datasets/small/super//X_0.000.yaml";
+									string id = "id";
 									string map_name;
 									istringstream l(line);
 									string s;
@@ -325,7 +325,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 											if(f_ids.size()<=start_index +j){
 
 											}
-											id = f_ids.at((start_index +j));
+											id = f_ids.at((int)(start_index +j)).c_str();
 											// ROS_ERROR("id = %s ",id.c_str());
 											if(id.compare(s)==0){
 												id_found = true;

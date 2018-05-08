@@ -18,7 +18,6 @@ CBestStrategy::~CBestStrategy(){
 
 void CBestStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score){
   if(n>=tmp->size()){
-    printf("\n\n\n\nbigger\n\n\n\n\n" );
     for (size_t i = 0; i < tmp->size(); i++) {
       keypoints->push_back(tmp->at(i));
       descriptors->push_back(tmp_mat->row(i));
