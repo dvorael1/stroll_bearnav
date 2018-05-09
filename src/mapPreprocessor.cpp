@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include "strategies/CStrategy.h"
 #include "t_models/CTemporal.h"
+#include "std_msgs/Float32.h"
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -29,7 +30,9 @@ static const std::string OPENCV_WINDOW = "Image window";
 
 ros::Publisher cmd_pub_;
 ros::Publisher feat_pub_;
+ros::Publisher dist_view_pub_;
 ros::Subscriber dist_sub_;
+std_msgs::Float32 dist_;
 ros::Publisher pathPub;
 image_transport::Publisher image_pub_;
 
@@ -353,7 +356,11 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 									double score = model->predict(t);
 									scores.push_back(score);
 								}
-
+								//TODO zkontrolovat scores vector
+						}
+						scores.clear();
+						for (size_t i = 0; i < keypoints_1.size(); i++) {
+								scores.push_back(0.5);
 						}
 
 					f.close();
@@ -364,7 +371,6 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 				  vector<KeyPoint> tmp(keypoints_1);
 				  keypoints_1.clear();
 
-
 					type = "Best";
 
 					// ROS_ERROR("key size: %lu score size %lu\n",keypoints_1.size(),scores.size());
@@ -374,7 +380,8 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 					ROS_ERROR("size after %lu",keypoints_1.size());
 					}
-
+					dist_.data=distanceT;
+					dist_view_pub_.publish(dist_);
 				}
 
 			for(int i=0;i<keypoints_1.size();i++)
@@ -420,7 +427,15 @@ int main(int argc, char** argv)
 	}
 	cmd_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd",1);
 	pathPub = nh_.advertise<stroll_bearnav::PathProfile>("/pathProfile",1);
-	dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance", 1,distCallback);
+	dist_view_pub_=nh_.advertise<std_msgs::Float32>("/distance_view",1);
+
+
+	if(statistics){
+		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance_map", 1,distCallback);
+	}else{
+		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance_view", 1,distCallback);
+	}
+
 	image_pub_ = it_.advertise("/map_image", 1);
 	feat_pub_ = nh_.advertise<stroll_bearnav::FeatureArray>("/localMap",1);
 

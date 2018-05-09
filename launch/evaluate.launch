@@ -3,8 +3,8 @@
 <!-- Default folders with maps-->
 
 <arg name="folder_map" default="$(env HOME)/stroll/datasets/small/super/"/>
-<!-- <arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502788667/"/> -->
-<arg name="folder_view" default="$(env HOME)/stroll/datasets/small/super/"/>
+<arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502788667/"/>
+<!-- <arg name="folder_view" default="$(env HOME)/stroll/datasets/small/super/"/> -->
 <arg name="stc_file" default="$(env HOME)/stroll/statistics/statistics.txt"/>
 
 <!-- feature extraction -->
@@ -29,7 +29,7 @@
 <!-- map loader2 node -->
 <node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_view" output="screen">
 <param name="folder" value="$(arg folder_view)" />
-<param name="stc_file" value="$(arg stc_file)" />
+<!-- <param name="stc_file" value="$(arg stc_file)" /> -->
 <remap from="localMap" to="featuresa" />
 <remap from="pathProfile" to="pathProfileDummy" />
 <remap from="map_image" to="image_view"/>
