@@ -63,7 +63,7 @@ bool volatile exitting = false;
 bool generateDatasets = true;
 bool volatile is_working = 0;
 ros::CallbackQueue* my_queue;
-ros::Publisher dist_map_pub_;
+ros::Publisher dist_pub_;
 std_msgs::Float32 dist_;
 float totalDist = 0;
 image_transport::Subscriber mapImageSub;
@@ -108,7 +108,7 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 	if (primaryMapIndex < numPrimaryMaps-1){
 		totalDist = distanceMap[primaryMapIndex+1];
 		dist_.data=totalDist;
-		dist_map_pub_.publish(dist_);
+		dist_pub_.publish(dist_);
 	}else{
 		 exitting = 1;
 	}
@@ -240,11 +240,11 @@ int main(int argc, char **argv)
 	viewFile = fopen(filename,mode);*/
 	logFile = fopen("Results.txt","w");
 
-	configureFeatures(1,1);
+	configureFeatures(3,2);
 	image_transport::ImageTransport it(n);
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
-  dist_map_pub_=n.advertise<std_msgs::Float32>("/distance_map",1);
+  dist_pub_=n.advertise<std_msgs::Float32>("/distance",1);
 
 	if (generateDatasets){
 		viewImageSub = it.subscribe( "/image_view", 1,viewImageCallback);
@@ -313,7 +313,7 @@ int main(int argc, char **argv)
 		is_working = 0;
 		totalDist = 0.0;
 		dist_.data=totalDist;
-		dist_map_pub_.publish(dist_);
+		dist_pub_.publish(dist_);
 
 		/*perform navigation*/
 		while(ros::ok && !exitting)

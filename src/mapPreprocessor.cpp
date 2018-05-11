@@ -289,6 +289,10 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					string type;
 					bool map_models_found = false;
 					vector<double> scores;
+					scores.clear();
+					for (size_t i = 0; i < keypoints_1.size(); i++) {
+							scores.push_back(0);
+					}
 					uint32_t t = 1502788667;
 					type = "Sum";
 
@@ -297,8 +301,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 								map_models_found =true;
 								for(int j = 0; j<keypoints_1.size();j++){
 									CTemporal* model = models[i+j];
-									double score = model->predict(t);
-									scores.push_back(score);
+									scores[i] = model->predict(t);
 								}
 								break;
 							}
@@ -322,11 +325,11 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 									string map_name;
 									istringstream l(line);
 									string s;
-
+									int j = 0;
 									if(getline(l, s, ' ')){
-										for(int j = 0;j<keypoints_1.size();j++){
+										for(j = 0;j<keypoints_1.size();j++){
 											if(f_ids.size()<=start_index +j){
-
+												ROS_ERROR("index os f_ids out of size");
 											}
 											id = f_ids.at((int)(start_index +j)).c_str();
 											// TODO pridat kdyz jmeno feature se neshoduje se stc
@@ -352,16 +355,16 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 											model->add(t,state);
 										}
 										id_found = false;
+										double score = model->predict(t);
+										scores[j] = score;
 									}
-									double score = model->predict(t);
-									scores.push_back(score);
 								}
 								//TODO zkontrolovat scores vector
 						}
-						scores.clear();
 						for (size_t i = 0; i < keypoints_1.size(); i++) {
-								scores.push_back(0.5);
+								ROS_WARN("%luth score value: %f",i,scores[i]);
 						}
+
 
 					f.close();
 
@@ -431,11 +434,11 @@ int main(int argc, char** argv)
 
 
 	if(statistics){
-		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance_map", 1,distCallback);
+		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance", 1,distCallback);
 	}else{
 		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance_view", 1,distCallback);
 	}
-
+//
 	image_pub_ = it_.advertise("/map_image", 1);
 	feat_pub_ = nh_.advertise<stroll_bearnav::FeatureArray>("/localMap",1);
 

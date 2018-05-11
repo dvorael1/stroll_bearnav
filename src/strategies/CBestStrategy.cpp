@@ -1,4 +1,5 @@
 #include "CBestStrategy.h"
+#include <ros/ros.h>
 
 using namespace std;
 using namespace cv;
@@ -33,8 +34,10 @@ void CBestStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors
 
   // vector<KeyPoint> tmp(*keypoints);
   // keypoints->clear();
+  int last = tmp->size()-1;
   for(int i = 0; i<n; i++){
-      keypoints->push_back(tmp->at(features_stcs[i].index));
-      descriptors->push_back(tmp_mat->row(features_stcs[i].index));
+      keypoints->push_back(tmp->at(features_stcs[last-i].index));
+      ROS_WARN("Picked %d",features_stcs[last-i].index);
+      descriptors->push_back(tmp_mat->row(features_stcs[last-i].index));
   }
 }
