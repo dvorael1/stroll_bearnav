@@ -3,7 +3,7 @@
 <!-- Default folders with maps-->
 
 <arg name="folder_map" default="$(env HOME)/stroll/datasets/small/super/"/>
-<arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502788667/"/>
+<arg name="folder_view" default="$(env HOME)/stroll/datasets/maps/test/1502788667/"/>
 <!-- <arg name="folder_view" default="$(env HOME)/stroll/datasets/small/super/"/> -->
 <arg name="stc_file" default="$(env HOME)/stroll/statistics/statistics.txt"/>
 

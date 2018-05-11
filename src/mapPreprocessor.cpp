@@ -433,12 +433,12 @@ int main(int argc, char** argv)
 	dist_view_pub_=nh_.advertise<std_msgs::Float32>("/distance_view",1);
 
 
-	if(statistics){
+	// if(statistics){
 		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance", 1,distCallback);
-	}else{
-		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance_view", 1,distCallback);
-	}
-//
+	// }else{
+		// dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance_view", 1,distCallback);
+	// }
+
 	image_pub_ = it_.advertise("/map_image", 1);
 	feat_pub_ = nh_.advertise<stroll_bearnav::FeatureArray>("/localMap",1);
 
