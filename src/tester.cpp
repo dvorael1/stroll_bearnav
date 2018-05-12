@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 	viewFile = fopen(filename,mode);*/
 	logFile = fopen("Results.txt","w");
 
-	configureFeatures(3,2);
+	configureFeatures(1,1);
 	image_transport::ImageTransport it(n);
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
@@ -268,7 +268,7 @@ int main(int argc, char **argv)
 	const char *viewNames[] = {"X"};
 	//const char *mapNames[]  = {"P0","P0","P0","P0","P0","P0","P0","P0","P0","P0", "P0", "P0", "P0", "P0", "P0", "P0", "P0",};
   // const char *mapNames[] = {"P0","P1","P2","P3","P4","P5","P6","P7","P8","P9", "P10","P11","P12","P13","P14","P15","P16"};
-	const char *mapNames[] = {"Y9"};
+	const char *mapNames[] = {/*"SSS",*/"SAB"};
 	int numGlobalMaps = 17;
 	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{

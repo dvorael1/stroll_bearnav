@@ -23,7 +23,7 @@ if [ ! -e $2 ]; then
     touch $2
 fi
 
-cd $3
+cd $3/train
 
 TXT_FILES=( `ls` )
 
@@ -36,16 +36,41 @@ do
 	
         echo "using map in sub folder: $i"
         
-		roslaunch stroll_bearnav evaluate.launch folder_view:=$3/$i/ &            	 
+		roslaunch stroll_bearnav evaluate.launch folder_view:=$3/train/$i/ &            	 
 		P1=$!							
 	    
 		rostopic echo navigationInfo/histogram -n $1
 	    kill $P1
-		sleep 4s
+		wait $P1
     fi 
 	
 done
 
 kill -2 $P2
+
+wait $P2
+
+sleep 30s
+
+cd $3/test
+
+TXT_FILES=( `ls` )
+
+for i in ${TXT_FILES[*]}
+do
+	
+	if [[ -d $i ]]; then
+    
+        echo "using map in sub folder: $i"
+        
+		roslaunch stroll_bearnav evaluate.launch folder_view:=$3/test/$i/ &            	 
+		P1=$!							
+	    
+		rostopic echo navigationInfo/histogram -n $1
+	    kill $P1
+		wait $P1
+    fi 
+	
+done
 
 exit 0
