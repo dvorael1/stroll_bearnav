@@ -53,6 +53,8 @@ stroll_bearnav::FeatureArray mapFeatures;
 
 bool showAllMatches=true;
 bool showGoodMatches=true;
+int numFeatureAdd = 50;
+int numFeatureRemove = 50;
 
 geometry_msgs::Twist twist;
 nav_msgs::Odometry odometry;
@@ -197,7 +199,6 @@ void actionServerCB(const stroll_bearnav::navigatorGoalConstPtr &goal, Server *s
 				traversals--;
 			}
 		}
-		usleep(200000);
 	}
 	twist.linear.x = twist.linear.y = twist.linear.z = twist.angular.z = twist.angular.y = twist.angular.x = 0.0;
 	cmd_pub_.publish(twist);
@@ -459,16 +460,21 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 				mapFeatures.feature[bad_matches[i].queryIdx].rating += mapEval[bad_matches[i].queryIdx];
 			}
 			// add the least similar features from view to map
-			for (int i = 0; i < 10; i++) {
+			//mapFeatures.feature.clear();
+			for (int i = 0; i < numFeatureAdd; i++) {
 				info.view.feature[i].rating = 0;
-				info.view.feature[i].x = info.view.feature[i].x - differenceRot;
+				info.view.feature[i].x = info.view.feature[i].x + differenceRot;
 				mapFeatures.feature.push_back(info.view.feature[i]);
 				//info.view.feature.erase(info.view.feature.begin(), info.view.feature.begin() + 10);
 			}
 			// remove the worst rating from map
 			sort(mapFeatures.feature.begin(), mapFeatures.feature.end(), compare_rating);
 			//cout << "map: first " << mapFeatures.feature[0].rating << " x " << mapFeatures.feature[0].x << " last " << mapFeatures.feature[mapFeatures.feature.size()-1].rating  << " x " << mapFeatures.feature[mapFeatures.feature.size()-1].x  << endl;
-			mapFeatures.feature.erase(mapFeatures.feature.end() - 10, mapFeatures.feature.end());
+			if (numFeatureRemove > -1){
+				mapFeatures.feature.erase(mapFeatures.feature.end() - numFeatureRemove, mapFeatures.feature.end());
+			}else{
+				mapFeatures.feature.erase(mapFeatures.feature.end() - bad_matches.size(), mapFeatures.feature.end());
+			}
 			isRating=false;
 			mapChanges++;
 			info.updated=true;
