@@ -7,7 +7,7 @@
 <!-- <arg name="folder_view" default="$(env HOME)/stroll/datasets/small/super/"/> -->
 <arg name="stc_file" default="$(env HOME)/history.txt"/>
 <arg name="stc_model_type" default="Mov_Avg"/>
-<arg name="stc_model_param" default="1"/>
+<arg name="stc_model_param" default="43200"/>
 <arg name="stc_strategy_type" default="Best"/>
 <arg name="stc_strategy_param" default="250"/>
 
