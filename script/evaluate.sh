@@ -40,7 +40,7 @@ do
 		P1=$!							
 	    
 		rostopic echo navigationInfo/histogram -n $1
-	    kill $P1
+	    kill -2 $P1
 		wait $P1
     fi 
 	
@@ -50,7 +50,6 @@ kill -2 $P2
 
 wait $P2
 
-sleep 30s
 
 cd $3/test
 
@@ -60,15 +59,25 @@ for i in ${TXT_FILES[*]}
 do
 	
 	if [[ -d $i ]]; then
-    
+		rm /home/eliska/stroll/datasets/super/X*
+    	cp $3/test/$i/* /home/eliska/stroll/datasets/super
+		
+		rosrun stroll_bearnav tester_image_extractor /home/eliska/stroll/datasets/super/ SAB X
+		
+		mv /home/eliska/stroll/datasets/super/X_annotation.txt $3/test/$i/GT_annotation.txt
+		
+		
         echo "using map in sub folder: $i"
         
 		roslaunch stroll_bearnav evaluate.launch folder_view:=$3/test/$i/ &            	 
 		P1=$!							
 	    
 		rostopic echo navigationInfo/histogram -n $1
-	    kill $P1
+	    kill -2 $P1
 		wait $P1
+		
+		mv $3/test/$i/displacement.txt $3/test/$i/without_annotation.txt
+		
     fi 
 	
 done

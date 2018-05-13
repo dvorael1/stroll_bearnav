@@ -3,9 +3,13 @@
 <!-- Default folders with maps-->
 
 <arg name="folder_map" default="$(env HOME)/stroll/datasets/small/super/"/>
-<arg name="folder_view" default="$(env HOME)/stroll/datasets/maps/test/1502788667/"/>
+<arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502788667/"/>
 <!-- <arg name="folder_view" default="$(env HOME)/stroll/datasets/small/super/"/> -->
-<arg name="stc_file" default="$(env HOME)/stroll/statistics/statistics.txt"/>
+<arg name="stc_file" default="$(env HOME)/history.txt"/>
+<arg name="stc_model_type" default="Mov_Avg"/>
+<arg name="stc_model_param" default="1"/>
+<arg name="stc_strategy_type" default="Best"/>
+<arg name="stc_strategy_param" default="250"/>
 
 <!-- feature extraction -->
   <node pkg="stroll_bearnav" type="feature_extraction_node" name="feature_extraction">
@@ -20,9 +24,13 @@
 </node-->
 
 <!-- map loader1 node -->
-<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_map" output="screen" launch-prefix="gdb -ex run --args">
+<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_map" output="screen">
 <param name="folder" value="$(arg folder_map)" />
 <param name="stc_file" value="$(arg stc_file)" />
+<param name="stc_model_type" value="$(arg stc_model_type)" />
+<param name="stc_model_param" value="$(arg stc_model_param)" />
+<param name="stc_strategy_type" value="$(arg stc_strategy_type)" />
+<param name="stc_strategy_param" value="$(arg stc_strategy_param)" />
 <remap from="map_preprocessor" to="map_preprocessor_map"/>
 </node>
 
@@ -43,7 +51,7 @@
 </node>
 
 <!-- tester node -->
-<node pkg="stroll_bearnav" type="tester" name="tester" output="screen">
+<node pkg="stroll_bearnav" type="tester" name="tester" output="screen" >
   <param name="folder_map" value="$(arg folder_map)" />
   <param name="folder_view" value="$(arg folder_view)" />
 </node>

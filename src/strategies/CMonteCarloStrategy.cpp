@@ -3,8 +3,11 @@
 using namespace std;
 
 
-CMonteCarloStrategy::CMonteCarloStrategy(int n_init){
-  n = n_init;
+CMonteCarloStrategy::CMonteCarloStrategy(float n_init){
+  n = (int)n_init;
+  if(n<=0){
+    n=100;
+  }
 }
 
 CMonteCarloStrategy::CMonteCarloStrategy(){
@@ -25,17 +28,17 @@ double find_min(vector<double> stcs, int size){
   return min;
 }
 
-void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *keypoints_out, Mat *descriptors_out, vector<double> score){
-  int size=keypoints->size();
+void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score){
+  int size=tmp->size();
   if (size==0){
     return;
+  }if(n>=size){
+    for(int i = 0; i<size;++i){
+      keypoints->push_back(tmp->at(i));
+      descriptors->push_back(tmp_mat->row(i));
+    }
   }
 
-  Mat tmp_mat = descriptors->clone();
-  descriptors->release();
-
-  vector<KeyPoint> tmp(*keypoints);
-  keypoints->clear();
 
   double min = find_min(score,size);
   double add = 0.0;
@@ -50,36 +53,24 @@ void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descr
     mnt_crl[i] = all;
     score[i] = 0.0;
   }
-  if(n>size){
-    n = size;
-  }
+
   srand (time(NULL));
 
   for (int i = 0; i<n;++i){
     int r_next = 0.0 + double((all*rand())/(RAND_MAX + 1.0) );
     bool picked = false;
     double diff = 0.0;
-    for(int j = 0; j<size;j++){
+    for(int j = 0; j<size && !picked;j++){
       if(mnt_crl[j]>r_next){
-        if(picked){
-          mnt_crl[j]-=diff;
-          continue;
-        }
 
         if(score[j]>0.0){
+          i--;
           break;
         }else{
-          if(j==0){
-            diff = mnt_crl[j];
-          }else{
-            diff = mnt_crl[j] - mnt_crl[j-1];
-          }
-          mnt_crl[j] -= diff;
-          all -=diff;
           picked = true;
           score[j] = 1.0;
-          keypoints->push_back(tmp[j]);
-          descriptors->push_back(tmp_mat.row(j));
+          keypoints->push_back(tmp->at(j));
+          descriptors->push_back(tmp_mat->row(j));
         }
       }
     }

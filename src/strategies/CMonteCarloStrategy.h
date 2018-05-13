@@ -9,11 +9,11 @@ using namespace std;
 
 class CMonteCarloStrategy: public CStrategy{
   public:
-    CMonteCarloStrategy(int n_init);
+    CMonteCarloStrategy(float n_init);
     CMonteCarloStrategy();
 		~CMonteCarloStrategy();
 
-    void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *keypoints_out, Mat *descriptors_out, vector<double> score);
+    void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score);
 
     int n = 100;
 };

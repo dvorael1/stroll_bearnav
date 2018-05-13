@@ -24,8 +24,8 @@ class CMovAvg: public CTemporal
 {
 	public:
 
-		CMovAvg(int idd);
-    CMovAvg(string f_id);
+		CMovAvg(int idd,float param);
+    CMovAvg(string f_id,float param);
     ~CMovAvg();
 
     //adds a serie of measurements to the data

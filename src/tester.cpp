@@ -103,9 +103,19 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 	float displacementGT = 0;
 	vector<MatchInfo> mi;
 
+  char filename[1000];
+  sprintf(filename,"%s/displacements.txt",viewFolder.c_str());
+  viewFile = fopen(filename,"a");
+
+  fprintf(viewFile,"%i\n",(int)msg->displacement);
+  fclose(viewFile);
 	is_working = 0;
 	/*maps processed*/
-	if (primaryMapIndex < numPrimaryMaps-1){
+  if(totalDist>0.8){
+    exitting = 1;
+    return;
+  }
+	if (primaryMapIndex < numPrimaryMaps-1 && totalDist<=0.8){
 		totalDist = distanceMap[primaryMapIndex+1];
 		dist_.data=totalDist;
 		dist_pub_.publish(dist_);
@@ -162,8 +172,8 @@ void feedbackNavCb(const stroll_bearnav::navigatorFeedbackConstPtr& feedback)
 	int dummy = 0;
 	int mapA = 0;
 	int mapB = 0;
-	fscanf(mapFile, "%i %i\n",&offsetMap,&dummy);
-	fscanf(viewFile,"%i %i\n",&offsetView,&dummy);
+	//fscanf(mapFile, "%i %i\n",&offsetMap,&dummy);
+	//fscanf(viewFile,"%i %i\n",&offsetView,&dummy);
 	float displacementGT = offsetView - offsetMap;
 
 	ROS_INFO("Navigation reports %i correct matches and %i outliers out of %i matches at distance %.3f with maps %s %s. Displacement %.3f GT %.3f",feedback->correct,feedback->outliers,feedback->matches,feedback->distance,mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),feedback->diffRot,displacementGT);
@@ -179,9 +189,9 @@ void mapImageCallback(const sensor_msgs::ImageConstPtr& msg)
 	static int mapImageNum = 0;
 	cv_bridge::CvImagePtr cv_ptr;
 	cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-	char fileName[1000];
-	sprintf(fileName,"%s/%09i.bmp",mapFolder.c_str(),mapImageNum++);
-	imwrite(fileName,cv_ptr->image);
+	// char fileName[1000];
+	// sprintf(fileName,"%s/%09i.bmp",mapFolder.c_str(),mapImageNum++);
+	// imwrite(fileName,cv_ptr->image);
 }
 
 void viewImageCallback(const sensor_msgs::ImageConstPtr& msg)
@@ -189,9 +199,9 @@ void viewImageCallback(const sensor_msgs::ImageConstPtr& msg)
 	static int viewImageNum = 0;
 	cv_bridge::CvImagePtr cv_ptr;
 	cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-	char fileName[1000];
-	sprintf(fileName,"%s/%09i.bmp",viewFolder.c_str(),viewImageNum++);
-	imwrite(fileName,cv_ptr->image);
+// 	char fileName[1000];
+// 	sprintf(fileName,"%s/%09i.bmp",viewFolder.c_str(),viewImageNum++);
+// 	imwrite(fileName,cv_ptr->image);
 }
 
 int configureFeatures(int detector,int descriptor)
@@ -209,11 +219,7 @@ int configureFeatures(int detector,int descriptor)
 	conf.ints.push_back(param);
 	srv_req.config = conf;
 
-	if (ros::service::call("/feature_extraction/set_parameters", srv_req, srv_resp) == false){
-		 ROS_WARN("Feature extraction module not configured.");
-		 return -1;
-	}
-	return 0;
+	if (ros::service::call("/feature_extraction/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Feature extraction module not configured.");
 }
 
 
@@ -235,16 +241,17 @@ int main(int argc, char **argv)
 	ros::param::get("~folder_view", viewFolder);
 	ros::param::get("~folder_map", mapFolder);
 
-	/*char filename[1000];
+	char filename[1000];
 	char mode[] = "r";
 	if (generateDatasets) mode[0] = 'w';
-	sprintf(filename,"%s/displacements.txt",mapFolder.c_str());
-	mapFile = fopen(filename,mode);
+	// sprintf(filename,"%s/displacements.txt",mapFolder.c_str());
+	// mapFile = fopen(filename,mode);
 	sprintf(filename,"%s/displacements.txt",viewFolder.c_str());
-	viewFile = fopen(filename,mode);*/
+	viewFile = fopen(filename,"w");
+  fclose(viewFile);
 	logFile = fopen("Results.txt","w");
 
-	if (configureFeatures(1,1) < 0) return 0;
+	configureFeatures(1,1);
 	image_transport::ImageTransport it(n);
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
@@ -273,7 +280,7 @@ int main(int argc, char **argv)
 	//const char *mapNames[]  = {"P0","P0","P0","P0","P0","P0","P0","P0","P0","P0", "P0", "P0", "P0", "P0", "P0", "P0", "P0",};
   // const char *mapNames[] = {"P0","P1","P2","P3","P4","P5","P6","P7","P8","P9", "P10","P11","P12","P13","P14","P15","P16"};
 	const char *mapNames[] = {/*"SSS",*/"SAB"};
-	int numGlobalMaps = 17;
+	int numGlobalMaps = 1;
 	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{
 		/*set map and view info */
@@ -282,17 +289,18 @@ int main(int argc, char **argv)
 
 		viewGoal.prefix = viewNames[globalMapIndex];
 		mapGoal.prefix = mapNames[globalMapIndex];
-		mp_view.sendGoal(viewGoal,&doneViewCb,&activeCb,&feedbackViewCb);
-		mp_map.sendGoal(mapGoal,&doneMapCb,&activeCb,&feedbackMapCb);
+		mp_view.sendGoal(viewGoal,&doneMapCb,&activeCb,&feedbackMapCb);
+		mp_map.sendGoal(mapGoal,&doneViewCb,&activeCb,&feedbackViewCb);
 
 
-		char filename[1000];
-		sprintf(filename,"%s/%s_GT.txt",mapFolder.c_str(),mapNames[0]);
-		printf("%s/%s_GT.txt\n",mapFolder.c_str(),mapNames[globalMapIndex]);
-		mapFile = fopen(filename,"r");
-		sprintf(filename,"%s/%s_GT.txt",viewFolder.c_str(),viewNames[globalMapIndex]);
-		printf("%s/%s_GT.txt\n",viewFolder.c_str(),viewNames[globalMapIndex]);
-		viewFile = fopen(filename,"r");
+		//char filename[1000];
+		//sprintf(filename,"%s/%s_GT.txt",mapFolder.c_str(),mapNames[globalMapIndex]);
+		//printf("%s/%s_GT.txt\n",mapFolder.c_str(),mapNames[globalMapIndex]);
+		// mapFile = fopen(filename,"r");
+		// sprintf(filename,"%s/%s_GT.txt",viewFolder.c_str(),viewNames[globalMapIndex]);
+		//printf("%s/%s_GT.txt\n",viewFolder.c_str(),viewNames[globalMapIndex]);
+		// viewFile = fopen(filename,"r");
+
 
 		/*wait for maps to load*/
 		while (clientsResponded < 2) sleep(1);
@@ -341,10 +349,9 @@ int main(int argc, char **argv)
 		ROS_INFO("Map test %s %s summary: %.3f %.3f %.3f",mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
 		fprintf(logFile,"Map test %s %s summary: %.3f %.3f %.3f\n",mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
 		statSumCorrect = statSumMatches = statSumOutliers = statNumMaps = 0;
-		fclose(mapFile);
-		fclose(viewFile);
+		//fclose(mapFile);
+		// fclose(viewFile);
 	}
 	fclose(logFile);
-	usleep(100000);
 	return 0;
 }

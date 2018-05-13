@@ -10,9 +10,9 @@ CWSum::CWSum(int idd)
 	type = TT_W_SUM;
 }
 
-CWSum::CWSum(string f_id){
+CWSum::CWSum(string f_id, float param){
 	score = 0.0;
-
+	w = param;
 	fid = f_id;
 	order = 0;
 	firstTime = -1;
@@ -23,7 +23,6 @@ CWSum::CWSum(string f_id){
 
 void CWSum::init(int iMaxPeriod,int elements,int numClasses)
 {
-	w = 2.0;
 	score = 0.0;
 
 }

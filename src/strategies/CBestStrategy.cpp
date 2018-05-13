@@ -5,8 +5,11 @@ using namespace std;
 using namespace cv;
 
 
-CBestStrategy::CBestStrategy(int n_init){
-  n = n_init;
+CBestStrategy::CBestStrategy(float n_init){
+  n = (int)n_init;
+  if(n<=0){
+    n=100;
+  }
 }
 
 CBestStrategy::CBestStrategy(){
@@ -37,7 +40,6 @@ void CBestStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors
   int last = tmp->size()-1;
   for(int i = 0; i<n; i++){
       keypoints->push_back(tmp->at(features_stcs[last-i].index));
-      ROS_WARN("Picked %d",features_stcs[last-i].index);
       descriptors->push_back(tmp_mat->row(features_stcs[last-i].index));
   }
 }

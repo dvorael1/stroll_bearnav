@@ -1,7 +1,8 @@
 #include "CMovAvg.h"
 
-CMovAvg::CMovAvg(int idd)
+CMovAvg::CMovAvg(int idd,float param)
 {
+	tau=(unsigned int) param;
 	id = idd;
 	order = 0;
 	firstTime = -1;
@@ -11,8 +12,11 @@ CMovAvg::CMovAvg(int idd)
 	type = TT_MOV_AVG;
 }
 
-CMovAvg::CMovAvg(string f_id){
-  tau = 60;
+CMovAvg::CMovAvg(string f_id,float param){
+  tau=(int) param;
+	if(tau<=0){
+		tau = 60*60*24;
+	}
 	fid = f_id;
 	order = 0;
 	firstTime = -1;
@@ -28,7 +32,6 @@ void CMovAvg::init(int iMaxPeriod,int elements,int numClasses)
 	ifstream f(fname);
 	max_dif = 1800;
 	score = 0.0;
-	tau = 60;
 }
 
 CMovAvg::~CMovAvg()

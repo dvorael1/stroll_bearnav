@@ -25,7 +25,7 @@ class CWSum: public CTemporal
 	public:
 
 		CWSum(int idd);
-    CWSum(string f_id);
+    CWSum(string f_id, float param);
     ~CWSum();
 
     //adds a serie of measurements to the data

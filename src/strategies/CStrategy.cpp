@@ -10,7 +10,7 @@ const char *strategyName[] =
 {
   "Best",
   "Monte_Carlo",
-  "Quantil"
+  "Quantile"
 };
 
 int comp (const void * a, const void * b){
@@ -31,23 +31,23 @@ void CStrategy::set_and_sort(ftr_stc* ftr_stcs, vector<double> score){
 }
 
 
-CStrategy* spawnStrategy(EStrategyType type)
+CStrategy* spawnStrategy(EStrategyType type, float param)
 {
 	CStrategy *strategy;
 	switch (type)
 	{
-		case TT_BEST: 		strategy = new CBestStrategy(10);		break;
-		case TT_MONTE_CARLO: 		strategy = new CMonteCarloStrategy(100);		break;
-		case TT_QUANTIL:	strategy = new CQuantilStrategy(0.5);		break;
-		default: 		strategy = new CBestStrategy(10);
+		case TT_BEST: 		strategy = new CBestStrategy(param);		break;
+		case TT_MONTE_CARLO: 		strategy = new CMonteCarloStrategy(param);		break;
+		case TT_QUANTIL:	strategy = new CQuantilStrategy(param);		break;
+		default: 		strategy = new CBestStrategy(param);
 	}
 
 	return strategy;
 }
 
-CStrategy* spawnStrategy(const char* type)
+CStrategy* spawnStrategy(const char* type, float param)
 {
 	int i = TT_BEST;
 	for (i=0;i<TT_QUANTIL && strcmp(type,strategyName[i])!=0;i++){}
-	return spawnStrategy( (EStrategyType)i);
+	return spawnStrategy( (EStrategyType)i,param);
 }

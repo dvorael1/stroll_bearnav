@@ -28,7 +28,7 @@ class CStrategy
 };
 
 
-CStrategy* spawnStrategy(const char* type);
-CStrategy* spawnStrategy(EStrategyType type);
+CStrategy* spawnStrategy(const char* type, float param);
+CStrategy* spawnStrategy(EStrategyType type,float param);
 
 #endif

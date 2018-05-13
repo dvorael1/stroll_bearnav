@@ -2,6 +2,7 @@
 #include "strategies/CStrategy.h"
 #include "t_models/CTemporal.h"
 #include "std_msgs/Float32.h"
+#include "std_msgs/String.h"
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -22,6 +23,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <stroll_bearnav/loadMapAction.h>
 #include <time.h>
+#include <string>
 
 using namespace cv;
 using namespace cv::xfeatures2d;
@@ -48,6 +50,10 @@ stroll_bearnav::Feature feature;
 
 /* map variables */
 vector<float> ratings;
+float stc_strategy_param=100;
+float stc_model_param = 0;
+string stc_model_type = "Sum";
+string stc_strategy_type = "Best";
 Mat img,img2;
 vector<KeyPoint> keypoints_1,keypoints_2;
 string currentMapName;
@@ -67,6 +73,7 @@ bool stop = false;
 std::vector<string> f_ids;
 std::vector<CTemporal*> models;
 string stc_fname;
+string tmp_param="shit";
 bool statistics = false;
 
 /*map to be preloaded*/
@@ -254,6 +261,8 @@ void executeCB(const stroll_bearnav::loadMapGoalConstPtr &goal, Server *serv)
 	}
 }
 
+
+
 void distCallback(const std_msgs::Float32::ConstPtr& msg)
 {
 	if(state == ACTIVE){
@@ -293,8 +302,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					for (size_t i = 0; i < keypoints_1.size(); i++) {
 							scores.push_back(0);
 					}
-					uint32_t t = 1502788667;
-					type = "Sum";
+					uint32_t t = time(NULL);
 
 					for(int i = 0; i<f_ids.size();i++){
 							if(f_ids[i].find(currentMapName)!=string::npos){
@@ -315,7 +323,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 							for(int i = 0; i<keypoints_1.size();i++){
 								string id = to_string(i) + "_" + currentMapName;
 								f_ids.push_back(id);
-								models.push_back(spawnTemporalModel(type.c_str(), id));
+								models.push_back(spawnTemporalModel(stc_model_type.c_str(), id, stc_model_param));
 							}
 								id_found = false;
 
@@ -359,10 +367,6 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 										scores[j] = score;
 									}
 								}
-								//TODO zkontrolovat scores vector
-						}
-						for (size_t i = 0; i < keypoints_1.size(); i++) {
-								ROS_WARN("%luth score value: %f",i,scores[i]);
 						}
 
 
@@ -374,11 +378,10 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 				  vector<KeyPoint> tmp(keypoints_1);
 				  keypoints_1.clear();
 
-					type = "Best";
 
 					// ROS_ERROR("key size: %lu score size %lu\n",keypoints_1.size(),scores.size());
-					CStrategy* strategy = spawnStrategy(type.c_str());
-					ROS_ERROR("size before %lu",tmp.size());
+					CStrategy* strategy = spawnStrategy(stc_strategy_type.c_str(),stc_strategy_param);
+					ROS_ERROR("size before %lu model %s param %f",tmp.size(),stc_strategy_type.c_str(),stc_strategy_param);
 					strategy->filterFeatures(&keypoints_1,&descriptors_1,&tmp,&tmp_mat, scores);
 
 					ROS_ERROR("size after %lu",keypoints_1.size());
@@ -427,17 +430,21 @@ int main(int argc, char** argv)
 		ros::param::get("~stc_file", stc_fname);
 		ifstream f( stc_fname.c_str());
 		statistics = f.good();
+		ros::param::get("~stc_model_type", stc_model_type);
+		ros::param::get("~stc_strategy_type", stc_strategy_type);
+		ros::param::get("~stc_model_param", stc_model_param);
+		ros::param::get("~stc_strategy_param", stc_strategy_param);
 	}
 	cmd_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd",1);
 	pathPub = nh_.advertise<stroll_bearnav::PathProfile>("/pathProfile",1);
 	dist_view_pub_=nh_.advertise<std_msgs::Float32>("/distance_view",1);
 
 
-	// if(statistics){
+	if(statistics){
 		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance", 1,distCallback);
-	// }else{
-		// dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance_view", 1,distCallback);
-	// }
+	}else{
+		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance_view", 1,distCallback);
+	}
 
 	image_pub_ = it_.advertise("/map_image", 1);
 	feat_pub_ = nh_.advertise<stroll_bearnav::FeatureArray>("/localMap",1);

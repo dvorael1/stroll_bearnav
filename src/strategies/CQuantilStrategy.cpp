@@ -5,9 +5,11 @@ using namespace std;
 using namespace cv;
 
 
-CQuantilStrategy::CQuantilStrategy(double p_init){
-  cout << "Strategy created";
+CQuantilStrategy::CQuantilStrategy(float p_init){
   p = p_init;
+  if(p<0 || p>1){
+    p=0.5;
+  }
 }
 
 CQuantilStrategy::CQuantilStrategy(){
@@ -18,14 +20,9 @@ CQuantilStrategy::~CQuantilStrategy(){
 
 }
 
-void CQuantilStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *keypoints_out, Mat *descriptors_out, vector<double> score){
-  int size = keypoints->size();
+void CQuantilStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score){
+  int size = tmp->size();
 
-  Mat tmp_mat = descriptors->clone();
-  descriptors->release();
-
-  vector<KeyPoint> tmp(*keypoints);
-  keypoints->clear();
 
   ftr_stc features_stcs[size];
   CStrategy::set_and_sort(features_stcs, score);
@@ -41,8 +38,8 @@ void CQuantilStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descript
   }
   for(int i = 0 ;i<size;i++){
     if(score[i]>=k){
-      keypoints->push_back(tmp[i]);
-      descriptors->push_back(tmp_mat.row(i));
+      keypoints->push_back(tmp->at(i));
+      descriptors->push_back(tmp_mat->row(i));
     }
   }
 }

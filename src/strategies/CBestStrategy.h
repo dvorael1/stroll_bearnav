@@ -11,7 +11,7 @@ using namespace cv;
 
 class CBestStrategy: public CStrategy{
   public:
-    CBestStrategy(int n_init);
+    CBestStrategy(float n_init);
     CBestStrategy();
 		~CBestStrategy();
 

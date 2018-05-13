@@ -11,11 +11,11 @@ using namespace cv;
 
 class CQuantilStrategy: public CStrategy{
   public:
-    CQuantilStrategy(double p_init);
+    CQuantilStrategy(float p_init);
     CQuantilStrategy();
 		~CQuantilStrategy();
 
-    void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *keypoints_out, Mat *descriptors_out, vector<double> score);
+    void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score);
 
     double p = 0.5;
 };
