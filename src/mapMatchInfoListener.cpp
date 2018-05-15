@@ -114,16 +114,13 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 
      for (int i = 0; i < f_ids.size(); i++) {
         if(f_ids[i].compare(mi[0].id)==0){
-          printf("first %s in vector %s\n",mi[0].id, f_ids[i].c_str());
           f_index = i;
-          printf("index = %d\n", i);
           break;
         }
      }
 
      if (f.is_open()  && file_content.is_open())
      {
-       printf("in file\n");
        int i_line = -1;
        while ( getline (f,line) )
        {
@@ -161,20 +158,6 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
        }
        f.close();
      }
-     //
-     // if(f_index<0 && f.good()){
-     //   file_content.close();
-     //   printf("index not found\n");
-     //   if ( rename( fname , oldname ) )
-     //   {
-     //     perror( "history not created yet" );
-     //   }
-     //   file_content.clear();
-     //   file_content.open(oldname);
-     //   if(!file_content.is_open()){
-     //     perror("nejde otevrit tmp file");
-     //   }
-     // }
 
      if(mi.size()>0)
      {
