@@ -387,8 +387,6 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 					ROS_ERROR("size after %lu",keypoints_1.size());
 					}
-					dist_.data=distanceT;
-					dist_view_pub_.publish(dist_);
 				}
 
 			for(int i=0;i<keypoints_1.size();i++)
@@ -418,6 +416,8 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 				image_pub_.publish(bridge.toImageMsg());
 			}
 		}
+		dist_.data=distanceT;
+		dist_view_pub_.publish(dist_);
 	}
 }
 
