@@ -291,10 +291,10 @@ int main(int argc, char **argv)
 
 	bool finished_before_timeout = true;
 
-	const char *viewNames[] = {"X0","X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X11","X12","X13","X14","X15","X16","X17"};
+	const char *viewNames[] = {"T0","T1","T2","T3","T4","T5","T6","T7","T8","T9","T10","T11","T12","T13","T14","T15","T16","T17"};
 	const char *mapNames[]  = {"Y9","Y9","Y9","Y9","Y9","Y9","Y9","Y9","Y9","Y9", "Y9", "Y9", "Y9", "Y9", "Y9", "Y9", "Y9",};
-	int numGlobalMaps = 2;
-	for (int globalMapIndex = 1;globalMapIndex<numGlobalMaps;globalMapIndex++)
+	int numGlobalMaps = 1;
+	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{
 		/*set map and view info */
 		clientsResponded = 0;
