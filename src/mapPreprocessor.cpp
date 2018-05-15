@@ -343,13 +343,14 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 								// id = f_ids.at((int)(start_index +j)).c_str();
 								// TODO pridat kdyz jmeno feature se neshoduje se stc
 								// if(id.compare(s)==0){
-								id_found = true;
+								id_found = id.compare(s)==0;
 								model = models[f_index + i];
 								// break;
 
 								// }
 							}
 							if(!id_found){
+								f_index++;
 								continue;
 							}
 							for(int j = 0; j<6;j++){
