@@ -2,8 +2,8 @@
 
 <!-- Default folders with maps-->
 
-<arg name="folder_map" default="$(env HOME)/eliska/maps/train"/>
-<arg name="folder_view" default="$(env HOME)/eliska/maps/train"/>
+<arg name="folder_map" default="$(env HOME)/eliska/maps/test"/>
+<arg name="folder_view" default="$(env HOME)/eliska/maps/test"/>
 <!--arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502788667/"/-->
 <!-- arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502953809/"/-->
 
