@@ -19,7 +19,8 @@ typedef enum{
 	TT_W_SUM,
 	TT_MOV_AVG,
 	TT_MEAN,
-	TT_FREMEN
+	TT_FREMEN,
+	TT_NUMBER
 }ETemporalType;
 
 class CTemporal

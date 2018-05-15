@@ -35,7 +35,7 @@ CTemporal* spawnTemporalModel(ETemporalType type,int maxPeriod,int elements,int 
 CTemporal* spawnTemporalModel(const char* type,int maxPeriod,int elements,int numClasses)
 {
 	int i = TT_SUM;
-	for (i=0;i<TT_MOV_AVG && strcmp(type,temporalModelName[i])!=0;i++){}
+	for (i=0;i<TT_NUMBER && strcmp(type,temporalModelName[i])!=0;i++){}
 	return spawnTemporalModel( (ETemporalType)i,maxPeriod,elements,numClasses);
 }
 
@@ -59,6 +59,6 @@ CTemporal* spawnTemporalModel(ETemporalType type, string f_id, float param)
 CTemporal* spawnTemporalModel(const char* type, string f_id, float param)
 {
 	int i = TT_SUM;
-	for (i=0;i<TT_MOV_AVG && strcmp(type,temporalModelName[i])!=0;i++){}
+	for (i=0;i<TT_NUMBER && strcmp(type,temporalModelName[i])!=0;i++){}
 	return spawnTemporalModel( (ETemporalType)i,f_id, param);
 }

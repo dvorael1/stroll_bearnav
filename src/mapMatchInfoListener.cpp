@@ -25,6 +25,7 @@ using namespace cv;
 using namespace std;
 char* fname;
 uint32_t currentTime;
+vector<string> f_ids;
 
 struct MatchInfo{
   char id[300];
@@ -103,16 +104,34 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
          // new_mi.time = time(NULL);
          mi.push_back(new_mi);
      }
-
-     ofstream file_content(".statistics.txt");
+     //TODO predelat na vlozeny s teckou vpredu
+     char oldname[] =".statistics.txt";
+     ofstream file_content(oldname);
      //ostringstream file_content;
      string line;
      ifstream f (fname);
+     int f_index = -1;
 
-     if (f.is_open() && file_content.is_open())
+     for (int i = 0; i < f_ids.size(); i++) {
+        if(f_ids[i].compare(mi[0].id)==0){
+          printf("first %s in vector %s\n",mi[0].id, f_ids[i].c_str());
+          f_index = i;
+          printf("index = %d\n", i);
+          break;
+        }
+     }
+
+     if (f.is_open()  && file_content.is_open())
      {
+       printf("in file\n");
+       int i_line = -1;
        while ( getline (f,line) )
        {
+         i_line++;
+         if(f_index < 0 || f_index>i_line || i_line> f_index+f_ids.size()-1){
+           file_content << line <<endl;
+           continue;
+         }
          vector<string> strings;
          string line2;
          line2.assign(line);
@@ -142,11 +161,27 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
        }
        f.close();
      }
+     //
+     // if(f_index<0 && f.good()){
+     //   file_content.close();
+     //   printf("index not found\n");
+     //   if ( rename( fname , oldname ) )
+     //   {
+     //     perror( "history not created yet" );
+     //   }
+     //   file_content.clear();
+     //   file_content.open(oldname);
+     //   if(!file_content.is_open()){
+     //     perror("nejde otevrit tmp file");
+     //   }
+     // }
 
      if(mi.size()>0)
      {
        for(int i = 0; i<mi.size(); i++)
        {
+         string id(mi[i].id);
+         f_ids.push_back(id);
          file_content << mi[i].id << " ";
          file_content << mi[i].x << " ";
          file_content << mi[i].y << " ";
@@ -165,7 +200,7 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
        perror( "Error deleting file" );
      }
 
-     char oldname[] =".statistics.txt";
+
 
      if ( rename( oldname , fname ) )
      {
@@ -180,7 +215,7 @@ int main(int argc, char **argv)
 {
 	if(argc<2){
 		perror("You must enter file Name");
-		fname = "bla";
+		return 0;
 	}else{
 		fname = argv[1];
 	}
@@ -202,7 +237,6 @@ int main(int argc, char **argv)
 			return 0;
 		}
 		ros::spinOnce();
-		usleep(100000);
 	}
 
 
