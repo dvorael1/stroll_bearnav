@@ -173,6 +173,7 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
      }
    }
   is_working = 0;
+  ROS_INFO("%.3f",msg->distance);
 }
 
 
@@ -193,7 +194,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
-  dynamic_reconfigure::Server<stroll_bearnav::listenerConfig> server;
+	dynamic_reconfigure::Server<stroll_bearnav::listenerConfig> server;
 	dynamic_reconfigure::Server<stroll_bearnav::listenerConfig>::CallbackType f = boost::bind(&callback, _1, _2);
 	server.setCallback(f);
 	while(ros::ok && !exitting)
@@ -202,7 +203,6 @@ int main(int argc, char **argv)
 			return 0;
 		}
 		ros::spinOnce();
-		usleep(100000);
 	}
 
 

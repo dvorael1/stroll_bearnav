@@ -310,6 +310,17 @@ int main(int argc, char** argv)
 					kpA.clear();
 					kpB.clear();
 					matches.clear();
+					//if (displayStyle == 0){
+					for (int i = 0;i<imA.rows/50;i++)
+					{
+						kp.pt.x = 5;
+						kp.pt.y = i*50;
+						kpA.push_back(kp);
+						kp.pt.x = imA.cols-5;
+						kpB.push_back(kp);
+						matches.push_back(DMatch(i, i, 0.1));
+					}
+					//}
 					drawMatches(imA, kpA, imB, kpB, matches, img_matches, Scalar(0, 0, 255), Scalar(0, 0, 255), vector<char>(), 0);
 				}
 				cv::transpose(img_matches,img_matches_transposed);

@@ -36,8 +36,9 @@ CFrelement::CFrelement(string f_id)
 
 void CFrelement::init(int iMaxPeriod,int elements,int numClasses)
 {
+	iMaxPeriod = 86400;
 	maxPeriod = iMaxPeriod;
-	numElements = maxPeriod/3600/2;
+	numElements = maxPeriod/3600/6;
 	numClasses = 0;
 	storedFrelements = (SFrelement*)malloc(sizeof(SFrelement)*numElements);
 	predictFrelements = (SFrelement*)malloc(sizeof(SFrelement)*numElements);
@@ -54,6 +55,7 @@ CFrelement::~CFrelement()
 // adds new state observations at given times
 int CFrelement::add(uint32_t time,float state)
 {
+	if (state < 0) state =0;
 	if (measurements == 0)
 	{
 		for (int i = 0;i<numElements;i++){
@@ -134,7 +136,7 @@ void CFrelement::update(int modelOrder,unsigned int* times,float* signal,int len
 /*text representation of the fremen model*/
 void CFrelement::print(bool verbose)
 {
-	std::cout << "Model: " << id << " Prior: " << predictGain << " Size: " << measurements << " ";
+	std::cout << "Model: " << fid << " Prior: " << predictGain << " Size: " << measurements << " ";
 	if (verbose){
 		for (int i = 0;i<order;i++){
 			std::cout << "Frelement " << i << " " << predictFrelements[i].amplitude << " " << predictFrelements[i].phase << " " << predictFrelements[i].period << " ";

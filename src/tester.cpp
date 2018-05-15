@@ -57,7 +57,7 @@ stroll_bearnav::loadMapGoal mapGoal;
 stroll_bearnav::loadMapGoal viewGoal;
 stroll_bearnav::navigatorGoal navGoal;
 
-FILE *mapFile, *viewFile,*logFile;
+FILE *mapFile, *viewFile,*logFile,*timeFile;
 string mapFolder,viewFolder;
 bool volatile exitting = false;
 bool generateDatasets = true;
@@ -103,19 +103,15 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 	float displacementGT = 0;
 	vector<MatchInfo> mi;
 
-  char filename[1000];
-  sprintf(filename,"%s/displacements.txt",viewFolder.c_str());
-  viewFile = fopen(filename,"a");
+  //char filename[1000];
+  //sprintf(filename,"%s/displacements.txt",viewFolder.c_str());
+  //viewFile = fopen(filename,"a");
 
-  fprintf(viewFile,"%i\n",(int)msg->displacement);
-  fclose(viewFile);
+  //fprintf(viewFile,"%i\n",(int)msg->displacement);
+  //fclose(viewFile);
 	is_working = 0;
 	/*maps processed*/
-  if(totalDist>0.8){
-    exitting = 1;
-    return;
-  }
-	if (primaryMapIndex < numPrimaryMaps-1 && totalDist<=0.8){
+	if (primaryMapIndex < numPrimaryMaps-1){
 		totalDist = distanceMap[primaryMapIndex+1];
 		dist_.data=totalDist;
 		dist_pub_.publish(dist_);
@@ -172,8 +168,8 @@ void feedbackNavCb(const stroll_bearnav::navigatorFeedbackConstPtr& feedback)
 	int dummy = 0;
 	int mapA = 0;
 	int mapB = 0;
-	//fscanf(mapFile, "%i %i\n",&offsetMap,&dummy);
-	//fscanf(viewFile,"%i %i\n",&offsetView,&dummy);
+	fscanf(mapFile, "%i %i\n",&offsetMap,&dummy);
+	fscanf(viewFile,"%i %i\n",&offsetView,&dummy);
 	float displacementGT = offsetView - offsetMap;
 
 	ROS_INFO("Navigation reports %i correct matches and %i outliers out of %i matches at distance %.3f with maps %s %s. Displacement %.3f GT %.3f",feedback->correct,feedback->outliers,feedback->matches,feedback->distance,mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),feedback->diffRot,displacementGT);
@@ -222,6 +218,26 @@ int configureFeatures(int detector,int descriptor)
 	if (ros::service::call("/feature_extraction/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Feature extraction module not configured.");
 }
 
+int configureTime(const char*filename)
+{
+	
+	dynamic_reconfigure::ReconfigureRequest srv_req;
+	dynamic_reconfigure::ReconfigureResponse srv_resp;
+	dynamic_reconfigure::IntParameter param;
+	dynamic_reconfigure::Config conf;
+	int timeOfTheMap = 0;
+	FILE *file = fopen(filename,"r");
+	fscanf(file,"%i",&timeOfTheMap);
+	fclose(file);
+	param.name = "currentTime";
+	param.value = timeOfTheMap;
+	conf.ints.push_back(param);
+	srv_req.config = conf;
+
+	if (ros::service::call("/listener/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Feature extraction module not configured.");
+}
+
+
 
 int main(int argc, char **argv)
 {
@@ -246,9 +262,9 @@ int main(int argc, char **argv)
 	if (generateDatasets) mode[0] = 'w';
 	// sprintf(filename,"%s/displacements.txt",mapFolder.c_str());
 	// mapFile = fopen(filename,mode);
-	sprintf(filename,"%s/displacements.txt",viewFolder.c_str());
-	viewFile = fopen(filename,"w");
-  fclose(viewFile);
+	//sprintf(filename,"%s/displacements.txt",viewFolder.c_str());
+	//viewFile = fopen(filename,"w");
+	//fclose(viewFile);
 	logFile = fopen("Results.txt","w");
 
 	configureFeatures(1,1);
@@ -275,32 +291,32 @@ int main(int argc, char **argv)
 
 	bool finished_before_timeout = true;
 
-  // const char *viewNames[] = {"P1","P2","P3","P4","P5","P6","P7","P8","P9","P10","P11","P12","P13","P14","P15","P16","P17"};
-	const char *viewNames[] = {"X"};
-	//const char *mapNames[]  = {"P0","P0","P0","P0","P0","P0","P0","P0","P0","P0", "P0", "P0", "P0", "P0", "P0", "P0", "P0",};
-  // const char *mapNames[] = {"P0","P1","P2","P3","P4","P5","P6","P7","P8","P9", "P10","P11","P12","P13","P14","P15","P16"};
-	const char *mapNames[] = {/*"SSS",*/"SAB"};
-	int numGlobalMaps = 1;
-	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
+	const char *viewNames[] = {"X0","X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X11","X12","X13","X14","X15","X16","X17"};
+	const char *mapNames[]  = {"Y9","Y9","Y9","Y9","Y9","Y9","Y9","Y9","Y9","Y9", "Y9", "Y9", "Y9", "Y9", "Y9", "Y9", "Y9",};
+	int numGlobalMaps = 2;
+	for (int globalMapIndex = 1;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{
 		/*set map and view info */
 		clientsResponded = 0;
 		navGoal.traversals = 1;
 
+
+
+		char filename[1000];
+		sprintf(filename,"%s/%s_GT.txt",mapFolder.c_str(),mapNames[globalMapIndex]);
+		printf("%s/%s_GT.txt\n",mapFolder.c_str(),mapNames[globalMapIndex]);
+		mapFile = fopen(filename,"r");
+		sprintf(filename,"%s/%s_GT.txt",viewFolder.c_str(),viewNames[globalMapIndex]);
+		printf("%s/%s_GT.txt\n",viewFolder.c_str(),viewNames[globalMapIndex]);
+		viewFile = fopen(filename,"r");
+
+		sprintf(filename,"%s/%s.time",viewFolder.c_str(),viewNames[globalMapIndex]);
+		configureTime(filename);
+
 		viewGoal.prefix = viewNames[globalMapIndex];
 		mapGoal.prefix = mapNames[globalMapIndex];
 		mp_view.sendGoal(viewGoal,&doneMapCb,&activeCb,&feedbackMapCb);
 		mp_map.sendGoal(mapGoal,&doneViewCb,&activeCb,&feedbackViewCb);
-
-
-		//char filename[1000];
-		//sprintf(filename,"%s/%s_GT.txt",mapFolder.c_str(),mapNames[globalMapIndex]);
-		//printf("%s/%s_GT.txt\n",mapFolder.c_str(),mapNames[globalMapIndex]);
-		// mapFile = fopen(filename,"r");
-		// sprintf(filename,"%s/%s_GT.txt",viewFolder.c_str(),viewNames[globalMapIndex]);
-		//printf("%s/%s_GT.txt\n",viewFolder.c_str(),viewNames[globalMapIndex]);
-		// viewFile = fopen(filename,"r");
-
 
 		/*wait for maps to load*/
 		while (clientsResponded < 2) sleep(1);
@@ -336,7 +352,6 @@ int main(int argc, char **argv)
 			ros::spinOnce();
 			usleep(10000);
 		}
-
 		/*terminate navigation, unload maps*/
 		exitting = 0;
 		clientsResponded = 0;
@@ -349,8 +364,8 @@ int main(int argc, char **argv)
 		ROS_INFO("Map test %s %s summary: %.3f %.3f %.3f",mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
 		fprintf(logFile,"Map test %s %s summary: %.3f %.3f %.3f\n",mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
 		statSumCorrect = statSumMatches = statSumOutliers = statNumMaps = 0;
-		//fclose(mapFile);
-		// fclose(viewFile);
+		fclose(mapFile);
+		fclose(viewFile);
 	}
 	fclose(logFile);
 	return 0;
