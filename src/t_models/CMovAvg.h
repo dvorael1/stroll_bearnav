@@ -56,7 +56,6 @@ class CMovAvg: public CTemporal
 		const char *fname;
 		float tau;
 		uint32_t max_dif;
-		string fid;
 		int id;
 
 };

@@ -48,6 +48,7 @@ class CTemporal
 		virtual int save(const char* name,bool lossy = false) = 0;
 		virtual int load(const char* name) = 0;
 
+		string fid;
 		int measurements,order;
 		int64_t firstTime;
 		int64_t  lastTime;

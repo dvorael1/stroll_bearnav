@@ -45,7 +45,6 @@ class CTimeMean: public CTemporal
 		int save(const char* name,bool lossy = false);
 		int load(const char* name);
 
-		string fid;
 		float estimation;
 		float positive;
 

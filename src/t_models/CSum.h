@@ -51,7 +51,6 @@ class CSum: public CTemporal{
     int load(const char* name);
 
     int id;
-    string fid;
     double score=0.0;
 
 };

@@ -306,7 +306,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
  
 		good_matches.clear();
 
-		int numBins = 21;
+		int numBins = 41;
 		int histogram[numBins];
 		for (int i = 0;i<numBins;i++) histogram[i] = 0;
 

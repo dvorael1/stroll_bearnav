@@ -24,6 +24,10 @@
 #include <stroll_bearnav/loadMapAction.h>
 #include <time.h>
 #include <string>
+#include <stroll_bearnav/listenerConfig.h>
+#include <ros/callback_queue.h>
+#include <dynamic_reconfigure/server.h>
+
 
 using namespace cv;
 using namespace cv::xfeatures2d;
@@ -75,6 +79,8 @@ string stc_fname;
 string tmp_param="shit";
 bool statistics = false;
 int f_index = 0;
+int last_size = 0;
+uint32_t t = time(NULL);
 
 /*map to be preloaded*/
 vector<vector<KeyPoint> > keypointsMap;
@@ -177,6 +183,12 @@ int loadMaps()
 	return numMaps;
 }
 
+void callback(stroll_bearnav::listenerConfig &config, uint32_t level)
+{
+	t=config.currentTime;
+  printf("%u\n", t);
+}
+
 /* load map based on distance travelled  */
 void loadMap(int index)
 {
@@ -269,6 +281,10 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 		distanceT=msg->data;
 		featureArray.feature.clear();
 
+		if(distanceT<0.1f){
+			f_index = 0;
+		}
+
 		//find the closest map
 		int mindex = -1;
 		float minDistance = FLT_MAX;
@@ -302,11 +318,15 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					for (size_t i = 0; i < keypoints_1.size(); i++) {
 							scores.push_back(0);
 					}
-					uint32_t t = time(NULL);
 
-					if(f_index<models.size() && f_index+keypoints_1.size()<=models.size()){
-						map_models_found = true;
-						for(int j = 0; j<keypoints_1.size();j++){
+					string f_id = to_string(0) + "_" + currentMapName;
+					while(f_index<models.size() && f_index+keypoints_1.size()<=models.size()){
+						if(f_id.compare(models[f_index]->fid)==0){
+							map_models_found = true;
+						}else{
+							f_index+= last_size;
+						}
+						for(int j = 0; j<keypoints_1.size() && map_models_found;j++){
 							CTemporal* model = models[f_index+j];
 							scores[j] = model->predict(t);
 						}
@@ -332,27 +352,17 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 								break;
 							}
 							string id = to_string(i) + "_" + currentMapName;
-							models.push_back(spawnTemporalModel(stc_model_type.c_str(), id, stc_model_param));
-							// string id = "id";
-							// string map_name;
+
 							istringstream l(line);
 							string s;
 							if(getline(l, s, ' ')){
-								// for(j = 0;j<keypoints_1.size();j++){
-
-								// id = f_ids.at((int)(start_index +j)).c_str();
-								// TODO pridat kdyz jmeno feature se neshoduje se stc
-								// if(id.compare(s)==0){
 								id_found = id.compare(s)==0;
-								model = models[f_index + i];
-								// break;
-
-								// }
 							}
 							if(!id_found){
-								f_index++;
 								continue;
 							}
+							models.push_back(spawnTemporalModel(stc_model_type.c_str(), id, stc_model_param));
+							model = models[f_index + i];
 							for(int j = 0; j<6;j++){
 								getline(l, s, ' ');
 							}
@@ -376,7 +386,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					// 	ROS_WARN("score[%d] = %f", i, scores[i]);
 					// }
 
-					f_index += keypoints_1.size();
+					last_size = keypoints_1.size();
 
 					f.close();
 
@@ -448,16 +458,16 @@ int main(int argc, char** argv)
 	dist_view_pub_=nh_.advertise<std_msgs::Float32>("/distance_done",1);
 
 
-	if(statistics){
-		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance", 1,distCallback);
-	}else{
-		dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance_view", 1,distCallback);
-	}
+	dist_sub_ = nh_.subscribe<std_msgs::Float32>( "/distance", 1,distCallback);
 
 	image_pub_ = it_.advertise("/map_image", 1);
 	feat_pub_ = nh_.advertise<stroll_bearnav::FeatureArray>("/localMap",1);
 
 	/* Initiate action server */
+	dynamic_reconfigure::Server<stroll_bearnav::listenerConfig> server2;
+	dynamic_reconfigure::Server<stroll_bearnav::listenerConfig>::CallbackType clb = boost::bind(&callback, _1, _2);
+	server2.setCallback(clb);
+
 	server = new Server (nh_, "map_preprocessor", boost::bind(&executeCB, _1, server), false);
 	server->start();
 	ros::spin();

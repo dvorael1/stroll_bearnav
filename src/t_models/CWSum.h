@@ -53,7 +53,6 @@ class CWSum: public CTemporal
 		int id;
 		double score;
 		float w;
-		string fid;
 
 };
 

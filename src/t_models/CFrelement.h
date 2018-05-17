@@ -56,7 +56,6 @@ class CFrelement: public CTemporal
 		float storedGain;
 		SFrelement *storedFrelements;
 		int id;
-		string fid;
 		float predictGain;
 		SFrelement *predictFrelements;
 		int measurements;
