@@ -4,46 +4,55 @@
 #check arguments
 case $# in
     3);;
-    *) echo "wrong number of argument! 1st: number of submaps. 2nd: path to file to save statistics. 3rd: path to folder containg folders with maps to collect statistic from."  1>&2
-        exit -1
+    *) #echo "wrong number of argument! 1st: number of submaps. 2nd: path to file to save statistics. 3rd: path to folder containg folders with maps to collect statistic from."  1>&2
+        #exit -1 W_Sum 2 Best 250
         ;;
 esac
 
 source ~/bc_ros/devel/setup.bash
 
-mt=Sum
+
+imp=0
 mp=0
-st=Best
-sp=100
+mps=(0 2 43200 0)
+sps=(250 500 1000)
 
-cd $3/test
+cd $1
 
-TXT_FILES=( `ls` )
-
-for i in ${TXT_FILES[*]}
+for mt in Sum W_Sum Mov_Avg Fremen 
 do
+	mp=${mps[$imp]}
+	for st in Best Quantile Monte_Carlo
+	do
+		for sp in ${sps[*]}
+		do
+       		echo "$mt $mp $st $sp"
+       
+			roslaunch stroll_bearnav evaluate.launch fstc_file:=$2 stc_model_type:=$mt stc_model_param:=$mp stc_strategy_type:=$st stc_strategy_param:=$sp &            	 
+			P1=$!		
+			read -n 1
+	   		kill -2 $P1
+			wait $P1
 	
-	if [[ -d $i ]]; then
-		mt=Sum
-		mp=0
-		st=Best
-		sp=100
-        echo "using map in sub folder: $i"
-        echo "$mt $mp $st $sp"
-        
-		roslaunch stroll_bearnav evaluate.launch folder_view:=$3/test/$i/ stc_file:=$2 stc_model_type:=$mt stc_model_param:=$mp stc_strategy_type:=$st stc_strategy_param:=$sp  &            	 
-		P1=$!		
-		
-		rostopic echo /distance -n 5
-		echo "listened $1 times"
-	    kill -2 $P1
-		wait $P1
-		
-		mv $3/test/$i/displacements.txt $3/test/$i/"$mt"_"$mp"_"$st"_"$sp"_annotation.txt
-		
-		
-    fi 
+			mv /home/eliska/.ros/Results.txt $1/"$mt"_"$mp"_"$st"_"$sp"_result.txt
 	
+
+		done
+		
+		if [ $st == "Best" ]; then
+			sps=(0.25 0.5 0.75)
+		fi
+		
+		if [ $st == "Quantile" ]; then
+			sps=(250 500 1000)
+		fi
+			
+	done	
+	((imp++))
 done
 
+mt=W_Sum
+mp=2
+st=Best
+sp=250
 exit 0

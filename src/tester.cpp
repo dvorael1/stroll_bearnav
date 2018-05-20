@@ -230,11 +230,12 @@ int configureTime(const char*filename)
 	fclose(file);
 	param.name = "currentTime";
 	param.value = timeOfTheMap;
-  ROS_WARN("configurint time to %d\n",timeOfTheMap);
+  ROS_WARN("configuring time to %d\n",timeOfTheMap);
 	conf.ints.push_back(param);
 	srv_req.config = conf;
 
-	if (ros::service::call("/listener/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Feature extraction module not configured.");
+  // if (ros::service::call("/listener/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
+	if (ros::service::call("/map_preprocessor_map/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
 }
 
 
@@ -291,11 +292,12 @@ int main(int argc, char **argv)
 
 	bool finished_before_timeout = true;
 
-  const char *viewNames[] = {"T0","T1","T2","T5","T4","T3"};
+  const char *viewNames[] = {"T0","T1","T2","T3","T4","T5"};
+  // const char *viewNames[] = {"X0","X1","X2","X5","X4","X3", "X6", "X7", "X8", "X9". "X10"};
 	// const char *viewNames[] = {"T3"};
   // const char *mapNames[]  = {"SAB"};
 	const char *mapNames[]  = {"SAB","SAB","SAB","SAB","SAB","SAB"};
-	int numGlobalMaps = 19;
+	int numGlobalMaps = 6;
 	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{
 		/*set map and view info */
@@ -313,6 +315,7 @@ int main(int argc, char **argv)
 		viewFile = fopen(filename,"r");
 
 		sprintf(filename,"%s/%s.time",viewFolder.c_str(),viewNames[globalMapIndex]);
+    ROS_WARN("configuring time");
 		configureTime(filename);
 
 		viewGoal.prefix = viewNames[globalMapIndex];

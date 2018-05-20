@@ -1,3 +1,4 @@
+#include <ros/ros.h>
 #include "CMonteCarloStrategy.h"
 
 using namespace std;
@@ -25,11 +26,11 @@ double find_min(vector<double> stcs, int size){
       min = stcs[i];
     }
   }
-  return min;
+  return min+1;
 }
 
 void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score){
-  int size=tmp->size();
+  int size=score.size();
   if (size==0){
     return;
   }if(n>=size){
@@ -42,8 +43,10 @@ void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descr
 
   double min = find_min(score,size);
   double add = 0.0;
-  if(min<=0.0){
-    add = 1.0 - min;
+  if(min<0.0){
+    add = - min;
+  }if(min==0){
+    add = 0.001;
   }
   int count = 0;
   double all = 0.0;
@@ -55,25 +58,32 @@ void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descr
   }
 
   srand (time(NULL));
+  int more_picked = 0;
 
   for (int i = 0; i<n;++i){
-    int r_next = 0.0 + double((all*rand())/(RAND_MAX + 1.0) );
+    double r_next = 0.0 + double((all*rand())/(RAND_MAX + 1.0) );
     bool picked = false;
     double diff = 0.0;
-    for(int j = 0; j<size && !picked;j++){
+    for(int j = 0; j<size ;j++){
       if(mnt_crl[j]>r_next){
 
-        if(score[j]>0.0){
-          i--;
-          break;
+        if(picked){
+          // i--;
+          mnt_crl[j]-= diff;
+
         }else{
           picked = true;
-          score[j] = 1.0;
+          if(j>0){
+            diff = mnt_crl[j]-mnt_crl[j-1];
+          }else{
+            diff = mnt_crl[j];
+          }
+          all-=diff;
           keypoints->push_back(tmp->at(j));
           descriptors->push_back(tmp_mat->row(j));
         }
       }
     }
-
   }
+
 }

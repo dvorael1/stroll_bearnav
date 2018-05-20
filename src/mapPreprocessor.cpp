@@ -186,7 +186,8 @@ int loadMaps()
 void callback(stroll_bearnav::listenerConfig &config, uint32_t level)
 {
 	t=config.currentTime;
-  printf("%u\n", t);
+  ROS_ERROR("mapPreprocessor setting time to %u ",t);
+	f_index = 0;
 }
 
 /* load map based on distance travelled  */
@@ -281,10 +282,6 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 		distanceT=msg->data;
 		featureArray.feature.clear();
 
-		if(distanceT<0.1f){
-			f_index = 0;
-		}
-
 		//find the closest map
 		int mindex = -1;
 		float minDistance = FLT_MAX;
@@ -306,6 +303,8 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 			double stcs[len];
 			if(keypoints_1.size()>0 && statistics)
 			{
+				ROS_ERROR("Index = %d",f_index);
+				ROS_ERROR("time = %u",t);
 
 
 				ifstream f(stc_fname.c_str());
@@ -320,14 +319,17 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					}
 
 					string f_id = to_string(0) + "_" + currentMapName;
-					while(f_index<models.size() && f_index+keypoints_1.size()<=models.size()){
+					while(f_index<models.size() && !map_models_found){
 						if(f_id.compare(models[f_index]->fid)==0){
 							map_models_found = true;
+							ROS_WARN("yes f_index =%d fid = %s mid = %s",f_index,f_id.c_str(),models[f_index]->fid.c_str());
 						}else{
-							f_index+= last_size;
+							f_index += last_size;
+							continue;
 						}
 						for(int j = 0; j<keypoints_1.size() && map_models_found;j++){
 							CTemporal* model = models[f_index+j];
+							model->update(2);
 							scores[j] = model->predict(t);
 						}
 
@@ -338,8 +340,6 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						CTemporal* model;
 						int i = 0;
 						int l_index =-1;
-						string id = to_string(i) + "_" + currentMapName;
-						models.push_back(spawnTemporalModel(stc_model_type.c_str(), id, stc_model_param));
 
 
 						while ( getline (f,line))
@@ -351,10 +351,10 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 							if(f_index+keypoints_1.size()<=l_index){
 								break;
 							}
-							string id = to_string(i) + "_" + currentMapName;
 
 							istringstream l(line);
 							string s;
+							string id = to_string(i) + "_" + currentMapName;
 							if(getline(l, s, ' ')){
 								id_found = id.compare(s)==0;
 							}
@@ -379,12 +379,9 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 							scores[i] = score;
 							i++;
 						}
+
 					}
 
-
-					// for (int i = 0; i < keypoints_1.size(); i++) {
-					// 	ROS_WARN("score[%d] = %f", i, scores[i]);
-					// }
 
 					last_size = keypoints_1.size();
 
