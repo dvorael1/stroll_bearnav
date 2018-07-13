@@ -292,12 +292,12 @@ int main(int argc, char **argv)
 
 	bool finished_before_timeout = true;
 
-  const char *viewNames[] = {"T0","T1","T2","T3","T4","T5"};
+  const char *viewNames[] = {"T0"/*,"T1","T2","T3","T4","T5"*/};
   // const char *viewNames[] = {"X0","X1","X2","X5","X4","X3", "X6", "X7", "X8", "X9". "X10"};
 	// const char *viewNames[] = {"T3"};
   // const char *mapNames[]  = {"SAB"};
-	const char *mapNames[]  = {"SAB","SAB","SAB","SAB","SAB","SAB"};
-	int numGlobalMaps = 6;
+	const char *mapNames[]  = {"SAB"/*,"SAB","SAB","SAB","SAB","SAB"*/};
+	int numGlobalMaps = 1;
 	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{
 		/*set map and view info */

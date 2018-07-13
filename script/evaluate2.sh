@@ -5,7 +5,7 @@
 case $# in
     3);;
     *) #echo "wrong number of argument! 1st: number of submaps. 2nd: path to file to save statistics. 3rd: path to folder containg folders with maps to collect statistic from."  1>&2
-        #exit -1 W_Sum 2 Best 250
+        #exit -1 Mov_Avg 43200 Quantile 0.25
         ;;
 esac
 
@@ -19,7 +19,7 @@ sps=(250 500 1000)
 
 cd $1
 
-for mt in Sum W_Sum Mov_Avg Fremen 
+for mt in  Fremen #Sum W_Sum Mov_Avg
 do
 	mp=${mps[$imp]}
 	for st in Best Quantile Monte_Carlo

@@ -396,7 +396,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 					// ROS_ERROR("key size: %lu score size %lu\n",keypoints_1.size(),scores.size());
 					CStrategy* strategy = spawnStrategy(stc_strategy_type.c_str(),stc_strategy_param);
-					ROS_ERROR("size before %lu model %s param %f",tmp.size(),stc_strategy_type.c_str(),stc_strategy_param);
+					ROS_WARN("size before %lu model %s param %f stategy %s param %f",tmp.size(),stc_model_type.c_str(),stc_model_param,stc_strategy_type.c_str(),stc_strategy_param);
 					strategy->filterFeatures(&keypoints_1,&descriptors_1,&tmp,&tmp_mat, scores);
 
 					ROS_ERROR("size after %lu",keypoints_1.size());
