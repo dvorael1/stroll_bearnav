@@ -26,7 +26,7 @@
 </node-->
 
 <!-- map loader1 node -->
-<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_map" output="screen">
+<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_map">
 <param name="folder" value="$(arg folder_map)" />
 <!-- <param name="stc_file" value="$(arg stc_file)" /> -->
 <param name="stc_model_type" value="$(arg stc_model_type)" />
@@ -37,7 +37,7 @@
 </node>
 
 <!-- map loader2 node -->
-<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_view" output="screen">
+<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_view">
 <param name="folder" value="$(arg folder_view)" />
 <remap from="localMap" to="featuresa" />
 <remap from="pathProfile" to="pathProfileDummy" />
@@ -48,13 +48,13 @@
 </node>
 
 <!-- navigator node -->
-<node pkg="stroll_bearnav" type="navigator_node" name="navigator" output="screen" >
+<node pkg="stroll_bearnav" type="navigator_node" name="navigator"  >
   <param name="folder" value="$(arg folder_map)" />
   <remap from="image_with_features" to="image_view"/>
 </node>
 
-<!-- tester node -->
-<node pkg="stroll_bearnav" type="tester" name="tester" output="screen" >
+<!-- navigator node -->
+<node pkg="stroll_bearnav" type="tester" name="tester"  required="true"  output="screen" >
   <param name="folder_map" value="$(arg folder_map)" />
   <param name="folder_view" value="$(arg folder_view)" />
 </node>

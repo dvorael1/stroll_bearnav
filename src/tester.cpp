@@ -27,7 +27,6 @@
 
 using namespace cv;
 using namespace std;
-char* fname;
 
 struct MatchInfo{
   char id[300];
@@ -59,8 +58,9 @@ stroll_bearnav::navigatorGoal navGoal;
 
 FILE *mapFile, *viewFile,*logFile,*timeFile;
 string mapFolder,viewFolder;
+vector<string> mapNames;
+vector<string> viewNames;
 bool volatile exitting = false;
-bool generateDatasets = true;
 bool volatile is_working = 0;
 ros::CallbackQueue* my_queue;
 ros::Publisher dist_pub_;
@@ -70,6 +70,8 @@ image_transport::Subscriber mapImageSub;
 image_transport::Subscriber viewImageSub;
 vector<float> distanceMap;
 
+bool saveMapImages = false;
+bool saveViewImages = false;
 
 void mySigHandler(int sig)
 {
@@ -97,7 +99,6 @@ void shutdownCallback(XmlRpc::XmlRpcValue& params, XmlRpc::XmlRpcValue& result)
 
 void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 {
-	printf("Distance PICO: %f\n",msg->map.distance);
 	is_working = 1;
 	int size = msg->mapMatchIndex.size();
 	float displacementGT = 0;
@@ -170,7 +171,7 @@ void feedbackNavCb(const stroll_bearnav::navigatorFeedbackConstPtr& feedback)
 	int mapB = 0;
 	fscanf(mapFile, "%i %i\n",&offsetMap,&dummy);
 	fscanf(viewFile,"%i %i\n",&offsetView,&dummy);
-	float displacementGT = offsetView - offsetMap;
+	float displacementGT = (offsetView - offsetMap);
 
 	ROS_INFO("Navigation reports %i correct matches and %i outliers out of %i matches at distance %.3f with maps %s %s. Displacement %.3f GT %.3f",feedback->correct,feedback->outliers,feedback->matches,feedback->distance,mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),feedback->diffRot,displacementGT);
 	fprintf(logFile,"Navigation reports %i correct matches and %i outliers out of %i matches at distance %.3f with maps %s %s. Displacement %.3f GT %.3f\n",feedback->correct,feedback->outliers,feedback->matches,feedback->distance,mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),feedback->diffRot,displacementGT);
@@ -183,21 +184,27 @@ void feedbackNavCb(const stroll_bearnav::navigatorFeedbackConstPtr& feedback)
 void mapImageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
 	static int mapImageNum = 0;
-	cv_bridge::CvImagePtr cv_ptr;
-	cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-	// char fileName[1000];
-	// sprintf(fileName,"%s/%09i.bmp",mapFolder.c_str(),mapImageNum++);
-	// imwrite(fileName,cv_ptr->image);
+	if (saveMapImages){
+		cv_bridge::CvImagePtr cv_ptr;
+		cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+		char fileName[1000];
+		sprintf(fileName,"%s/%09i.bmp",mapFolder.c_str(),mapImageNum);
+		imwrite(fileName,cv_ptr->image);
+	}
+	mapImageNum++;
 }
 
 void viewImageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
 	static int viewImageNum = 0;
-	cv_bridge::CvImagePtr cv_ptr;
-	cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-// 	char fileName[1000];
-// 	sprintf(fileName,"%s/%09i.bmp",viewFolder.c_str(),viewImageNum++);
-// 	imwrite(fileName,cv_ptr->image);
+	if (saveViewImages){
+		cv_bridge::CvImagePtr cv_ptr;
+		cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+		char fileName[1000];
+		sprintf(fileName,"%s/%09i.bmp",viewFolder.c_str(),viewImageNum);
+		imwrite(fileName,cv_ptr->image);
+	}
+	viewImageNum++;
 }
 
 int configureFeatures(int detector,int descriptor)
@@ -242,12 +249,6 @@ int configureTime(const char*filename)
 
 int main(int argc, char **argv)
 {
-	if(argc<2){
-		perror("You must enter file Name");
-		fname = "bla";
-	}else{
-		fname = argv[1];
-	}
 	signal(SIGINT, mySigHandler);
 	ros::init(argc, argv, "listener", ros::init_options::NoSigintHandler);
 
@@ -257,15 +258,9 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;
 	ros::param::get("~folder_view", viewFolder);
 	ros::param::get("~folder_map", mapFolder);
+	ros::param::get("~names_view", viewNames);
+	ros::param::get("~names_map", mapNames);
 
-	char filename[1000];
-	char mode[] = "r";
-	if (generateDatasets) mode[0] = 'w';
-	// sprintf(filename,"%s/displacements.txt",mapFolder.c_str());
-	// mapFile = fopen(filename,mode);
-	//sprintf(filename,"%s/displacements.txt",viewFolder.c_str());
-	//viewFile = fopen(filename,"w");
-	//fclose(viewFile);
 	logFile = fopen("Results.txt","w");
 
 	configureFeatures(1,1);
@@ -273,11 +268,6 @@ int main(int argc, char **argv)
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
   dist_pub_=n.advertise<std_msgs::Float32>("/distance",1);
-
-	if (generateDatasets){
-		viewImageSub = it.subscribe( "/image_view", 1,viewImageCallback);
-		mapImageSub = it.subscribe( "/map_image", 1,mapImageCallback);
-	}
 
 	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_view("map_preprocessor_view", true);
 	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_map("map_preprocessor_map", true);
@@ -292,36 +282,25 @@ int main(int argc, char **argv)
 
 	bool finished_before_timeout = true;
 
-  const char *viewNames[] = {"T0"/*,"T1","T2","T3","T4","T5"*/};
-  // const char *viewNames[] = {"X0","X1","X2","X5","X4","X3", "X6", "X7", "X8", "X9". "X10"};
-	// const char *viewNames[] = {"T3"};
-  // const char *mapNames[]  = {"SAB"};
-	const char *mapNames[]  = {"SAB"/*,"SAB","SAB","SAB","SAB","SAB"*/};
-	int numGlobalMaps = 1;
+	int numGlobalMaps = min(mapNames.size(),viewNames.size());
 	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{
 		/*set map and view info */
 		clientsResponded = 0;
 		navGoal.traversals = 1;
 
-
-
 		char filename[1000];
-		sprintf(filename,"%s/%s_GT.txt",mapFolder.c_str(),mapNames[globalMapIndex]);
-		printf("%s/%s_GT.txt\n",mapFolder.c_str(),mapNames[globalMapIndex]);
+		sprintf(filename,"%s/%s_GT.txt",mapFolder.c_str(),mapNames[0].c_str());
+		printf("%s/%s_GT.txt\n",mapFolder.c_str(),mapNames[globalMapIndex].c_str());
 		mapFile = fopen(filename,"r");
-		sprintf(filename,"%s/%s_GT.txt",viewFolder.c_str(),viewNames[globalMapIndex]);
-		printf("%s/%s_GT.txt\n",viewFolder.c_str(),viewNames[globalMapIndex]);
+		sprintf(filename,"%s/%s_GT.txt",viewFolder.c_str(),viewNames[globalMapIndex].c_str());
+		printf("%s/%s_GT.txt\n",viewFolder.c_str(),viewNames[globalMapIndex].c_str());
 		viewFile = fopen(filename,"r");
-
-		sprintf(filename,"%s/%s.time",viewFolder.c_str(),viewNames[globalMapIndex]);
-    ROS_WARN("configuring time");
-		configureTime(filename);
 
 		viewGoal.prefix = viewNames[globalMapIndex];
 		mapGoal.prefix = mapNames[globalMapIndex];
-		mp_view.sendGoal(viewGoal,&doneMapCb,&activeCb,&feedbackMapCb);
-		mp_map.sendGoal(mapGoal,&doneViewCb,&activeCb,&feedbackViewCb);
+		mp_view.sendGoal(viewGoal,&doneViewCb,&activeCb,&feedbackViewCb);
+		mp_map.sendGoal(mapGoal,&doneMapCb,&activeCb,&feedbackMapCb);
 
 		/*wait for maps to load*/
 		while (clientsResponded < 2) sleep(1);
@@ -337,10 +316,12 @@ int main(int argc, char **argv)
 			ROS_INFO("Waiting for secondary map load %i of %i.",secondaryMapIndex,numSecondaryMaps);
 		}
 
+
 		/*initiate navigation*/
 		ROS_INFO("Goals send");
 		nav.sendGoal(navGoal,&doneNavCb,&activeCb,&feedbackNavCb);
 		while (clientsResponded < 3) sleep(1);
+
 
 		/*send first odometry info*/
 		is_working = 0;

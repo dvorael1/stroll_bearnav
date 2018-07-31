@@ -73,8 +73,6 @@ image_transport::Subscriber mapImageSub;
 image_transport::Subscriber viewImageSub;
 vector<float> distanceMap;
 
-bool mapLoaded = false;
-
 
 void mySigHandler(int sig)
 {
@@ -109,24 +107,22 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 	
 	is_working = 0;
 	/*maps processed*/
-	/*if (primaryMapIndex < numPrimaryMaps-1){
+	if (primaryMapIndex < numPrimaryMaps-1){
 		totalDist = distanceMap[primaryMapIndex+1];
 		dist_.data=totalDist;
 		dist_pub_.publish(dist_);
 		distEvent_pub_.publish(dist_);
 	}else{
 		 exitting = 1;
-	}*/
+	}
 }
 
 /*Map loader feedback for debugging*/
 void feedbackMapCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
 {
-ROS_INFO("Maps:");
 	distanceMap.push_back(feedback->distance);
 	numPrimaryMaps = feedback->numberOfMaps;
 	primaryMapIndex = feedback->mapIndex;
-	mapLoaded = feedback->mapLoaded;
 	ROS_INFO("Primary map: %s %i %f",feedback->fileName.c_str(),primaryMapIndex,feedback->distance);
 }
 
@@ -156,7 +152,7 @@ void activeCb()
 
 void doneMapperCb(const actionlib::SimpleClientGoalState& state,const stroll_bearnav::mapperResultConstPtr& result)
 { 
-	ROS_INFO("Mapper client reports %s.",state.toString().c_str());
+	ROS_INFO("Navigator client reports %s.",state.toString().c_str());
 	clientsResponded++;
 }
 
@@ -169,7 +165,6 @@ void doneNavCb(const actionlib::SimpleClientGoalState& state,const stroll_bearna
 { 
 	ROS_INFO("Navigator client reports %s.",state.toString().c_str());
 	clientsResponded++;
-	exitting = 1;
 }
 
 void feedbackNavCb(const stroll_bearnav::navigatorFeedbackConstPtr& feedback)
@@ -184,7 +179,7 @@ void feedbackNavCb(const stroll_bearnav::navigatorFeedbackConstPtr& feedback)
 	float displacementGT = offsetView - offsetMap;
 
 	ROS_INFO("Navigation reports %i correct matches and %i outliers out of %i matches at distance %.3f with maps %s %s. Displacement %.3f GT %.3f",feedback->correct,feedback->outliers,feedback->matches,feedback->distance,mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),feedback->diffRot,displacementGT);
-	//fprintf(logFile,"Navigation reports %i correct matches and %i outliers out of %i matches at distance %.3f with maps %s %s. Displacement %.3f GT %.3f\n",feedback->correct,feedback->outliers,feedback->matches,feedback->distance,mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),feedback->diffRot,displacementGT);
+	fprintf(logFile,"Navigation reports %i correct matches and %i outliers out of %i matches at distance %.3f with maps %s %s. Displacement %.3f GT %.3f\n",feedback->correct,feedback->outliers,feedback->matches,feedback->distance,mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),feedback->diffRot,displacementGT);
 	statSumCorrect += feedback->correct;
 	statSumMatches += feedback->matches;
 	statSumOutliers += feedback->outliers;
@@ -255,7 +250,7 @@ int main(int argc, char **argv)
 	mapFile = fopen(filename,mode);
 	sprintf(filename,"%s/displacements.txt",viewFolder.c_str());
 	viewFile = fopen(filename,mode);*/
-	//logFile = fopen("Results.txt","w");
+	logFile = fopen("Results.txt","w");
 
 	configureFeatures(3,2);
 	image_transport::ImageTransport it(n);
@@ -275,6 +270,8 @@ int main(int argc, char **argv)
 	actionlib::SimpleActionClient<stroll_bearnav::navigatorAction> nav("navigator", true);
 	mp_map.waitForServer(); 
 	ROS_INFO("Primary map server responding");
+	mp_view.waitForServer(); 
+	ROS_INFO("Secondary map server responding");
 	mapper.waitForServer(); 
 	ROS_INFO("Mapping server responding");
 	nav.waitForServer(); 
@@ -284,38 +281,38 @@ int main(int argc, char **argv)
 	bool finished_before_timeout = true;
 
 	//const char *viewNames[] = {"P1","P2","P3","P4","P5","P6","P7","P8","P9","P10","P11","P12","P13","P14","P15","P16","P17"};
-	//const char *viewNames[] = {"P1","P5","P9","P5","P1","P5","P9","P5","P1","P5","P9","P5","P1","P5","P9","P5","P1"};
-	const char *mapNames[] = {"A0","A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11","A12","A13","A14","A15","A16"};
-	//const char *mapNames[] = {"A0","B0","B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13","B14","B15","B16"};
-	//const char *viewNames[] = {"A0","A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11","A12","A13","A14","A15","A16"};
-	//const char *mapNames[] = {"testKralupy", "new2", "new3"};	
+	const char *viewNames[] = {"P1","P5","P9","P5","P1","P5","P9","P5","P1","P5","P9","P5","P1","P5","P9","P5","P1"};
+	const char *mapNames[] = {"X0","X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X11","X12","X13","X14","X15","X16"};
 
 	//const char *viewNames[] = {"X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X11","X12","X13","X14","X15","X16","X17"};
 	//const char *mapNames[] = {"A0","Y1","Y2","Y3","Y4","Y5","Y6","Y7","Y8","Y9","Y10","Y11","Y12","Y13","Y14","Y15","Y16"};
-	int numGlobalMaps = 1;
-	ROS_INFO("Maps: %i",numGlobalMaps);
+	int numGlobalMaps = 16;
 	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{
 		/*set map and view info */
 		clientsResponded = 0;
 		navGoal.traversals = 1;
 
-		//viewGoal.prefix = viewNames[globalMapIndex];
+		viewGoal.prefix = viewNames[globalMapIndex];
 		mapGoal.prefix = mapNames[globalMapIndex];
 		mapperGoal.fileName = mapNames[globalMapIndex+1];
 		mp_map.sendGoal(mapGoal,&doneMapCb,&activeCb,&feedbackMapCb);
-		//mp_view.sendGoal(viewGoal,&doneViewCb,&activeCb,&feedbackViewCb);
+		mp_view.sendGoal(viewGoal,&doneViewCb,&activeCb,&feedbackViewCb);
 		mapper.sendGoal(mapperGoal,&doneMapperCb,&activeCb,&feedbackMapperCb);
 
 		/*wait for maps to load*/
-		while (clientsResponded < 2) sleep(1);
+		while (clientsResponded < 3) sleep(1);
 
-		while (mapLoaded != true)
+		while (primaryMapIndex != numPrimaryMaps)
 		{
 			sleep(1);
 			ROS_INFO("Waiting for primary map load %i of %i.",primaryMapIndex,numPrimaryMaps);
 		}
-		
+		while (secondaryMapIndex != numSecondaryMaps)
+		{
+			sleep(1);
+			ROS_INFO("Waiting for secondary map load %i of %i.",secondaryMapIndex,numSecondaryMaps);
+		}
 
 		/*initiate navigation*/
 		ROS_INFO("Goals send");
@@ -342,23 +339,17 @@ int main(int argc, char **argv)
 		/*terminate navigation, unload maps*/
 		exitting = 0;
 		clientsResponded = 0;
-		//nav.cancelGoal();
+		nav.cancelGoal();
 		mapper.cancelGoal();
-		//mp_view.cancelGoal();
+		mp_view.cancelGoal();
 		mp_map.cancelGoal();
-		while (clientsResponded < 2) sleep(1);
-
-		char path[100];
-		sprintf(path, "cp %s/%s.yaml %s/%s.yaml", mapFolder.c_str(), mapNames[globalMapIndex],mapFolder.c_str(), mapNames[globalMapIndex+1]);
-
-		system(path);
+		while (clientsResponded < 4) sleep(1);
 	
 		/*Flush statistics*/
-		//ROS_INFO("Map test %s summary: %.3f %.3f %.3f",mapGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
-		//fprintf(logFile,"Map test %s summary: %.3f %.3f %.3f\n",mapGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
+		ROS_INFO("Map test %s %s summary: %.3f %.3f %.3f",mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
+		fprintf(logFile,"Map test %s %s summary: %.3f %.3f %.3f\n",mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
 		statSumCorrect = statSumMatches = statSumOutliers = statNumMaps = 0;
 	}
-	ROS_INFO("end");
-	//fclose(logFile);
+	fclose(logFile);
 	return 0;
 }

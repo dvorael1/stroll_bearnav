@@ -60,8 +60,10 @@ stroll_bearnav::FeatureArray mapFeatures;
 
 bool showAllMatches=true;
 bool showGoodMatches=true;
-int numFeatureAdd = 200;
-int numFeatureRemove = 0;
+int numFeatureAdd = 50;
+int numFeatureRemove = 50;
+float remapRatio = 0.5;
+bool plasticMap = true;
 
 geometry_msgs::Twist twist;
 nav_msgs::Odometry odometry;
@@ -144,7 +146,8 @@ void callback(stroll_bearnav::navigatorConfig &config, uint32_t level)
 	velocityGain=config.velocityGain;
 	ratioMatchConstant=config.matchingRatio;
 	maxVerticalDifference = config.maxVerticalDifference;
-
+	plasticMap = config.plasticMap;
+	remapRatio = config.remapRatio;
 	minGoodFeatures = config.minGoodFeatures;
 	pixelTurnGain = config.pixelTurnGain;
 	minimalAdaptiveSpeed = config.adaptiveSpeedMin;
@@ -383,9 +386,9 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 					differences[i] = -1000000;
 				}else{
 					differences[i] = difference;
-					if (index <= 0) index = 0;
-					if (index >= numBins) index = numBins-1;
-					/* (index >= 0 || index < numBins)*/ histogram[index]++;
+				//	if (index <= 0) index = 0;
+				//	if (index >= numBins) index = numBins-1;
+					if (index >= 0 || index < numBins) histogram[index]++;
 				}
 				count=0;
 			}
@@ -410,6 +413,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 			printf("\n");
 			float sum=0;
 			keypointsBest.clear();
+			/* use good correspondences to determine heading */
 			best_matches.clear();
 			bad_matches.clear();
 			/* take only good correspondences */
@@ -469,18 +473,20 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 				mapFeatures.feature[bad_matches[i].queryIdx].rating += mapEval[bad_matches[i].queryIdx];
 			}
 
-			//numFeatureAdd = numFeatureRemove = best_matches.size()*0.8;
+			numFeatureAdd = numFeatureRemove = best_matches.size()*remapRatio;
 
 			// remove the worst rating from map
 			sort(mapFeatures.feature.begin(), mapFeatures.feature.end(), compare_rating);
+			if (numFeatureRemove >mapFeatures.feature.size()) numFeatureAdd = numFeatureRemove = mapFeatures.feature.size();
 			if (numFeatureRemove > -1){
 				mapFeatures.feature.erase(mapFeatures.feature.end() - numFeatureRemove, mapFeatures.feature.end());
 			}else{
 				mapFeatures.feature.erase(mapFeatures.feature.end() - bad_matches.size(), mapFeatures.feature.end());
 			}
-
-			//mapFeatures.feature.clear();
-			//numFeatureAdd = 500;
+			if (plasticMap){
+				mapFeatures.feature.clear();
+				numFeatureAdd = 500;
+			}
 			// add the least similar features from view to map
 			for (int i = 0; i < numFeatureAdd && i < info.view.feature.size(); i++) {
 				info.view.feature[i].rating = 0;
