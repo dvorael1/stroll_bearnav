@@ -53,6 +53,7 @@ void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descr
   double mnt_crl[size];
   for (int i = 0; i<size;++i){
     all += add + score[i];
+
     mnt_crl[i] = all;
     score[i] = 0.0;
   }

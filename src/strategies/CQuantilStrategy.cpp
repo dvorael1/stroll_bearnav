@@ -1,5 +1,6 @@
 #include "CQuantilStrategy.h"
 #include <iostream>
+#include <ros/ros.h>
 
 using namespace std;
 using namespace cv;
@@ -22,6 +23,7 @@ CQuantilStrategy::~CQuantilStrategy(){
 
 void CQuantilStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score){
   int size = tmp->size();
+  ROS_ERROR("QUANTILE size %d",size);
 
 
   ftr_stc features_stcs[size];

@@ -2,16 +2,16 @@
 
 <!-- Default folders with maps-->
 
-<arg name="folder_map" default="$(env HOME)/stroll/eliska/maps/sparse/train"/>
-<arg name="folder_view" default="$(env HOME)/stroll/eliska/maps/sparse/test"/>
+<arg name="folder_map" default="$(env HOME)/mesas_2018_exposure/train"/>
+<arg name="folder_view" default="$(env HOME)/mesas_2018_exposure/train"/>
 <!--arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502788667/"/-->
 <!-- arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502953809/"/-->
 
 <arg name="stc_file" default="$(env HOME)/history.txt"/>
-<arg name="stc_model_type" default="Mov_Avg"/>
-<arg name="stc_model_param" default="43200"/>
-<arg name="stc_strategy_type" default="Quantile"/>
-<arg name="stc_strategy_param" default="0.25"/>
+<arg name="stc_model_type" default="Fremen"/>
+<arg name="stc_model_param" default="2"/>
+<arg name="stc_strategy_type" default="Monte_Carlo"/>
+<arg name="stc_strategy_param" default="250"/>
 
 <!-- feature extraction -->
   <node pkg="stroll_bearnav" type="feature_extraction_node" name="feature_extraction">
@@ -28,11 +28,11 @@
 <!-- map loader1 node -->
 <node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_map">
 <param name="folder" value="$(arg folder_map)" />
-<!-- <param name="stc_file" value="$(arg stc_file)" /> -->
 <param name="stc_model_type" value="$(arg stc_model_type)" />
 <param name="stc_model_param" value="$(arg stc_model_param)" />
 <param name="stc_strategy_type" value="$(arg stc_strategy_type)" />
 <param name="stc_strategy_param" value="$(arg stc_strategy_param)" />
+<param name="stc_file" value="$(arg stc_file)" />
 <remap from="map_preprocessor" to="map_preprocessor_map"/>
 </node>
 

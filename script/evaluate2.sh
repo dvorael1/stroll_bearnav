@@ -1,4 +1,4 @@
-#!/bin/bash 
+d#!/bin/bash 
 
  
 #check arguments
@@ -11,41 +11,53 @@ esac
 
 source ~/bc_ros/devel/setup.bash
 
+view=[A57
+map=[B56
+for i in {58..87}
+do
+	view=${view},A$i
+	map=${map},B56
+	
+done
+
+view=${view}]
+map=${map}]
+
+
+rosparam set /tester/names_map  $map
+rosparam set /tester/names_view  $view
 
 imp=0
 mp=0
-mps=(0 2 43200 0)
-sps=(250 500 1000)
+mps=(2 2 43200 0)
+#sps=(250 500 1000)
+sps=(250)
 
 cd $1
 
 for mt in  Fremen #Sum W_Sum Mov_Avg
 do
 	mp=${mps[$imp]}
-	for st in Best Quantile Monte_Carlo
+	for st in Monte_Carlo #Best Monte_Carlo #Quantile Monte_Carlo
 	do
 		for sp in ${sps[*]}
 		do
        		echo "$mt $mp $st $sp"
        
-			roslaunch stroll_bearnav evaluate.launch fstc_file:=$2 stc_model_type:=$mt stc_model_param:=$mp stc_strategy_type:=$st stc_strategy_param:=$sp &            	 
-			P1=$!		
-			read -n 1
-	   		kill -2 $P1
-			wait $P1
+			roslaunch stroll_bearnav evaluate.launch fstc_file:=$1 stc_model_type:=$mt stc_model_param:=$mp stc_strategy_type:=$st stc_strategy_param:=$sp 
 	
-			mv /home/eliska/.ros/Results.txt $1/"$mt"_"$mp"_"$st"_"$sp"_result.txt
+			mv /home/eliska/.ros/Results.txt $2/"$mt"_"$mp"_"$st"_"$sp"_result.txt
 	
 
 		done
 		
-		if [ $st == "Best" ]; then
-			sps=(0.25 0.5 0.75)
-		fi
+		#if [ $st == "Best" ]; then
+		#	sps=(0.25 0.5 0.75)
+		#fi
 		
-		if [ $st == "Quantile" ]; then
-			sps=(250 500 1000)
-		fi
+		#if [ $st == "Quantile" ]; then
+		#	sps=(250 500 1000)
+		#fi
 			
 	done	
 	((imp++))

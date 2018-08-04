@@ -222,7 +222,11 @@ int configureFeatures(int detector,int descriptor)
 	conf.ints.push_back(param);
 	srv_req.config = conf;
 
-	if (ros::service::call("/feature_extraction/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Feature extraction module not configured.");
+  if (ros::service::call("/feature_extraction/set_parameters", srv_req, srv_resp) == false){
+  		 ROS_WARN("Feature extraction module not configured.");
+  		 return -1;
+  	}
+  return 0;
 }
 
 int configureTime(const char*filename)
@@ -241,8 +245,9 @@ int configureTime(const char*filename)
 	conf.ints.push_back(param);
 	srv_req.config = conf;
 
-  // if (ros::service::call("/listener/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
+  if (ros::service::call("/listener/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
 	if (ros::service::call("/map_preprocessor_map/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
+  return 0;
 }
 
 
@@ -263,7 +268,7 @@ int main(int argc, char **argv)
 
 	logFile = fopen("Results.txt","w");
 
-	configureFeatures(1,1);
+	if (configureFeatures(3,2) < 0) return 0;
 	image_transport::ImageTransport it(n);
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
@@ -289,7 +294,11 @@ int main(int argc, char **argv)
 		clientsResponded = 0;
 		navGoal.traversals = 1;
 
-		char filename[1000];
+    char filename[1000];
+    sprintf(filename,"%s/%s.txt",viewFolder.c_str(),viewNames[globalMapIndex].c_str());
+    configureTime(filename);
+
+
 		sprintf(filename,"%s/%s_GT.txt",mapFolder.c_str(),mapNames[0].c_str());
 		printf("%s/%s_GT.txt\n",mapFolder.c_str(),mapNames[globalMapIndex].c_str());
 		mapFile = fopen(filename,"r");

@@ -14,7 +14,7 @@ CFrelement::CFrelement(int idi)
 	//initialization of the frequency set
 	storedGain = 0.0;
 	predictGain = 0.5;
-	order = 0;
+	order = 2;
 	firstTime = -1;
 	lastTime = -1;
 	measurements = 0;
@@ -27,7 +27,7 @@ CFrelement::CFrelement(string f_id)
 	//initialization of the frequency set
 	storedGain = 0.0;
 	predictGain = 0.5;
-	order = 0;
+	order = 2;
 	firstTime = -1;
 	lastTime = -1;
 	measurements = 0;

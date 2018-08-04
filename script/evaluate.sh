@@ -19,7 +19,7 @@ P2=$!
 
 
 if [ ! -e $2 ]; then
-    echo "File not found! and creating new for statistics"
+    echo "File not found and creating new for statistics"
     touch $2
 fi
 
@@ -50,6 +50,7 @@ kill -2 $P2
 
 wait $P2
 
+exit
 
 cd $3/test
 
