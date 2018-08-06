@@ -332,7 +332,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						}
 						for(int j = 0; j<keypoints_1.size() && map_models_found;j++){
 							CTemporal* model = models[f_index+j];
-							model->update(2);
+							model->update(stc_model_param);
 							scores[j] = model->predict(t);
 						}
 
@@ -378,7 +378,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 								model->add(t,state);
 							}
 							id_found = false;
-							model->update(2);
+							model->update(stc_model_param);
 							double score = model->predict(t);
 							scores[i] = score;
 							i++;

@@ -58,7 +58,7 @@ void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descr
     score[i] = 0.0;
   }
 
-  srand (time(NULL));
+  srand (0);
   int more_picked = 0;
 
   for (int i = 0; i<n;++i){

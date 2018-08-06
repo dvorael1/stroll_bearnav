@@ -29,13 +29,13 @@ rosparam set /tester/names_view  $view
 
 imp=0
 mp=0
-mps=(2 2 43200 0)
+mps=(1 2 43200 0)
 #sps=(250 500 1000)
-sps=(250)
+sps=(500)
 
 cd $1
 
-for mt in  Fremen #Sum W_Sum Mov_Avg
+for mt in  Fremen #Fremen Fremen #Sum W_Sum Mov_Avg
 do
 	mp=${mps[$imp]}
 	for st in Monte_Carlo #Best Monte_Carlo #Quantile Monte_Carlo
