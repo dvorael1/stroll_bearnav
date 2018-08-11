@@ -1,4 +1,6 @@
 #include "CFrelement.h"
+#include <ros/ros.h>
+
 
 using namespace std;
 
@@ -140,6 +142,10 @@ void CFrelement::print(bool verbose)
 	if (verbose){
 		for (int i = 0;i<order;i++){
 			std::cout << "Frelement " << i << " " << predictFrelements[i].amplitude << " " << predictFrelements[i].phase << " " << predictFrelements[i].period << " ";
+			/*FILE *f;
+			f = fopen("/home/eliska/fremen.txt", "a");
+			fprintf(f, "%f\n", predictFrelements[i].period);
+			fclose(f);*/
 		}
 	}
 	std::cout << endl;

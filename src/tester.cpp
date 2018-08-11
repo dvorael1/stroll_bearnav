@@ -71,7 +71,7 @@ image_transport::Subscriber viewImageSub;
 vector<float> distanceMap;
 
 bool saveMapImages = false;
-bool saveViewImages = false;
+bool saveViewImages = true;
 
 void mySigHandler(int sig)
 {
@@ -201,6 +201,7 @@ void viewImageCallback(const sensor_msgs::ImageConstPtr& msg)
 		cv_bridge::CvImagePtr cv_ptr;
 		cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
 		char fileName[1000];
+    ROS_ERROR("printing");
 		sprintf(fileName,"%s/%09i.bmp",viewFolder.c_str(),viewImageNum);
 		imwrite(fileName,cv_ptr->image);
 	}
@@ -273,7 +274,6 @@ int main(int argc, char **argv)
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
   dist_pub_=n.advertise<std_msgs::Float32>("/distance",1);
-
 	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_view("map_preprocessor_view", true);
 	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_map("map_preprocessor_map", true);
 	actionlib::SimpleActionClient<stroll_bearnav::navigatorAction> nav("navigator", true);

@@ -379,6 +379,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 							}
 							id_found = false;
 							model->update(stc_model_param);
+							model->print(true);
 							double score = model->predict(t);
 							scores[i] = score;
 							i++;
@@ -408,7 +409,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					}
 				}
 
-			for(int i=0;i<keypoints_1.size();i++)
+			for(int i=0;i<500;i++)
 			{
 					feature.x=keypoints_1[i].pt.x;
 					feature.y=keypoints_1[i].pt.y;
