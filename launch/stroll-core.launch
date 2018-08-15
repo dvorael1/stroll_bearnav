@@ -2,12 +2,12 @@
 
 <!-- Default folder with maps-->
 
-<arg name="folder" default="$(env HOME)/eliska/maps/train"/>
-<arg name="stc_file" default="$(env HOME)/history.txt"/>
-<arg name="stc_model_type" default="Fremen"/>
-<arg name="stc_model_param" default="43200"/>
-<arg name="stc_strategy_type" default="Best"/>
-<arg name="stc_strategy_param" default="500"/>
+<!-- <arg name="folder" default="$(env HOME)/eliska/maps/train"/> -->
+<!-- <arg name="stc_file" default="$(env HOME)/history.txt"/> -->
+<!-- <arg name="stc_model_type" default="Fremen"/> -->
+<!-- <arg name="stc_model_param" default="43200"/> -->
+<!-- <arg name="stc_strategy_type" default="Best"/> -->
+<!-- <arg name="stc_strategy_param" default="500"/> -->
 
 
 <!-- Distance Measurement Node -->
