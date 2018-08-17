@@ -43,7 +43,7 @@ do
 		do
        		echo "$mt $mp $st $sp"
        
-			roslaunch stroll_bearnav evaluate.launch fstc_file:=$1 stc_model_type:=$mt stc_model_param:=$mp stc_strategy_type:=$st stc_strategy_param:=$sp 
+			roslaunch stroll_bearnav evaluate.launch stc_file:=$1 stc_model_type:=$mt stc_model_param:=$mp stc_strategy_type:=$st stc_strategy_param:=$sp 
 	
 			mv /home/eliska/.ros/Results.txt $2/"$mt"_"$mp"_"$st"_"$sp"_result.txt
 	
