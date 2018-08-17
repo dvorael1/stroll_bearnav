@@ -1,7 +1,7 @@
 #!/bin/bash 
 
  
-#check arguments 1531825980 1531853700 1531855080
+
 
 
 case $# in
@@ -22,7 +22,6 @@ if [ ! -e $1 ]; then
     touch $1
 fi
 
-cd $2/train
 
 view=[A0
 map=[B56
