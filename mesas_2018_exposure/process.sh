@@ -11,7 +11,7 @@ mkdir "results"
 confidence=0.2
 ######################## exposure tests (Section 4.2)
 #prepare maps for exposure tests
-if [ 1 == 1 ];then
+if [ 0 == 1 ];then
 rosparam set names_map  [A0,B0]
 rosparam set names_view [A0]
 rosrun dynamic_reconfigure dynparam set /feature_extraction "{'adaptThreshold': True, 'maxLine': 0.5}"&
@@ -130,19 +130,27 @@ roslaunch stroll_bearnav remapTest.launch folder_map:=$f folder_view:=$f
 cp ~/.ros/Results.txt results/Map_adaptive_2.txt
 fi
 
-if [ 0 == 1 ];then
+#map prediction effects 
+if [ 1 == 1 ];
+then
 #starting to build a summary map 
 rosparam set names_map  [A0,B0]
 rosparam set names_view [A0]
-f="$1/mesas_2018_exposure/super"
+f="$1/mesas_2018_exposure/temporal"
 rosrun dynamic_reconfigure dynparam set /navigator "{'plasticMap': True,'remapRotGain': 0.0}"&
 roslaunch stroll_bearnav remapTest.launch folder_map:=$f folder_view:=$f
 cp $f/A0_GT.txt $f/B0_GT.txt
 
-rosparam set names_map [$(for i in $(seq 0 88);do echo -ne B$i,;done|sed s/,$//)]
-rosparam set names_view [$(for i in $(seq 1 87);do echo -ne A$i,;done|sed s/,$//)]
-rosrun dynamic_reconfigure dynparam set /navigator "{'summaryMap': True, 'plasticMap': False,'remapRotGain': 0.0}"&
+rosparam set names_map [$(for i in $(seq 0 58);do echo -ne B$i,;done|sed s/,$//)]
+rosparam set names_view [$(for i in $(seq 1 58);do echo -ne A$i,;done|sed s/,$//)]
+rosrun dynamic_reconfigure dynparam set /navigator "{'summaryMap': True, 'plasticMap': False,'remapRotGain': 1.0}"&
 roslaunch stroll_bearnav remapTest.launch folder_map:=$f folder_view:=$f
+
+rosparam set names_map [$(for i in $(seq 58 87);do echo -ne B56,;done|sed s/,$//)]
+rosparam set names_view [$(for i in $(seq 58 87);do echo -ne A$i,;done|sed s/,$//)]
+rosrun dynamic_reconfigure dynparam set /navigator "{'summaryMap': False, 'plasticMap': False,'remapRotGain': 1.0}"&
+roslaunch stroll_bearnav evaluate.launch folder_map:=$f folder_view:=$f
+cp ~/.ros/Results.txt results/Map_adaptive_LT.txt
 
 fi
 
@@ -155,7 +163,7 @@ cd $path
 echo "in `pwd`"
 
 #for i in Standard Exposure_full Exposure_fixed Features_full Features_fixed Map_static Map_plastic;do grep reports results/$i.txt|tail -n $((7*94))|awk '{a=$21-$23;print sqrt(a*a)}'| tee results/$i.err|sort -nr > results/$i.srt;done
-for i in Standard Exposure_full Exposure_fixed;do grep reports results/$i.txt|tail -n $((7*94))|awk '{a=$21-$23;print (sqrt(a*a)+384)%768-384}'| tee results/$i.err|sort -nr > results/$i.srt;done #tail is to eliminate the effect of the map start
+for i in Standard Exposure_full Exposure_fixed;do grep reports results/$i.txt|tail -n $((7*94))|awk '{a=$21-$23;b=(sqrt(a*a)+384)%768-384;print sqrt(b*b)}'| tee results/$i.err|sort -nr > results/$i.srt;done #tail is to eliminate the effect of the map start
 echo 
 echo EXPOSURE TESTS: Section 4.2
 echo -ne "	Error of Standard VS Fixed exposure: "
@@ -167,7 +175,7 @@ paste results/Exposure_full.err results/Exposure_fixed.err |./mesas_2018_exposur
 echo 
 gnuplot mesas_2018_exposure/exposure.gnu >results/exposure.fig 
 
-for i in Standard Features_full Features_fixed;do grep reports results/$i.txt|awk '{a=$21-$23;print (sqrt(a*a)+384)%768-384}'| tee results/$i.err|sort -nr > results/$i.srt;done
+for i in Standard Features_full Features_fixed;do grep reports results/$i.txt|awk '{a=$21-$23;b=(sqrt(a*a)+384)%768-384;print sqrt(b*b)}'| tee results/$i.err|sort -nr > results/$i.srt;done
 echo 
 echo FEATURE DETECTOR ADAPTATION TESTS: Section 4.3
 echo -ne "	Error of Standard VS Fixed hessian: "
@@ -179,7 +187,7 @@ paste results/Features_full.err results/Features_fixed.err |./mesas_2018_exposur
 echo 
 gnuplot mesas_2018_exposure/features.gnu >results/features.fig 
 
-for i in Standard Map_plastic Map_static;do grep reports results/$i.txt|awk '{a=$21-$23;print (sqrt(a*a)+384)%768-384}'| tee results/$i.err|sort -nr > results/$i.srt;done
+for i in Standard Map_plastic Map_static;do grep reports results/$i.txt|awk '{a=$21-$23;b=(sqrt(a*a)+384)%768-384;print sqrt(b*b)}'| tee results/$i.err|sort -nr > results/$i.srt;done
 echo MAP PLASTICITY TEST: Section 4.4
 echo -ne "	Error of Adaptive VS Static: "
 paste results/Standard.err results/Map_static.err          |./mesas_2018_exposure/t-test $confidence
@@ -190,8 +198,7 @@ paste results/Map_plastic.err results/Map_static.err |./mesas_2018_exposure/t-te
 echo 
 gnuplot mesas_2018_exposure/map.gnu >results/map.fig 
 
-
-for i in Map_adaptive_2 Map_plastic_2 Map_static_2;do grep reports results/$i.txt|awk '{a=$21-$23;print (sqrt(a*a)+384)%768-384}'| tee results/$i.err|sort -nr > results/$i.srt;done
+for i in Map_adaptive_2 Map_plastic_2 Map_static_2;do grep reports results/$i.txt|awk '{a=$21-$23;b=(sqrt(a*a)+384)%768-384;print sqrt(b*b)}'| tee results/$i.err|sort -nr > results/$i.srt;done
 echo MAP PLASTICITY TEST: Section 4.4
 echo -ne "	Error of Adaptive VS Static: "
 paste results/Map_adaptive_2.err results/Map_static_2.err          |./mesas_2018_exposure/t-test $confidence
@@ -202,45 +209,12 @@ paste results/Map_plastic_2.err results/Map_static_2.err |./mesas_2018_exposure/
 echo 
 gnuplot mesas_2018_exposure/map2.gnu >results/map2.fig 
 
-
-
-#exit
-
-#test the static map
-#rosparam set /tester/names_map  [A0,A0,A0,A0,A0,A0,A0,A0,A0]
-#rosparam set /tester/names_view [A1,A2,A3,A4,A5,A6,A7,A8,A9]
-#roslaunch stroll_bearnav evaluate.launch 
-#cp ~/.ros/Results.txt results/Map_static.txt
-
-#for i in Features_half Features_all Features_fixed;
-#do
-#needs to recompile right now
-#roslaunch stroll_bearnav evaluate.launch 
-#grep reports $i.txt|tail -n $((7*94))|awk '{a=$21-$23;print sqrt(a*a)}' >$i.err;
-#done
-#paste Features_half.err Features_all.err |./t-test 
-#paste Features_half.err Features_fixed.err |./t-test 
-#paste Features_all.err Features_fixed.err |./t-test 
-
-echo AAA
-for i in Map_static Map_plastic Map_adaptive;
-do
-#needs to recompile right now
-#roslaunch stroll_bearnav evaluate.launch 
-grep reports results/$i.txt|awk '{a=$21-$23;print (sqrt(a*a)+384)%768-384}'|tee $i.err|sort -nr > $i.srt;
-done
-paste Map_adaptive.err Map_static.err |./mesas_2018_exposure/t-test 
-paste Map_adaptive.err Map_plastic.err |./mesas_2018_exposure/t-test 
-paste Map_plastic.err Map_static.err |./mesas_2018_exposure/t-test 
-echo AAA
-for i in random fremen_0 fremen_1_best fremen_1_mc;
-do
-#needs to recompile right now
-#roslaunch stroll_bearnav evaluate.launch 
-grep reports $i.txt|awk '{a=$21-$23;print (sqrt(a*a)+384)%768-384}' >$i.err;
-done
-
-for i in random without fremen_0 fremen_1 fremen_1_mc;do grep reports $i.txt|awk '{a=$21-$23;print (sqrt(a*a)+384)%768-384}'|tee $i.err|sort -nr > $i.srt;done
-echo AA
-paste fremen_0.err fremen_1.err |./mesas_2018_exposure/t-test 
-paste fremen_0.err fremen_1_mc.err |./mesas_2018_exposure/t-test 
+for i in Map_adaptive_LT Fremen_0_Best_500_result Fremen_1_Best_500_result Fremen_2_Best_500_result ;do grep reports results/$i.txt|awk '{a=$21-$23;b=(sqrt(a*a)+384)%768-384;print sqrt(b*b)}'| tee results/$i.err|sort -nr > results/$i.srt;done
+#for i in Map_adaptive_LT Fremen_1_Monte_Carlo_500_result Fremen_0_Monte_Carlo_500_result Fremen_2_Monte_Carlo_500_result ;do grep reports results/$i.txt|awk '{a=$21-$23;b=(sqrt(a*a)+384)%768-384;print sqrt(b*b)}'| tee results/$i.err|sort -nr > results/$i.srt;done
+echo MAP PLASTICITY TEST: Section 4.4
+echo -ne "	Error of FreMEn_0 VS FreMEn_1: "
+paste results/Fremen_0_Best_500_result.err results/Fremen_1_Best_500_result.err          |./mesas_2018_exposure/t-test $confidence
+echo -ne "	Error of FreMEn_1 VS FreMEn_2: "
+paste results/Map_adaptive_LT.err results/Fremen_1_Best_500_result.err          |./mesas_2018_exposure/t-test $confidence
+#paste results/Fremen_1_Best_500_result.err results/Fremen_2_Best_500_result.err          |./mesas_2018_exposure/t-test $confidence
+gnuplot mesas_2018_exposure/map3.gnu >results/map3.fig 

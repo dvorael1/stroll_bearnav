@@ -475,14 +475,12 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 		}
 		if(isRating)
 		{
-			if (count>=minGoodFeatures){
+			if (count>=minGoodFeatures || plasticMap){
 				for (int i = 0; i < bad_matches.size(); i++) {
 					mapFeatures.feature[bad_matches[i].queryIdx].rating += mapEval[bad_matches[i].queryIdx];
 				}
 				int numFeatureRemove = fmin(fmax(best_matches.size()*remapRatio,minFeatureRemap),maxFeatureRemap);
 				int numFeatureAdd = numFeatureRemove;
-
-				// remove the worst rating from map
 
 				//rebuild map completely
 				if (plasticMap){
@@ -491,6 +489,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 				}else{
 					sort(mapFeatures.feature.begin(), mapFeatures.feature.end(), compare_rating);
 					if (numFeatureRemove >mapFeatures.feature.size()) numFeatureAdd = numFeatureRemove = mapFeatures.feature.size();
+
 					//if summary map, remove only features with negative ranking
 					if (summaryMap){
 						while (mapFeatures.feature[mapFeatures.feature.size()-1-numFeatureRemove].rating >= 0 && numFeatureRemove > 0) numFeatureRemove--;

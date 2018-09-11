@@ -22,7 +22,7 @@ if [ ! -e $1 ]; then
     touch $1
 fi
 
-cd $2/train
+
 
 view=[A0
 map=[B56
