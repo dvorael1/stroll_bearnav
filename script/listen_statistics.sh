@@ -1,8 +1,4 @@
-#!/bin/bash 
-
-
-
-
+#!/bin/bash
 
 case $# in
     3);;
