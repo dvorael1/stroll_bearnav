@@ -1,7 +1,7 @@
 #!/bin/bash 
 
- 
-#check arguments 1531825980 1531853700 1531855080
+
+
 
 
 case $# in
@@ -23,14 +23,13 @@ if [ ! -e $1 ]; then
 fi
 
 
-
 view=[A0
 map=[B56
 for i in {1..57}
 do
 	view=${view},A$i
 	map=${map},B56
-	
+
 done
 
 view=${view}]
@@ -41,8 +40,8 @@ echo $map;
 
 rosparam set /tester/names_map  $map
 rosparam set /tester/names_view  $view
-        
-roslaunch stroll_bearnav evaluate.launch 
+
+roslaunch stroll_bearnav evaluate.launch
 
 read -n 1
 
