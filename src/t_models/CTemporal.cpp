@@ -1,5 +1,6 @@
 #include "CTemporal.h"
 #include "CSum.h"
+#include "CDummy.h"
 #include "CWSum.h"
 #include "CMovAvg.h"
 #include "CMovAvg.h"
@@ -12,7 +13,8 @@ const char *temporalModelName[] =
 	"W_Sum",
 	"Mov_Avg",
 	"Time_Mean",
-	"Fremen"
+	"Fremen",
+	"Dummy"
 };
 
 
@@ -26,6 +28,7 @@ CTemporal* spawnTemporalModel(ETemporalType type,int maxPeriod,int elements,int 
 		case TT_MOV_AVG:	temporalModel = new CMovAvg(0,60*60*7.0f);		break;
 		case TT_MEAN:		temporalModel = new CTimeMean(0);		break;
 		case TT_FREMEN:		temporalModel = new CFrelement(0);		break;
+		case TT_DUMMY:		temporalModel = new CDummy(0);		break;
 		default: 		temporalModel = new CSum(0);
 	}
 	temporalModel->init(maxPeriod,elements,numClasses);
@@ -49,6 +52,7 @@ CTemporal* spawnTemporalModel(ETemporalType type, string f_id, float param)
 		case TT_MOV_AVG:	temporalModel = new CMovAvg(f_id,param);		break;
 		case TT_MEAN:	temporalModel = new CTimeMean(f_id);		break;
 		case TT_FREMEN:	temporalModel = new CFrelement(f_id);		break;
+		case TT_DUMMY:	temporalModel = new CDummy(f_id);		break;
 		default: 		temporalModel = new CSum(f_id);
 	}
 	temporalModel->type = type;

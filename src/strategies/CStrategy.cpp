@@ -3,6 +3,7 @@
 #include "CBestStrategy.h"
 #include "CMonteCarloStrategy.h"
 #include "CQuantilStrategy.h"
+#include "CFirst.h"
 #include <stdlib.h>
 
 
@@ -10,7 +11,8 @@ const char *strategyName[] =
 {
   "Best",
   "Monte_Carlo",
-  "Quantile"
+  "Quantile",
+  "First"
 };
 
 int comp (const void * a, const void * b){
@@ -38,7 +40,8 @@ CStrategy* spawnStrategy(EStrategyType type, float param)
 	{
 		case TT_BEST: 		strategy = new CBestStrategy(param);		break;
 		case TT_MONTE_CARLO: 		strategy = new CMonteCarloStrategy(param);		break;
-		case TT_QUANTIL:	strategy = new CQuantilStrategy(param);		break;
+    case TT_QUANTIL:	strategy = new CQuantilStrategy(param);		break;
+		case TT_FIRST:	strategy = new CFirst(param);		break;
 		default: 		strategy = new CBestStrategy(param);
 	}
 
@@ -48,6 +51,6 @@ CStrategy* spawnStrategy(EStrategyType type, float param)
 CStrategy* spawnStrategy(const char* type, float param)
 {
 	int i = TT_BEST;
-	for (i=0;i<TT_QUANTIL && strcmp(type,strategyName[i])!=0;i++){}
+	for (i=0;i<TT_LAST && strcmp(type,strategyName[i])!=0;i++){}
 	return spawnStrategy( (EStrategyType)i,param);
 }

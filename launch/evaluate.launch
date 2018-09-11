@@ -8,10 +8,10 @@
 <!-- arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502953809/"/-->
 
 <arg name="stc_file" default="$(env HOME)/history.txt"/>
-<arg name="stc_model_type" default="Fremen"/>
-<arg name="stc_model_param" default="2"/>
-<arg name="stc_strategy_type" default="Monte_Carlo"/>
-<arg name="stc_strategy_param" default="250"/>
+<arg name="stc_model_type" default="Dummy"/>
+<arg name="stc_model_param" default="0"/>
+<arg name="stc_strategy_type" default="First"/>
+<arg name="stc_strategy_param" default="-1"/>
 
 <!-- feature extraction -->
   <node pkg="stroll_bearnav" type="feature_extraction_node" name="feature_extraction">

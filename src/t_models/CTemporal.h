@@ -20,6 +20,7 @@ typedef enum{
 	TT_MOV_AVG,
 	TT_MEAN,
 	TT_FREMEN,
+	TT_DUMMY,
 	TT_NUMBER
 }ETemporalType;
 

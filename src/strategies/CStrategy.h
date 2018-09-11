@@ -15,7 +15,9 @@ struct ftr_stc{
 typedef enum{
 	TT_BEST	= 0,
 	TT_MONTE_CARLO,
-	TT_QUANTIL
+	TT_QUANTIL,
+  TT_FIRST,
+  TT_LAST
 }EStrategyType;
 
 class CStrategy

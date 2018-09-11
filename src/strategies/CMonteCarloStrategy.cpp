@@ -69,7 +69,6 @@ void CMonteCarloStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descr
       if(mnt_crl[j]>r_next){
 
         if(picked){
-          // i--;
           mnt_crl[j]-= diff;
 
         }else{

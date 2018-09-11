@@ -23,8 +23,6 @@ CQuantilStrategy::~CQuantilStrategy(){
 
 void CQuantilStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score){
   int size = tmp->size();
-  ROS_ERROR("QUANTILE size %d",size);
-
 
   ftr_stc features_stcs[size];
   CStrategy::set_and_sort(features_stcs, score);

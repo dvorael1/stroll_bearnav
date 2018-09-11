@@ -21,7 +21,6 @@ CBestStrategy::~CBestStrategy(){
 }
 
 void CBestStrategy::filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score){
-  ROS_ERROR("BEST size %d n %d\n",tmp->size(), n);
 
   if(n>=tmp->size()){
     for (size_t i = 0; i < tmp->size(); i++) {
