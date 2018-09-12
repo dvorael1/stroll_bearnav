@@ -12,33 +12,31 @@ esac
 source ~/bc_ros/devel/setup.bash
 
 view=[A58
-map=[B56
+map=[S57
 for i in {59..87}
 do
 	view=${view},A$i
-	map=${map},B56
+	map=${map},S57
 	
 done
 
 view=${view}]
 map=${map}]
+echo $map
 
-
-rosparam set /tester/names_map  $map
-rosparam set /tester/names_view  $view
+rosparam set names_map  $map
+rosparam set names_view  $view
 
 imp=0
 mp=0
-mps=(2 43200 0)
+mps=(0 0 2 43200 2)
 #sps=(250 500 1000)
 sps=(500)
+st=First
 
-
-for mt in  Fremen #Fremen #Fremen #Sum W_Sum Mov_Avg
+for mt in  Dummy Sum W_Sum Mov_Avg Fremen #Fremen #Fremen #Sum W_Sum Mov_Avg
 do
 	mp=${mps[$imp]}
-	for st in Monte_Carlo #Quantile Monte_Carlo Best
-	do
 		for sp in ${sps[*]}
 		do
        		echo "$mt $mp $st $sp"
@@ -49,7 +47,7 @@ do
 	
 
 		done
-		
+		st=Best
 		#if [ $st == "Best" ]; then
 		#	sps=(0.25 0.5 0.75)
 		#fi
@@ -58,7 +56,6 @@ do
 		#	sps=(250 500 1000)
 		#fi
 			
-	done	
 	((imp++))
 done
 

@@ -15,12 +15,15 @@
 using namespace std;
 
 typedef enum{
-	TT_SUM	= 0,
+	TT_DUMMY = 0,
+	TT_SUM,
 	TT_W_SUM,
 	TT_MOV_AVG,
 	TT_MEAN,
+	TT_HISTOGRAM,
 	TT_FREMEN,
-	TT_DUMMY,
+	TT_HYPER,
+	TT_HYPERMV,
 	TT_NUMBER
 }ETemporalType;
 
@@ -40,7 +43,6 @@ class CTemporal
 
 		virtual void update(int maxOrder,unsigned int* times = NULL,float* signal = NULL,int length = 0) = 0;
 		virtual void print(bool verbose=true) = 0;
-		virtual void setParam(float param)=0;
 
 		virtual int exportToArray(double* array,int maxLen) = 0;
 		virtual int importFromArray(double* array,int len) = 0;

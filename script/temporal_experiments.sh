@@ -24,11 +24,11 @@ fi
 
 
 view=[A0
-map=[B56
+map=[S57
 for i in {1..57}
 do
 	view=${view},A$i
-	map=${map},B56
+	map=${map},S57
 	
 done
 
@@ -38,8 +38,8 @@ map=${map}]
 echo $view;
 echo $map;
 
-rosparam set /tester/names_map  $map
-rosparam set /tester/names_view  $view
+rosparam set /names_map  $map
+rosparam set /names_view  $view
         
 roslaunch stroll_bearnav evaluate.launch 
 
@@ -48,6 +48,8 @@ read -n 1
 kill -2 $P2
 
 wait $P2
+exit 0
+
 #testing
 view=[A58
 map=[B56

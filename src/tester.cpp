@@ -253,10 +253,11 @@ int main(int argc, char **argv)
 	ros::param::get("~folder_map", mapFolder);
 	ros::param::get("names_view", viewNames);
 	ros::param::get("names_map", mapNames);
+  ROS_ERROR("maps in mapNames %zu", mapNames.size());
 
 	logFile = fopen("Results.txt","w");
 
-	while (configureFeatures(2,2) < 0) sleep(1);
+	while (configureFeatures(3,1) < 0) sleep(1);
 	image_transport::ImageTransport it(n);
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
@@ -275,6 +276,7 @@ int main(int argc, char **argv)
 	bool finished_before_timeout = true;
 
 	int numGlobalMaps = min(mapNames.size(),viewNames.size());
+  ROS_ERROR("global maps: %d",numGlobalMaps);
 	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{
 		/*set map and view info */

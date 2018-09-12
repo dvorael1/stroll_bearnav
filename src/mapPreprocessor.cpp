@@ -325,7 +325,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					while(f_index<models.size() && !map_models_found){
 						if(f_id.compare(models[f_index]->fid)==0){
 							map_models_found = true;
-							ROS_WARN("yes f_index =%d fid = %s mid = %s",f_index,f_id.c_str(),models[f_index]->fid.c_str());
+							ROS_WARN("model found f_index =%d fid = %s mid = %s",f_index,f_id.c_str(),models[f_index]->fid.c_str());
 						}else{
 							f_index += last_size;
 							continue;
@@ -379,7 +379,6 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 							}
 							id_found = false;
 							model->update(stc_model_param);
-							model->print(true);
 							double score = model->predict(t);
 							scores[i] = score;
 							i++;
@@ -409,7 +408,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					}
 				}
 
-			for(int i=0;i<500;i++)
+			for(int i=0;i<keypoints_1.size();i++)
 			{
 					feature.x=keypoints_1[i].pt.x;
 					feature.y=keypoints_1[i].pt.y;
