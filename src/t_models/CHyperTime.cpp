@@ -9,7 +9,7 @@ CHyperTime::CHyperTime(int id)
 	spaceDimension = 1;
 	timeDimension = 0;
 	maxTimeDimension = 10;
-	covarianceType = cv::ml::EM::COV_MAT_GENERIC;
+	covarianceType = EM::COV_MAT_GENERIC;
 	positives = negatives = 0;
 	corrective = 1.0;
 }
@@ -22,7 +22,7 @@ CHyperTime::CHyperTime(string f_id)
 	spaceDimension = 1;
 	timeDimension = 0;
 	maxTimeDimension = 10;
-	covarianceType = cv::ml::EM::COV_MAT_GENERIC;
+	covarianceType = EM::COV_MAT_GENERIC;
 	positives = negatives = 0;
 	corrective = 1.0;
 }
@@ -57,8 +57,8 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 		modelPositive = modelNegative = NULL;
 		order = modelOrder;
 	}
-	if (modelPositive == NULL) modelPositive = new cv::ml::EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, cv::ml::EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
-	if (modelNegative == NULL) modelNegative = new cv::ml::EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, cv::ml::EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+	if (modelPositive == NULL) modelPositive = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+	if (modelNegative == NULL) modelNegative = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
 
 	/*separate positives and negative examples*/
 	Mat samplesPositive(positives,spaceDimension+timeDimension,CV_32FC1);
@@ -137,8 +137,8 @@ void CHyperTime::update(int modelOrder,unsigned int* times,float* signal,int len
 			if (order < maxOrder){
 				delete modelPositive;
 				delete modelNegative;
-				modelPositive = new cv::ml::EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, cv::ml::EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
-				modelNegative = new cv::ml::EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, cv::ml::EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+				modelPositive = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+				modelNegative = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
 			}
 			printf("Reducing hypertime dimension to %i: ",timeDimension);
 			for (int i = 0;i<timeDimension/2;i++) printf(" %i,",periods[i]);
@@ -261,8 +261,8 @@ int CHyperTime::load(const char* name)
 
 	delete modelPositive;
 	delete modelNegative;
-	modelPositive = new cv::ml::EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, cv::ml::EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
-	modelNegative = new cv::ml::EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, cv::ml::EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+	modelPositive = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+	modelNegative = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
 
 	FileNode fn = fs["StatModel.EM"];
 	timeDimension = periods.size()*2;
@@ -336,8 +336,8 @@ int CHyperTime::importFromArray(double* array,int len)
 		positives = array[2];
 		negatives = array[3];
 		order = array[4];
-		if (modelPositive == NULL) modelPositive = new cv::ml::EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, cv::ml::EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
-		if (modelNegative == NULL) modelNegative = new cv::ml::EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, cv::ml::cv::ml::EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+		if (modelPositive == NULL) modelPositive = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
+		if (modelNegative == NULL) modelNegative = new EM(order,covarianceType,TermCriteria(TermCriteria::COUNT+TermCriteria::EPS, EM::DEFAULT_MAX_ITERS, FLT_EPSILON));
 	}
 	return 0;
 }

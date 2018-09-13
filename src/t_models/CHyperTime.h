@@ -3,7 +3,7 @@
 
 #include <opencv2/ml/ml.hpp>
 
-using namespace cv;
+
 
 #include <stdio.h>
 #include <iostream>
@@ -25,6 +25,7 @@ typedef struct{
 }SHyperTimeSample;
 
 using namespace std;
+using namespace cv;
 
 class CHyperTime: public CTemporal
 {
@@ -55,8 +56,8 @@ class CHyperTime: public CTemporal
 		int numSamples;
 		int positives;
 		int negatives;
-		cv::ml::EM* modelPositive;
-		cv::ml::EM* modelNegative;
+		EM* modelPositive;
+		EM* modelNegative;
 		int spaceDimension;
 		int timeDimension;
 		int covarianceType;

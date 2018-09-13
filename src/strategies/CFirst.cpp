@@ -2,7 +2,6 @@
 #include <ros/ros.h>
 
 using namespace std;
-using namespace cv;
 
 
 CFirst::CFirst(float n_init){

@@ -40,7 +40,7 @@ void CFrelement::init(int iMaxPeriod,int elements,int numClasses)
 {
 	iMaxPeriod = 86400;
 	maxPeriod = iMaxPeriod;
-	numElements = maxPeriod/3600/6;
+	numElements = 1;
 	numClasses = 0;
 	storedFrelements = (SFrelement*)malloc(sizeof(SFrelement)*numElements);
 	predictFrelements = (SFrelement*)malloc(sizeof(SFrelement)*numElements);

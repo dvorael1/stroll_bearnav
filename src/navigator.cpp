@@ -394,7 +394,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 					differences[i] = difference;
 				//	if (index <= 0) index = 0;
 				//	if (index >= numBins) index = numBins-1;
-					if (index >= 0 || index < numBins) histogram[index]++;
+					if (index >= 0 && index < numBins) histogram[index]++;
 				}
 				count=0;
 			}
@@ -475,7 +475,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 		}
 		if(isRating)
 		{
-			if (count>=minGoodFeatures || plasticMap){
+			if (count>=minGoodFeatures){
 				for (int i = 0; i < bad_matches.size(); i++) {
 					mapFeatures.feature[bad_matches[i].queryIdx].rating += mapEval[bad_matches[i].queryIdx];
 				}

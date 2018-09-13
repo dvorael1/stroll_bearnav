@@ -22,19 +22,20 @@ done
 
 view=${view}]
 map=${map}]
-echo $map
+echo $view
 
 rosparam set names_map  $map
 rosparam set names_view  $view
 
 imp=0
 mp=0
-mps=(0 0 2 43200 2)
+mps=(2 0 0 2 43200 2)
 #sps=(250 500 1000)
 sps=(500)
 st=First
 
-for mt in  Dummy Sum W_Sum Mov_Avg Fremen #Fremen #Fremen #Sum W_Sum Mov_Avg
+#for mt in  Dummy Sum W_Sum Mov_Avg Fremen #Fremen #Fremen #Sum W_Sum Mov_Avg
+for mt in Dummy #Histogram Sum W_Sum Mov_Avg Fremen
 do
 	mp=${mps[$imp]}
 		for sp in ${sps[*]}

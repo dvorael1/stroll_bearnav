@@ -1,10 +1,21 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(stroll_bearnav)
+
 set ( CMAKE_CXX_FLAGS "-ggdb")
 set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
+
+set(OpenCV2_INCLUDE_DIRS
+	/usr/include/opencv2
+)
+
+set(OpenCV2_LIB_DIR
+	/usr/lib
+)
+
+set(OpenCV2_LIBS
+	opencv2_ml
+)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -20,6 +31,7 @@ find_package(catkin REQUIRED COMPONENTS
   rosbag
 )
 find_package(OpenCV REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -127,10 +139,12 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
+include_directories(${OpenCV2_INCLUDE_DIRS})
+link_directories(${OpenCV2_LIB_DIR})
+
+include_directories(${catkin_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
+
 ## Declare a C++ library
 #add_library(cameleon_driver src/CRobot.cpp)
 #add_library(cameleon_message src/CMessage.cpp)
@@ -141,6 +155,12 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 # add_dependencies(cameleon_ros_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+#add_library(temporal_models src/t_models/CTemporal.cpp src/t_models/CSum.cpp src/t_models/CTimer.cpp src/t_models/CMovAvg.cpp src/t_models/CWSum.cpp src/t_models/CTimeMean.cpp src/t_models/CFrelement.cpp src/t_models/CDummy.cpp src/t_models/CTimeHist.cpp src/t_models/CHyperTime.cpp src/t_models/CHyperTimeMV.cpp)
+add_library(temporal_models src/t_models/CTemporal.cpp src/t_models/CSum.cpp src/t_models/CTimer.cpp src/t_models/CMovAvg.cpp src/t_models/CWSum.cpp src/t_models/CTimeMean.cpp src/t_models/CFrelement.cpp src/t_models/CDummy.cpp src/t_models/CTimeHist.cpp)
+add_library(strategies src/strategies/CStrategy.cpp src/strategies/CBestStrategy.cpp src/strategies/CQuantilStrategy.cpp src/strategies/CMonteCarloStrategy.cpp src/strategies/CFirst.cpp )
+
+target_link_libraries(temporal_models ${OpenCV_LIBS})
 
 ## Declare a C++ executable
 #add_executable(cameleon_ros_driver src/cameleon_ros_driver.cpp)
@@ -153,8 +173,7 @@ add_executable(feature_extraction_node src/featureExtraction.cpp)
 add_executable(feature_testing_node src/featureTesting.cpp)
 add_executable(odometry_monitor_node src/odometryMonitor.cpp)
 add_executable(tester_image_extractor src/testerImageExtractor.cpp)
-#add_executable(map_preprocessor_node src/mapPreprocessor.cpp src/strategies/CBestStrategy.cpp src/strategies/CQuantilStrategy.cpp src/strategies/CMonteCarloStrategy.cpp src/strategies/CStrategy.cpp src/t_models/CTemporal.cpp src/t_models/CSum.cpp src/t_models/CWSum.cpp src/t_models/CTimer.cpp src/t_models/CMovAvg.cpp  src/t_models/CTimeMean.cpp src/t_models/CFrelement.cpp src/t_models/CDummy.cpp src/strategies/CFirst.cpp src/t_models/CTimeHist.cpp src/t_models/CHyperTime.cpp src/t_models/CHyperTimeMV.cpp)
-add_executable(map_preprocessor_node src/mapPreprocessor.cpp src/strategies/CBestStrategy.cpp src/strategies/CQuantilStrategy.cpp src/strategies/CMonteCarloStrategy.cpp src/strategies/CStrategy.cpp src/t_models/CTemporal.cpp src/t_models/CSum.cpp src/t_models/CWSum.cpp src/t_models/CTimer.cpp src/t_models/CMovAvg.cpp  src/t_models/CTimeMean.cpp src/t_models/CFrelement.cpp src/t_models/CDummy.cpp src/strategies/CFirst.cpp src/t_models/CTimeHist.cpp)
+add_executable(map_preprocessor_node src/mapPreprocessor.cpp)
 add_executable(navigator_node src/navigator.cpp)
 add_executable(visualisation_node src/visualisation.cpp)
 add_executable(supervisor_node src/supervisor.cpp)
@@ -194,7 +213,7 @@ target_link_libraries(mapper_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(feature_extraction_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(feature_testing_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(odometry_monitor_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-target_link_libraries(map_preprocessor_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(map_preprocessor_node temporal_models strategies ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(tester_image_extractor ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(navigator_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(visualisation_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
