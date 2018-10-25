@@ -12,11 +12,11 @@ esac
 source ~/bc_ros/devel/setup.bash
 
 view=[A58
-map=[S57
-for i in {59..87}
+map=[T57
+for i in {59..80}
 do
 	view=${view},A$i
-	map=${map},S57
+	map=${map},T57
 	
 done
 
@@ -30,12 +30,11 @@ rosparam set names_view  $view
 imp=0
 mp=0
 mps=(2 0 0 2 43200 2)
-#sps=(250 500 1000)
 sps=(500)
 st=First
 
-#for mt in  Dummy Sum W_Sum Mov_Avg Fremen #Fremen #Fremen #Sum W_Sum Mov_Avg
-for mt in Dummy #Histogram Sum W_Sum Mov_Avg Fremen
+
+for mt in Dummy Histogram Sum W_Sum Mov_Avg Fremen
 do
 	mp=${mps[$imp]}
 		for sp in ${sps[*]}
@@ -49,19 +48,8 @@ do
 
 		done
 		st=Best
-		#if [ $st == "Best" ]; then
-		#	sps=(0.25 0.5 0.75)
-		#fi
-		
-		#if [ $st == "Quantile" ]; then
-		#	sps=(250 500 1000)
-		#fi
 			
 	((imp++))
 done
 
-mt=W_Sum
-mp=2
-st=Best
-sp=250
 exit 0

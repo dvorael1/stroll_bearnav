@@ -7,7 +7,7 @@
 <!--arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502788667/"/-->
 <!-- arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502953809/"/-->
 
-<arg name="stc_file" default="$(env HOME)/history.txt"/>
+<arg name="stc_file" default="$(env HOME)/history1400.txt"/>
 <arg name="stc_model_type" default="Dummy"/>
 <arg name="stc_model_param" default="0"/>
 <arg name="stc_strategy_type" default="First"/>

@@ -1,0 +1,10 @@
+Histogram 0 Best 500
+First value is smaller (p(smaller)=1.000)
+Sum 0 Best 500
+First value is smaller (p(smaller)=0.997)
+W_Sum 2 Best 500
+First value is smaller (p(smaller)=0.998)
+Mov_Avg 43200 Best 500
+First value is smaller (p(smaller)=1.000)
+Fremen 2 Best 500
+First value is smaller (p(smaller)=0.997)

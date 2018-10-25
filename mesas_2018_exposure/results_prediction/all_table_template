@@ -1,0 +1,7 @@
+\begin{table}[h!]
+\centering
+\caption{Results of paird t-test}
+\label{all-matching}
+\begin{tabular}{cccc}
+\textbf{Spatal-temporal model} & \textbf{accepted $H_0$}  & \textbf{statistical significance} \\ \hline
+
