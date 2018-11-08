@@ -142,8 +142,9 @@ int loadMaps()
 
 	numFeatures=0;
 	for (int i = 0;i<numMaps;i++){
-		sprintf(fileName,"%s/%s_%.3f.yaml",folder.c_str(),prefix.c_str(),mapDistances[i]);
-		ROS_INFO("Preloading %s/%s_%.3f.yaml",folder.c_str(),prefix.c_str(),mapDistances[i]);
+		sprintf(fileName,"%s/%s_%07.3f.yaml",folder.c_str(),prefix.c_str(),mapDistances[i]);
+		// sprintf(fileName,"%s/%s_%.3f.yaml",folder.c_str(),prefix.c_str(),mapDistances[i]);
+		// ROS_INFO("Preloading %s/%s_%.3f.yaml",folder.c_str(),prefix.c_str(),mapDistances[i]);
 		FileStorage fs(fileName, FileStorage::READ);
 		if(fs.isOpened())
 		{
@@ -297,7 +298,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 
 		//and publish it
 		if (mindex > -1 && mindex != lastLoadedMap){
-			ROS_INFO("Current distance is %.3f Closest map found at %i, last was %i",distanceT,mindex,lastLoadedMap);
+			// ROS_INFO("Current distance is %.3f Closest map found at %i, last was %i",distanceT,mindex,lastLoadedMap);
 			loadMap(mindex);
 //			ROS_INFO("Sending a map %i features with %i descriptors",(int)keypoints_1.size(),descriptors_1.rows);
 			bool with_stcs = false;
@@ -333,6 +334,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						for(int j = 0; j<keypoints_1.size() && map_models_found;j++){
 							CTemporal* model = models[f_index+j];
 							model->update(stc_model_param);
+							model->print();
 							scores[j] = model->predict(t);
 						}
 
@@ -379,6 +381,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 							}
 							id_found = false;
 							model->update(stc_model_param);
+							model->print();
 							double score = model->predict(t);
 							scores[i] = score;
 							i++;

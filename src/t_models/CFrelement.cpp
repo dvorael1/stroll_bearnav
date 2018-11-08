@@ -38,9 +38,9 @@ CFrelement::CFrelement(string f_id)
 
 void CFrelement::init(int iMaxPeriod,int elements,int numClasses)
 {
-	iMaxPeriod = 86400;
+	iMaxPeriod = 7*86400;
 	maxPeriod = iMaxPeriod;
-	numElements = 1;
+	numElements = 14;
 	numClasses = 0;
 	storedFrelements = (SFrelement*)malloc(sizeof(SFrelement)*numElements);
 	predictFrelements = (SFrelement*)malloc(sizeof(SFrelement)*numElements);
@@ -139,17 +139,23 @@ void CFrelement::update(int modelOrder,unsigned int* times,float* signal,int len
 void CFrelement::print(bool verbose)
 {
 	std::cout << "Model: " << fid << " Prior: " << predictGain << " Size: " << measurements << " ";
+	char dum[10000];
+	dum[0] = 0;
 	if (verbose){
 		for (int i = 0;i<order;i++){
-			std::cout << "Frelement " << i << " " << predictFrelements[i].amplitude << " " << predictFrelements[i].phase << " " << predictFrelements[i].period << " ";
+			//std::cout << "Frelement " << i << " " << predictFrelements[i].amplitude << " " << predictFrelements[i].phase << " " << predictFrelements[i].period << " ";
+			sprintf(dum,"%s %f %f",dum,predictFrelements[i].period,predictFrelements[i].amplitude );
+
 			/*FILE *f;
 			f = fopen("/home/eliska/fremen.txt", "a");
 			fprintf(f, "%f\n", predictFrelements[i].period);
 			fclose(f);*/
 		}
 	}
+	ROS_INFO("%s", dum);
 	std::cout << endl;
 }
+
 void CFrelement::setParam(float param)
 {
 
