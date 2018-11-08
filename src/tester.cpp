@@ -56,7 +56,7 @@ stroll_bearnav::loadMapGoal mapGoal;
 stroll_bearnav::loadMapGoal viewGoal;
 stroll_bearnav::navigatorGoal navGoal;
 
-FILE *mapFile, *viewFile,*logFile,*timeFile;
+FILE *mapFile, *viewFile,*logFile;
 string mapFolder,viewFolder;
 vector<string> mapNames;
 vector<string> viewNames;
@@ -114,7 +114,6 @@ void feedbackMapCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
 	distanceMap.push_back(feedback->distance);
 	numPrimaryMaps = feedback->numberOfMaps;
 	primaryMapIndex = feedback->mapIndex;
-
 	ROS_INFO("Primary map: %s %i %f",feedback->fileName.c_str(),primaryMapIndex,feedback->distance);
 }
 
@@ -122,7 +121,6 @@ void feedbackViewCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
 {
 	numSecondaryMaps = feedback->numberOfMaps;
 	secondaryMapIndex = feedback->mapIndex;
-  // dist_view_pub_.publish(dist_);
 	ROS_INFO("Secondary map: %s",feedback->fileName.c_str());
 }
 
@@ -188,7 +186,6 @@ void viewImageCallback(const sensor_msgs::ImageConstPtr& msg)
 		cv_bridge::CvImagePtr cv_ptr;
 		cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
 		char fileName[1000];
-    ROS_ERROR("printing");
 		sprintf(fileName,"%s/%09i.bmp",viewFolder.c_str(),viewImageNum);
 		imwrite(fileName,cv_ptr->image);
 	}
@@ -210,34 +207,12 @@ int configureFeatures(int detector,int descriptor)
 	conf.ints.push_back(param);
 	srv_req.config = conf;
 
-  if (ros::service::call("/feature_extraction/set_parameters", srv_req, srv_resp) == false){
-  		 ROS_WARN("Feature extraction module not configured.");
-  		 return -1;
-  	}
-  return 0;
+	if (ros::service::call("/feature_extraction/set_parameters", srv_req, srv_resp) == false){
+		 ROS_WARN("Feature extraction module not configured.");
+		 return -1;
+	}
+	return 0;
 }
-
-int configureTime(const char*filename)
-{
-	dynamic_reconfigure::ReconfigureRequest srv_req;
-	dynamic_reconfigure::ReconfigureResponse srv_resp;
-	dynamic_reconfigure::IntParameter param;
-	dynamic_reconfigure::Config conf;
-	int timeOfTheMap = 0;
-	FILE *file = fopen(filename,"r");
-	fscanf(file,"%i",&timeOfTheMap);
-	fclose(file);
-	param.name = "currentTime";
-	param.value = timeOfTheMap;
-  ROS_WARN("configuring time to %d\n",timeOfTheMap);
-	conf.ints.push_back(param);
-	srv_req.config = conf;
-
-  if (ros::service::call("/listener/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
-	if (ros::service::call("/map_preprocessor_map/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
-  return 0;
-}
-
 
 
 int main(int argc, char **argv)
@@ -253,15 +228,15 @@ int main(int argc, char **argv)
 	ros::param::get("~folder_map", mapFolder);
 	ros::param::get("names_view", viewNames);
 	ros::param::get("names_map", mapNames);
-  ROS_ERROR("maps in mapNames %zu", mapNames.size());
 
 	logFile = fopen("Results.txt","w");
 
-	while (configureFeatures(3,1) < 0) sleep(1);
+	while (configureFeatures(2,2) < 0) sleep(1);
 	image_transport::ImageTransport it(n);
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
-  dist_pub_=n.advertise<std_msgs::Float32>("/distance",1);
+	dist_pub_=n.advertise<std_msgs::Float32>("/distance",1);
+
 	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_view("map_preprocessor_view", true);
 	actionlib::SimpleActionClient<stroll_bearnav::loadMapAction> mp_map("map_preprocessor_map", true);
 	actionlib::SimpleActionClient<stroll_bearnav::navigatorAction> nav("navigator", true);
@@ -276,18 +251,13 @@ int main(int argc, char **argv)
 	bool finished_before_timeout = true;
 
 	int numGlobalMaps = min(mapNames.size(),viewNames.size());
-  ROS_ERROR("global maps: %d",numGlobalMaps);
 	for (int globalMapIndex = 0;globalMapIndex<numGlobalMaps;globalMapIndex++)
 	{
 		/*set map and view info */
 		clientsResponded = 0;
 		navGoal.traversals = 1;
 
-    char filename[1000];
-    sprintf(filename,"%s/%s.txt",viewFolder.c_str(),viewNames[globalMapIndex].c_str());
-    configureTime(filename);
-
-
+		char filename[1000];
 		sprintf(filename,"%s/%s_GT.txt",mapFolder.c_str(),mapNames[0].c_str());
 		printf("%s/%s_GT.txt\n",mapFolder.c_str(),mapNames[globalMapIndex].c_str());
 		mapFile = fopen(filename,"r");
@@ -345,6 +315,7 @@ int main(int argc, char **argv)
 			ros::spinOnce();
 			usleep(10000);
 		}
+
 		/*terminate navigation, unload maps*/
 		exitting = 0;
 		clientsResponded = 0;
@@ -361,5 +332,6 @@ int main(int argc, char **argv)
 		fclose(viewFile);
 	}
 	fclose(logFile);
+	usleep(100000);
 	return 0;
 }

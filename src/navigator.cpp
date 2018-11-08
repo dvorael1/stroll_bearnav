@@ -63,8 +63,10 @@ bool showGoodMatches=true;
 int minFeatureRemap = 10;
 int maxFeatureRemap = 50;
 float remapRatio = 0.5;
-bool plasticMap = true;
+bool plasticMap = false;
 bool summaryMap = false;
+
+bool histogramRating = false;
 
 geometry_msgs::Twist twist;
 nav_msgs::Odometry odometry;
@@ -150,6 +152,7 @@ void callback(stroll_bearnav::navigatorConfig &config, uint32_t level)
 	maxVerticalDifference = config.maxVerticalDifference;
 	plasticMap = config.plasticMap;
 	summaryMap = config.summaryMap;
+	histogramRating = config.histogramRating;
 	remapRatio = config.remapRatio;
 	minFeatureRemap = config.minFeatureRemap;
 	maxFeatureRemap = config.maxFeatureRemap;
@@ -316,14 +319,14 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 		good_matches.clear();
 
 		int numBins = 41;
-		int histogram[numBins];
+		float histogram[numBins];
 		for (int i = 0;i<numBins;i++) histogram[i] = 0;
 
 		best_matches.clear();
 		bad_matches.clear();
 
 		/*establish correspondences, build the histogram and determine robot heading*/
-		int count=0,bestc=0;
+		float count=0,bestc=0;
 		info.updated=false;
 		info.view = *msg;
 		matches.clear();
@@ -336,7 +339,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 				 //TODO crosscheck matching matcher->knnMatch( currentDescriptors,  mapDescriptors,revmatches, knn);
 			}catch (Exception& e){
 				matches.clear();
-				ROS_ERROR("Feature desriptors from the map and in from the image are not compatible.");
+				ROS_ERROR("Feature desriptors from the map and in from the image are not compatible. %i %i",mapDescriptors.cols,currentDescriptors.cols);
 			}
 			/*perform ratio matching*/
 			good_matches.reserve(matches.size());
@@ -358,6 +361,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 					nIdx=matches[i][j].trainIdx;
 					distance=matches[i][j].distance;
 					info.view.feature[nIdx].rating=fmin(info.view.feature[nIdx].rating,distance);
+					//info.view.feature[nIdx].rating=rand()%100000;
 				}
 			}
 			sort(info.view.feature.begin(),info.view.feature.end(),compare_rating);
@@ -394,7 +398,11 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 					differences[i] = difference;
 				//	if (index <= 0) index = 0;
 				//	if (index >= numBins) index = numBins-1;
+				if(histogramRating){
+					if (index >= 0 && index < numBins) histogram[index] = histogram[index] + (histogram[index]*mapFeatures.feature[idx1].rating+0.1);
+				} else {
 					if (index >= 0 && index < numBins) histogram[index]++;
+				}
 				}
 				count=0;
 			}
@@ -404,8 +412,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 			int position=0;
 			printf("Bin: ");
 			for (int i = 0;i<numBins;i++) {
-
-				printf("%i ",histogram[i]);
+				printf("%.0f ",histogram[i]);
 				if (histogram[i]>max)
 				{
 					max=histogram[i];
@@ -425,8 +432,13 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 			/* take only good correspondences */
 			for(int i=0;i<num;i++){
 				if (fabs(differences[i]-rotation) < granularity*1.5){
-					sum+=differences[i];
-					count++;
+					if(histogramRating){
+						sum+=differences[i]*(mapFeatures.feature[good_matches[i].queryIdx].rating+0.1);
+						count+=(mapFeatures.feature[good_matches[i].queryIdx].rating+0.1);
+					}else {
+						sum+=differences[i];
+						count++;
+					}
 					best_matches.push_back(good_matches[i]);
 					keypointsBest.push_back(keypointsGood[i]);
 				} else {
@@ -475,7 +487,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 		}
 		if(isRating)
 		{
-			if (count>=minGoodFeatures){
+			if (count>=minGoodFeatures || remapRotGain == 0){
 				for (int i = 0; i < bad_matches.size(); i++) {
 					mapFeatures.feature[bad_matches[i].queryIdx].rating += mapEval[bad_matches[i].queryIdx];
 				}
@@ -621,6 +633,7 @@ void distanceCallback(const std_msgs::Float32::ConstPtr& msg)
 
 int main(int argc, char** argv)
 {
+	srand(0);
 	ros::init(argc, argv, "navigator");
 
 	ros::NodeHandle nh;

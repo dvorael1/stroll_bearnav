@@ -54,7 +54,7 @@
 </node>
 
 <!-- navigator node -->
-<node pkg="stroll_bearnav" type="tester" name="tester"  required="true"  output="screen">
+<node pkg="stroll_bearnav" type="tester" name="tester"  required="true"  output="screen" launch-prefix="gdb -ex run --args">
   <param name="folder_map" value="$(arg folder_map)" />
   <param name="folder_view" value="$(arg folder_view)" />
 </node>

@@ -13,8 +13,6 @@ mkdir "results_prediction"
 
 if [ 0 == 1 ] #tvorba history file
 then
-source ~/bc_ros/devel/setup.bash
-
 rosrun stroll_bearnav map_match_info_listener $1 &
 P2=$!
 rm $1 ## smaze stary history file

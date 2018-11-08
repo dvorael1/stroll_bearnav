@@ -8,7 +8,7 @@ esac
 
 mkdir "results"
 
-f="$1/icra_2019_adamap/full"
+f="$1/consolidated/test"
 
 ############ Perform a remap
 confidence=0.05

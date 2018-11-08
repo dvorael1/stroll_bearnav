@@ -33,7 +33,7 @@ ros::Subscriber speed_sub_;
 ros::Subscriber featureSub_;
 ros::Subscriber distEventSub_;
 ros::Subscriber distSub_;
-ros::Subscriber infoSub_;
+ros::Subscriber infoSub_; 
 image_transport::Subscriber image_sub_;
 image_transport::Publisher image_pub_;
 
@@ -73,14 +73,14 @@ vector<vector<float> > ratingsMap;
 stroll_bearnav::FeatureArray featureArray;
 stroll_bearnav::Feature feature;
 
-/*joystick input parameters - axes that correspond to forward, turning and flipper speeds*/
+/*joystick input parameters - axes that correspond to forward, turning and flipper speeds*/ 
 int stopButton = 2;
 int pauseButton = 0;
 int linearAxis = 1;
 int angularAxis = 0;
 int flipperAxis = 4;
 
-/*these constants determine how quickly the robot moves based on the joystick input*/
+/*these constants determine how quickly the robot moves based on the joystick input*/ 
 double maxForwardSpeed = 0.2;
 double maxAngularSpeed = 0.2;
 double maxFlipperSpeed = 0.2;
@@ -116,7 +116,7 @@ bool isUpdated=false;
 void distanceEventCallback(const std_msgs::Float32::ConstPtr& msg);
 void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg);
 
-/* select an appropriate image according to feature array ID*/
+/* select an appropriate image according to feature array ID*/ 
 void imageSelect(const char *id)
 {
 	if (idQueue.size() > 0){
@@ -134,7 +134,7 @@ void imageSelect(const char *id)
 	}
 }
 
-/* Total distance travelled recieved from the event */
+/* Total distance travelled recieved from the event */ 
 void distanceEventCallback(const std_msgs::Float32::ConstPtr& msg)
 {
 	if(state == MAPPING){
@@ -146,7 +146,7 @@ void distanceEventCallback(const std_msgs::Float32::ConstPtr& msg)
 
 /*distance currently travelled */
 void distanceCallback(const std_msgs::Float32::ConstPtr& msg)
-{
+{   
 	distanceTravelled=msg->data;
 }
 
@@ -169,7 +169,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 		char tmpID[100];
 		sprintf(tmpID,"Image_%09d",msg->header.seq);
 		idQueue.push_back(tmpID);
-	}
+	}	
 }
 
 /*Action server */
@@ -245,19 +245,19 @@ void executeCB(const stroll_bearnav::mapperGoalConstPtr &goal, Server *serv)
 
 /*receiving joystick data*/
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
-{
+{    
 	angularSpeed = maxAngularSpeed*forwardSpeed*0.5*joy->axes[angularAxis];
 	forwardAcceleration = maxForwardAcceleration*joy->axes[linearAxis];;
 	flipperSpeed = maxFlipperSpeed*joy->axes[flipperAxis];
 	if  (joy->buttons[stopButton] || joy->buttons[pauseButton]) angularSpeed = forwardSpeed = flipperSpeed = 0;
 	if  (joy->buttons[stopButton]) userStop = true;
 	ROS_DEBUG("Joystick pressed");
-}
+} 
 
 /*flipper position -- for stair traverse*/
 void flipperCallback(const std_msgs::Float32::ConstPtr& msg)
 {
-	flipperPosition = msg->data;
+	flipperPosition = msg->data;   
 }
 
 /* save features and image recieved from camera as a local map*/
@@ -287,7 +287,7 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 				rating=msg->feature[i].rating;
 				ratings.push_back(rating);
 			}
-
+			
 			/*store in memory rather than on disk*/
 			imageSelect(msg->id.c_str());
 			imagesMap.push_back(img);
@@ -368,7 +368,7 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 }
 
 int main(int argc, char** argv)
-{
+{ 
 	ros::init(argc, argv, "mapper");
 	ros::NodeHandle nh("~");
 	image_transport::ImageTransport it_(nh);
@@ -385,7 +385,7 @@ int main(int argc, char** argv)
 	nh.param("forwardSpeed", maxForwardSpeed, 1.5);
 	nh.param("flipperSpeed", maxFlipperSpeed, 0.5);
 	nh.param("forwardAcceleration", maxForwardAcceleration, 0.01);
-
+	
 	int queueLength = 1;
 	if (isPlastic == false){
 		 vel_pub_ = nh.advertise<geometry_msgs::Twist>("/cmd", 1);
@@ -394,7 +394,7 @@ int main(int argc, char** argv)
 	flipperSub = nh.subscribe("/flipperPosition", queueLength, flipperCallback);
 	joy_sub_ = nh.subscribe<sensor_msgs::Joy>("/joy", 10*queueLength, joyCallback);
 	infoSub_ = nh.subscribe("/navigationInfo", 1000, infoMapMatch);
-	image_sub_ = it_.subscribe( "/image", queueLength,imageCallback);
+	image_sub_ = it_.subscribe( "/image", queueLength,imageCallback);	
 	if(!isPlastic) featureSub_ = nh.subscribe<stroll_bearnav::FeatureArray>("/features",queueLength,featureCallback);
 	distEventSub_=nh.subscribe<std_msgs::Float32>("/distance_events",queueLength,distanceEventCallback);
 	distSub_=nh.subscribe<std_msgs::Float32>("/distance",queueLength,distanceCallback);
@@ -444,3 +444,4 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
+
