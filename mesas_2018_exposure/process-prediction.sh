@@ -11,7 +11,7 @@ p=`pwd`
 
 mkdir "results_prediction"
 
-if [ 0 == 1 ] #tvorba history file
+if [ 1 == 1 ] #tvorba history file
 then
 source ~/bc_ros/devel/setup.bash
 
@@ -30,6 +30,7 @@ done
 view=${view}]
 map=${map}]
 
+
 rosparam set names_map  $map
 rosparam set names_view  $view
         
@@ -43,11 +44,11 @@ fi
 if [ 0 == 1 ] # spusteni testovani
 then
 view=[A58
-map=[S57
+map=[K57
 for i in {59..80}
 do
 	view=${view},A$i
-	map=${map},S57
+	map=${map},K57
 	
 done
 
@@ -65,7 +66,7 @@ sps=(500)
 st=First
 
 
-for mt in Dummy Histogram Sum W_Sum Mov_Avg Fremen
+for mt in Fremen #Dummy Histogram Sum W_Sum Mov_Avg 
 do
 	mp=${mps[$imp]}
 		for sp in ${sps[*]}
@@ -74,7 +75,7 @@ do
        
 			roslaunch stroll_bearnav evaluate.launch stc_file:=$1 stc_model_type:=$mt stc_model_param:=$mp stc_strategy_type:=$st stc_strategy_param:=$sp 
 	
-			mv /home/eliska/.ros/Results.txt $p/results-preduction/"$mt"_"$mp"_"$st"_"$sp"_result.txt
+			mv /home/eliska/.ros/Results.txt $p/results_prediction/"$mt"_"$mp"_"$st"_"$sp"_result.txt
 	
 
 		done
@@ -97,7 +98,7 @@ cd results_prediction
 
 rm results.txt
 
-grep reports Dummy*.txt|awk '($23<5000){a=$21-$23;b=(sqrt(a*a)+384)%768-384;print sqrt(b*b)}'| tee All.err|sort -nr > All.srt
+grep reports Dummy_2*.txt|awk '($23<5000){a=$21-$23;b=(sqrt(a*a)+384)%768-384;print sqrt(b*b)}'| tee All.err|sort -nr > All.srt
 
 for mt in  Histogram Sum W_Sum Mov_Avg Fremen 
 do
