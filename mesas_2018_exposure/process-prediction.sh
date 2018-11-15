@@ -18,21 +18,11 @@ source ~/bc_ros/devel/setup.bash
 rosrun stroll_bearnav map_match_info_listener $1 &
 P2=$!
 rm $1 ## smaze stary history file
-view=[A0
-map=[T57
-for i in {1..57}
-do
-	view=${view},A$i
-	map=${map},T57
-	
-done
-
-view=${view}]
-map=${map}]
 
 
-rosparam set names_map  $map
-rosparam set names_view  $view
+rosparam set names_map  [$(for i in $(seq -w 0 178);do echo -ne B178,;done)]
+
+rosparam set names_view [$(for i in $(seq -w 0 99);do echo -ne A0$i,;done;for i in $(seq -w 100 178);do echo -ne A$i,;done)]
         
 roslaunch stroll_bearnav evaluate.launch 
 
@@ -43,21 +33,9 @@ fi
 
 if [ 0 == 1 ] # spusteni testovani
 then
-view=[A58
-map=[K57
-for i in {59..80}
-do
-	view=${view},A$i
-	map=${map},K57
-	
-done
+rosparam set names_map  [$(for i in $(seq -w 0 87);do echo -ne L087,;done)]
+rosparam set names_view [$(for i in $(seq -w 0 87);do echo -ne A0$i,;done)]
 
-view=${view}]
-map=${map}]
-echo $view
-
-rosparam set names_map  $map
-rosparam set names_view  $view
 
 imp=0
 mp=0
