@@ -2,8 +2,9 @@
 
 <!-- Default folders with maps-->
 
-<arg name="folder_map" default="$(env HOME)/mesas_2018_exposure/train"/>
-<arg name="folder_view" default="$(env HOME)/mesas_2018_exposure/train"/>
+<arg name="folder_map" default="$(env HOME)/super2"/>
+<!-- <arg name="folder_map" default="$(env HOME)/mesas_2018_exposure/super2"/> -->
+<arg name="folder_view" default="$(env HOME)/super2"/>
 <!--arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502788667/"/-->
 <!-- arg name="folder_view" default="$(env HOME)/stroll/datasets/small/test/1502953809/"/-->
 
@@ -26,7 +27,7 @@
 </node-->
 
 <!-- map loader1 node -->
-<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_map">
+<node pkg="stroll_bearnav" type="map_preprocessor_node" name="map_preprocessor_map"  >
 <param name="folder" value="$(arg folder_map)" />
 <param name="stc_model_type" value="$(arg stc_model_type)" />
 <param name="stc_model_param" value="$(arg stc_model_param)" />

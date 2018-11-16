@@ -217,6 +217,27 @@ int configureFeatures(int detector,int descriptor)
 	return 0;
 }
 
+int configureTime(const char*filename)
+{
+	dynamic_reconfigure::ReconfigureRequest srv_req;
+	dynamic_reconfigure::ReconfigureResponse srv_resp;
+	dynamic_reconfigure::IntParameter param;
+	dynamic_reconfigure::Config conf;
+	int timeOfTheMap = 0;
+	FILE *file = fopen(filename,"r");
+	fscanf(file,"%i",&timeOfTheMap);
+	fclose(file);
+	param.name = "currentTime";
+	param.value = timeOfTheMap;
+  ROS_WARN("configuring time to %d\n",timeOfTheMap);
+	conf.ints.push_back(param);
+	srv_req.config = conf;
+
+  if (ros::service::call("/listener/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
+	if (ros::service::call("/map_preprocessor_map/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
+  return 0;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -261,6 +282,8 @@ int main(int argc, char **argv)
 		navGoal.traversals = 1;
 
 		char filename[1000];
+    sprintf(filename,"%s/%s.txt",viewFolder.c_str(),viewNames[globalMapIndex].c_str());
+    configureTime(filename);
 		sprintf(filename,"%s/%s_GT.txt",mapFolder.c_str(),mapNames[0].c_str());
 		printf("%s/%s_GT.txt\n",mapFolder.c_str(),mapNames[globalMapIndex].c_str());
 		mapFile = fopen(filename,"r");
