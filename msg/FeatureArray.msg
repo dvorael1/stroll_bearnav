@@ -1,4 +1,5 @@
 Header header
 float32 distance
-string id 
+string id
+int32 time 
 stroll_bearnav/Feature[] feature

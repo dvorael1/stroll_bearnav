@@ -196,6 +196,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 	char numStr[100];
 	sprintf(numStr,"Image_%09d",msg->header.seq);
 	featureArray.id =  numStr;
+	featureArray.time = ros::Time::now().toSec();
+	if (msg->header.stamp.toSec() > 0) featureArray.time = msg->header.stamp.toSec(); 
 
 	featureArray.distance = msg->header.seq;
 	ROS_INFO("Provided features: %i",(int)featureArray.feature.size());

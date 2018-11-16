@@ -154,9 +154,12 @@ void feedbackNavCb(const stroll_bearnav::navigatorFeedbackConstPtr& feedback)
 	int dummy = 0;
 	int mapA = 0;
 	int mapB = 0;
-	fscanf(mapFile, "%i %i\n",&offsetMap,&dummy);
-	fscanf(viewFile,"%i %i\n",&offsetView,&dummy);
-	float displacementGT = (offsetView - offsetMap);
+	float displacementGT = 10000;
+	if (mapFile != NULL && viewFile != NULL){
+		fscanf(mapFile, "%i %i\n",&offsetMap,&dummy);
+		fscanf(viewFile,"%i %i\n",&offsetView,&dummy);
+	}
+	displacementGT = (offsetView - offsetMap);
 
 	ROS_INFO("Navigation reports %i correct matches and %i outliers out of %i matches at distance %.3f with maps %s %s. Displacement %.3f GT %.3f",feedback->correct,feedback->outliers,feedback->matches,feedback->distance,mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),feedback->diffRot,displacementGT);
 	fprintf(logFile,"Navigation reports %i correct matches and %i outliers out of %i matches at distance %.3f with maps %s %s. Displacement %.3f GT %.3f\n",feedback->correct,feedback->outliers,feedback->matches,feedback->distance,mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),feedback->diffRot,displacementGT);
@@ -231,7 +234,7 @@ int main(int argc, char **argv)
 
 	logFile = fopen("Results.txt","w");
 
-	while (configureFeatures(2,2) < 0) sleep(1);
+	while (configureFeatures(3,1) < 0) sleep(1);
 	image_transport::ImageTransport it(n);
 
 	ros::Subscriber sub = n.subscribe("/navigationInfo", 1000, infoMapMatch);
@@ -328,8 +331,11 @@ int main(int argc, char **argv)
 		ROS_INFO("Map test %s %s summary: %.3f %.3f %.3f",mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
 		fprintf(logFile,"Map test %s %s summary: %.3f %.3f %.3f\n",mapGoal.prefix.c_str(),viewGoal.prefix.c_str(),statSumMatches/statNumMaps,statSumCorrect/statNumMaps,statSumOutliers/statNumMaps);
 		statSumCorrect = statSumMatches = statSumOutliers = statNumMaps = 0;
-		fclose(mapFile);
-		fclose(viewFile);
+
+		if (mapFile != NULL && viewFile != NULL){
+			fclose(mapFile);
+			fclose(viewFile);
+		}
 	}
 	fclose(logFile);
 	usleep(100000);

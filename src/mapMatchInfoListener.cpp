@@ -99,7 +99,7 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
          new_mi.angle = msg->map.feature[i].angle;
          new_mi.response = msg->map.feature[i].response;
          new_mi.octave = msg->map.feature[i].octave;
-         new_mi.time = currentTime;
+         new_mi.time = msg->view.time;
          //TODO do navigation info pridat cas explicitne
          // new_mi.time = time(NULL);
          mi.push_back(new_mi);

@@ -80,7 +80,8 @@ string tmp_param="shit";
 bool statistics = false;
 int f_index = 0;
 int last_size = 0;
-uint32_t t = time(NULL);
+uint32_t currentTime = time(NULL);
+uint32_t time_1;
 
 /*map to be preloaded*/
 vector<vector<KeyPoint> > keypointsMap;
@@ -88,6 +89,7 @@ vector<Mat> descriptorMap;
 vector<float> distanceMap;
 vector<string> namesMap;
 vector<Mat> imagesMap;
+vector<uint32_t> timesMap;
 vector<vector<float> > ratingsMap;
 
 
@@ -132,6 +134,7 @@ int loadMaps()
 	mapDistances[numMaps] = mapDistances[numMaps-1];
 
 	/*preload all maps*/
+	timesMap.clear();
 	imagesMap.clear();
 	keypointsMap.clear();
 	descriptorMap.clear();
@@ -139,7 +142,7 @@ int loadMaps()
 	namesMap.clear();
 	ratingsMap.clear();
 	char fileName[1000];
-
+	double times;
 	numFeatures=0;
 	for (int i = 0;i<numMaps;i++){
                 sprintf(fileName,"%s/%s_%07.3f.yaml",folder.c_str(),prefix.c_str(),mapDistances[i]);
@@ -149,6 +152,7 @@ int loadMaps()
 		{
 			img.release();
 			descriptors_1.release();
+			fs["Time"]  >> times;
 			fs["Keypoints"]  >> keypoints_1;
 			fs["Descriptors"]>>descriptors_1;
 			fs["Image"]>>img;
@@ -156,6 +160,9 @@ int loadMaps()
 			fs["Ratings"]>>ratings;
 			for (int j = ratings.size(); j < keypoints_1.size(); j++) ratings.push_back(0);
 			fs.release();
+			
+			timesMap.push_back((uint32_t)times);
+			time_1 = (uint32_t)times;
 			keypointsMap.push_back(keypoints_1);
 			descriptorMap.push_back(descriptors_1);
 			distanceMap.push_back(mapDistances[i]);
@@ -187,8 +194,8 @@ int loadMaps()
 
 void callback(stroll_bearnav::listenerConfig &config, uint32_t level)
 {
-	t=config.currentTime;
-  ROS_ERROR("mapPreprocessor setting time to %u ",t);
+	currentTime=config.currentTime;
+	ROS_ERROR("mapPreprocessor setting time to %u ",currentTime);
 	f_index = 0;
 }
 
@@ -196,6 +203,7 @@ void callback(stroll_bearnav::listenerConfig &config, uint32_t level)
 void loadMap(int index)
 {
 	lastLoadedMap = index;
+	time_1 = timesMap[index];
 	keypoints_1 = keypointsMap[index];
 	descriptors_1 = descriptorMap[index];
 	currentMapName = namesMap[index];
@@ -299,7 +307,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 		if (mindex > -1 && mindex != lastLoadedMap){
 			// ROS_INFO("Current distance is %.3f Closest map found at %i, last was %i",distanceT,mindex,lastLoadedMap);
 			loadMap(mindex);
-//			ROS_INFO("Sending a map %i features with %i descriptors",(int)keypoints_1.size(),descriptors_1.rows);
+			//			ROS_INFO("Sending a map %i features with %i descriptors",(int)keypoints_1.size(),descriptors_1.rows);
 			bool with_stcs = false;
 			int size = keypoints_1.size();
 			int len =max(size,1);
@@ -307,7 +315,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 			if(keypoints_1.size()>0 && statistics)
 			{
 				ROS_ERROR("Index = %d",f_index);
-				ROS_ERROR("time = %u",t);
+				ROS_ERROR("time = %u",currentTime);
 
 
 				ifstream f(stc_fname.c_str());
@@ -318,7 +326,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					vector<double> scores;
 					scores.clear();
 					for (size_t i = 0; i < keypoints_1.size(); i++) {
-							scores.push_back(0);
+						scores.push_back(0);
 					}
 
 					string f_id = to_string(0) + "_" + currentMapName;
@@ -334,7 +342,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 							CTemporal* model = models[f_index+j];
 							model->update(stc_model_param);
 							model->print();
-							scores[j] = model->predict(t);
+							scores[j] = model->predict(currentTime);
 						}
 
 					}
@@ -381,7 +389,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 							id_found = false;
 							model->update(stc_model_param);
 							model->print();
-							double score = model->predict(t);
+							double score = model->predict(currentTime);
 							scores[i] = score;
 							i++;
 						}
@@ -394,10 +402,10 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					f.close();
 
 					Mat tmp_mat = descriptors_1.clone();
-				  descriptors_1.release();
+					descriptors_1.release();
 
-				  vector<KeyPoint> tmp(keypoints_1);
-				  keypoints_1.clear();
+					vector<KeyPoint> tmp(keypoints_1);
+					keypoints_1.clear();
 
 					// ROS_ERROR("ARGUMENT %f",stc_strategy_param);
 
@@ -407,22 +415,23 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 					strategy->filterFeatures(&keypoints_1,&descriptors_1,&tmp,&tmp_mat, scores);
 
 					ROS_ERROR("size after %lu",keypoints_1.size());
-					}
 				}
+			}
 
 			for(int i=0;i<keypoints_1.size();i++)
 			{
-					feature.x=keypoints_1[i].pt.x;
-					feature.y=keypoints_1[i].pt.y;
-					feature.size=keypoints_1[i].size;
-					feature.angle=keypoints_1[i].angle;
-					feature.response=keypoints_1[i].response;
-					feature.octave=keypoints_1[i].octave;
-					feature.class_id=keypoints_1[i].class_id;
-					feature.descriptor=descriptors_1.row(i);
-					feature.rating=ratings[i];
-					featureArray.feature.push_back(feature);
+				feature.x=keypoints_1[i].pt.x;
+				feature.y=keypoints_1[i].pt.y;
+				feature.size=keypoints_1[i].size;
+				feature.angle=keypoints_1[i].angle;
+				feature.response=keypoints_1[i].response;
+				feature.octave=keypoints_1[i].octave;
+				feature.class_id=keypoints_1[i].class_id;
+				feature.descriptor=descriptors_1.row(i);
+				feature.rating=ratings[i];
+				featureArray.feature.push_back(feature);
 			}
+			featureArray.time = time_1;
 			featureArray.distance = currentDistance;
 			featureArray.id = currentMapName;
 			numberOfUsedMaps++;
@@ -434,7 +443,9 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 			if (image_pub_.getNumSubscribers()>0){
 				std_msgs::Header header;
 				cv_bridge::CvImage bridge(header, sensor_msgs::image_encodings::MONO8, imagesMap[mindex]);
-				image_pub_.publish(bridge.toImageMsg());
+				sensor_msgs::ImagePtr ima =  bridge.toImageMsg();
+				ima->header.stamp.sec = time_1; 
+				image_pub_.publish(ima);
 			}
 		}
 		dist_.data=distanceT;

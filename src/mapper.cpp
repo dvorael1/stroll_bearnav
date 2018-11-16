@@ -65,9 +65,10 @@ vector<float> ratings;
 vector<vector<KeyPoint> > keypointsMap;
 vector<Mat> descriptorMap;
 vector<float> distanceMap;
-vector<double> timesMap;
+vector<int32_t> timesMap;
 vector<Mat> imagesMap;
 vector<vector<float> > ratingsMap;
+int32_t featureTime = 0; 
 
 /* Feature messages */
 stroll_bearnav::FeatureArray featureArray;
@@ -206,7 +207,7 @@ void executeCB(const stroll_bearnav::mapperGoalConstPtr &goal, Server *serv)
 			keypointsMap.push_back(keypoints);
 			descriptorMap.push_back(descriptors);
 			distanceMap.push_back(distanceTravelled);
-			timesMap.push_back(ros::Time::now().toSec());
+			timesMap.push_back(featureTime);
 			ratingsMap.push_back(ratings);
 
 			/*and flush it to the disk*/
@@ -287,15 +288,15 @@ void featureCallback(const stroll_bearnav::FeatureArray::ConstPtr& msg)
 				rating=msg->feature[i].rating;
 				ratings.push_back(rating);
 			}
-			
 			/*store in memory rather than on disk*/
 			imageSelect(msg->id.c_str());
 			imagesMap.push_back(img);
+			featureTime = msg->time;	
 
 			keypointsMap.push_back(keypoints);
 			descriptorMap.push_back(descriptors);
 			distanceMap.push_back(distanceTotalEvent);
-			timesMap.push_back(ros::Time::now().toSec());
+			timesMap.push_back(msg->time);
 			ratingsMap.push_back(ratings);
 
 			/* publish feedback */
@@ -354,7 +355,8 @@ void infoMapMatch(const stroll_bearnav::NavigationInfo::ConstPtr& msg)
 			keypointsMap.push_back(keypoints);
 			descriptorMap.push_back(descriptors);
 			distanceMap.push_back(msg->map.distance);
-			timesMap.push_back(ros::Time::now().toSec());
+			timesMap.push_back(msg->view.time);
+			featureTime = msg->view.time; 
 			ratingsMap.push_back(ratings);
 
 			/* publish feedback */
