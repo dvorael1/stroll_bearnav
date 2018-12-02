@@ -1,0 +1,8 @@
+#goal definiton
+int32 timestamp
+---
+#result definition
+bool success
+---
+#feedback
+bool success
