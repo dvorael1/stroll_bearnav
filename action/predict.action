@@ -1,5 +1,5 @@
 #goal definiton
-int32 timestamp
+int32 time_predict
 ---
 #result definition
 bool success
