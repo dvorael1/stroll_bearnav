@@ -22,6 +22,7 @@
 #include <opencv2/features2d.hpp>
 #include <actionlib/server/simple_action_server.h>
 #include <stroll_bearnav/loadMapAction.h>
+#include <stroll_bearnav/predict.h>
 #include <time.h>
 #include <string>
 #include <stroll_bearnav/listenerConfig.h>
@@ -37,6 +38,7 @@ static const std::string OPENCV_WINDOW = "Image window";
 ros::Publisher cmd_pub_;
 ros::Publisher feat_pub_;
 ros::Publisher dist_view_pub_;
+ros::Subscriber predict_sub_;
 ros::Subscriber dist_sub_;
 std_msgs::Float32 dist_;
 ros::Publisher pathPub;
@@ -285,7 +287,46 @@ void executeCB(const stroll_bearnav::loadMapGoalConstPtr &goal, Server *serv)
 	}
 }
 
+void predictCallback(const std_msgs::Float32::ConstPtr& msg)
+{
+	t=msg->data; //zjistit jestli zde udelat rovnou predict a score mit uchovat v modelu naprimo nebo udelat globalni vector score pro vsechny f.
+	if(models.size()>0){
+		for(int i = 0; i< models.size();i++){
+			model->update(stc_model_param);
+		}
+	}else if(statistics){
+		ifstream f(stc_fname.c_str());
+		if (f.is_open())
+		{
+			string line;
+			CTemporal* model;
+			while ( getline (f,line))
+			{
+				istringstream l(line);
+				string s;
+				string id;
+				if(getline(l, s, ' ')){
+					id = s;
+				}
+				models.push_back(spawnTemporalModel(stc_model_type.c_str(), id, stc_model_param));
+				model = models.back();
+				for(int j = 0; j<6;j++){
+					getline(l, s, ' ');
+				}
+				while (getline(l, s, ' '))
+				{
+					uint32_t t = atoi(s.c_str());
+					getline(l, s, ' ');
+					float state = (float)atoi(s.c_str());
+					model->add(t,state);
+				}
+				model->update(stc_model_param);
+			}
 
+		}
+		f.close();
+	}
+}
 
 void distCallback(const std_msgs::Float32::ConstPtr& msg)
 {
@@ -340,8 +381,8 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 						}
 						for(int j = 0; j<keypoints_1.size() && map_models_found;j++){
 							CTemporal* model = models[f_index+j];
-							model->update(stc_model_param);
-							model->print();
+// 							model->update(stc_model_param);
+// 							model->print();
 							scores[j] = model->predict(currentTime);
 						}
 
@@ -467,6 +508,8 @@ int main(int argc, char** argv)
 		ros::param::get("~stc_strategy_type", stc_strategy_type);
 		ros::param::get("~stc_model_param", stc_model_param);
 		ros::param::get("~stc_strategy_param", stc_strategy_param);
+		
+		predict_sub_ = nh_.subscribe<std_msgs::Float32>( "/time_predict", 1,predictCallback);
 	}
 	cmd_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd",1);
 	pathPub = nh_.advertise<stroll_bearnav::PathProfile>("/pathProfile",1);
