@@ -82,8 +82,9 @@ add_service_files(
  add_action_files(
    FILES
    mapper.action
-  navigator.action
-	loadMap.action
+   navigator.action
+   loadMap.action
+   predict.action
  )
 
 ## Generate added messages and services with any dependencies listed here
