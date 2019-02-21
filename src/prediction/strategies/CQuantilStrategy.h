@@ -15,7 +15,8 @@ class CQuantilStrategy: public CStrategy{
     CQuantilStrategy();
 		~CQuantilStrategy();
 
-    void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score);
+    // void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score);
+    vector<bool> select_features( vector<double> score,vector<bool> selected);
 
     double p = 0.5;
 };

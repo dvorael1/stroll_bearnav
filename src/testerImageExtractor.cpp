@@ -13,7 +13,7 @@ using namespace cv::xfeatures2d;
 using namespace std;
 static const std::string OPENCV_WINDOW = "Image window";
 
-#define VERTICAL_LIMIT 100 
+#define VERTICAL_LIMIT 100
 float distance_factor = 1.0;
 
 using namespace std;
@@ -27,7 +27,7 @@ const int granularity = 20;
 const int width = 500;
 const int height = 100;
 int difference = 0;
-FILE *output = NULL;		
+FILE *output = NULL;
 
 int imageWidth = 500;
 int seasons = 2;
@@ -71,7 +71,7 @@ void distinctiveMatch(const Mat& descriptors1, const Mat& descriptors2, vector<D
 	for(unsigned int i=0; i < allMatches1to2.size(); i++)
 	{
 		if (allMatches1to2[i].size() == 2)
-		{ 
+		{
 			if (allMatches2to1[allMatches1to2[i][0].trainIdx].size() == 2)
 			{
 				if (allMatches1to2[i][0].distance < allMatches1to2[i][1].distance * distance_factor && allMatches2to1[allMatches1to2[i][0].trainIdx][0].distance < allMatches2to1[allMatches1to2[i][0].trainIdx][1].distance * distance_factor && allMatches1to2[i][0].trainIdx == allMatches2to1[allMatches1to2[i][0].trainIdx][0].queryIdx)
@@ -86,7 +86,7 @@ void distinctiveMatch(const Mat& descriptors1, const Mat& descriptors2, vector<D
 					DMatch match = DMatch(allMatches1to2[i][0].queryIdx, allMatches1to2[i][0].trainIdx, allMatches1to2[i][0].distance);
 					matches.push_back(match);
 					cout << "ERROR" << endl;
-				} 
+				}
 		}
 		else if (allMatches2to1[allMatches1to2[i][0].trainIdx].size() == 2)
 		{
@@ -102,7 +102,7 @@ void distinctiveMatch(const Mat& descriptors1, const Mat& descriptors2, vector<D
 			DMatch match = DMatch(allMatches1to2[i][0].queryIdx, allMatches1to2[i][0].trainIdx, allMatches1to2[i][0].distance);
 			matches.push_back(match);
 			cout << "ERROR" << endl;
-		} 
+		}
 
 	}
 	delete descriptorMatcher;
@@ -177,9 +177,9 @@ int loadMaps(char* folder,char* prefix,vector<Mat> *images, vector<float> &tmpDi
 	char fileName[1000];
 
 	numFeatures=0;
-    for (int i = 0;i<tmpDist.size();i++){
-        sprintf(fileName,"%s/%s_%.3f.yaml",folder,prefix,tmpDist[i]);
-        printf("Loading %s/%s_%.3f.yaml\n",folder,prefix,tmpDist[i]);
+	for (int i = 0;i<numMaps;i++){
+		sprintf(fileName,"%s/%s_%07.3f.yaml",folder,prefix,tmpDist[i]);
+		printf("Loading %s/%s_%07.3f.yaml\n",folder,prefix,tmpDist[i]);
 		FileStorage fs(fileName, FileStorage::READ);
 		if(fs.isOpened())
 		{
@@ -228,9 +228,9 @@ int main(int argc, char** argv)
 		Mat img[seasons];
 		Mat descriptors[seasons];
 		vector<KeyPoint> keypoints[seasons];
-		im[0] = referenceImages[locations[0]]; 
+		im[0] = referenceImages[locations[0]];
 		img[0] = referenceImages[locations[0]];
-		im[1] = viewImages[locations[0]]; 
+		im[1] = viewImages[locations[0]];
 		img[1] = viewImages[locations[0]];
 		printf("\n");
 
@@ -245,7 +245,7 @@ int main(int argc, char** argv)
 			descriptor->compute(img[s],keypoints[s],descriptors[s]);
 		}
 
-		int estimated = 0;	
+		int estimated = 0;
 		int groundTruth = 0;
 		for (int b=1;b<seasons;b++){
 
@@ -253,8 +253,8 @@ int main(int argc, char** argv)
 			vector<KeyPoint> keypoints1,keypoints2;
 			descriptors1 = descriptors[0];
 			descriptors2 = descriptors[b];
-			keypoints1 = keypoints[0];	
-			keypoints2 = keypoints[b];	
+			keypoints1 = keypoints[0];
+			keypoints2 = keypoints[b];
 
 			vector<DMatch> matches, inliers_matches;
 			int sumDev,auxMax,histMax;
@@ -267,7 +267,7 @@ int main(int argc, char** argv)
 
 			if (matches.size() > 0){
 				//histogram assembly
-				int numBins = 100; 
+				int numBins = 100;
 				int histogram[numBins];
 				int bestHistogram[numBins];
 				memset(bestHistogram,0,sizeof(int)*numBins);
@@ -377,7 +377,7 @@ int main(int argc, char** argv)
 				if (key != -1) printf("Location %03i vs location %03i. Proposed offset: %i Manual offset: %i. Scan: %i Features: %i Pressed key: %i \n",locations[0],locations[1],offsetX,offsetX-estimated,locationScan,histMax,key);
 				if (locationScan <= 0){
 				       	key = waitKey(1)%256;
-				        //key = 'a';	
+				        //key = 'a';
 				}else {
 					key = waitKey(1);
 					key = 0;
@@ -388,7 +388,7 @@ int main(int argc, char** argv)
 					locationScan--;
 					if (locationScan < 2)
 					{
-						locations[1] = autoLocation;	
+						locations[1] = autoLocation;
 					}else{
 						locations[1]++;
 					}
@@ -421,7 +421,7 @@ int main(int argc, char** argv)
 			totalTests++;
 			if (key == 13 || key == 'a'||key == 8)
 			{
-		
+
 				//printf("Saved %03i vs %03i -  %i %i \n",locations[0],locations[1],offsetX,offsetY);
                 printf("Saved %0.3f vs %0.3f -  %i %i \n",referenceDistances[i],viewDistances[i],offsetX,offsetY);
 				char retez[1000];
@@ -446,6 +446,6 @@ int main(int argc, char** argv)
             }
 		}
         i++;
-    }while (key != 27 && locations[0] < viewDistances.size()); 
+    }while (key != 27 && locations[0] < viewDistances.size());
 	return 0;
 }

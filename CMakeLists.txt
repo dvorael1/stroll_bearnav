@@ -157,9 +157,9 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 ## either from message generation or dynamic reconfigure
 # add_dependencies(cameleon_ros_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-#add_library(temporal_models src/t_models/CTemporal.cpp src/t_models/CSum.cpp src/t_models/CTimer.cpp src/t_models/CMovAvg.cpp src/t_models/CWSum.cpp src/t_models/CTimeMean.cpp src/t_models/CFrelement.cpp src/t_models/CDummy.cpp src/t_models/CTimeHist.cpp src/t_models/CHyperTime.cpp src/t_models/CHyperTimeMV.cpp)
-add_library(temporal_models src/t_models/CTemporal.cpp src/t_models/CSum.cpp src/t_models/CTimer.cpp src/t_models/CMovAvg.cpp src/t_models/CWSum.cpp src/t_models/CTimeMean.cpp src/t_models/CFrelement.cpp src/t_models/CDummy.cpp src/t_models/CTimeHist.cpp)
-add_library(strategies src/strategies/CStrategy.cpp src/strategies/CBestStrategy.cpp src/strategies/CQuantilStrategy.cpp src/strategies/CMonteCarloStrategy.cpp src/strategies/CFirst.cpp )
+add_library(temporal_models src/prediction/t_models/CTemporal.cpp src/prediction/t_models/CSum.cpp src/prediction/t_models/CTimer.cpp src/prediction/t_models/CMovAvg.cpp src/prediction/t_models/CWSum.cpp src/prediction/t_models/CTimeMean.cpp src/prediction/t_models/CFrelement.cpp src/prediction/t_models/CDummy.cpp src/prediction/t_models/CTimeHist.cpp)
+add_library(strategies src/prediction/strategies/CStrategy.cpp src/prediction/strategies/CBestStrategy.cpp src/prediction/strategies/CQuantilStrategy.cpp src/prediction/strategies/CMonteCarloStrategy.cpp src/prediction/strategies/CFirst.cpp )
+add_library(prediction src/prediction/PredictionController.cpp)
 
 target_link_libraries(temporal_models ${OpenCV_LIBS})
 
@@ -214,7 +214,7 @@ target_link_libraries(mapper_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(feature_extraction_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(feature_testing_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(odometry_monitor_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-target_link_libraries(map_preprocessor_node temporal_models strategies ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(map_preprocessor_node prediction temporal_models strategies  ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(tester_image_extractor ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(navigator_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 target_link_libraries(visualisation_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})

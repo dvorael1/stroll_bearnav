@@ -1,6 +1,5 @@
 #include <ros/ros.h>
-#include "strategies/CStrategy.h"
-#include "t_models/CTemporal.h"
+#include "prediction/PredictionController.h"
 #include "std_msgs/Float32.h"
 #include "std_msgs/String.h"
 #include <image_transport/image_transport.h>
@@ -74,14 +73,13 @@ int numFeatures;
 float distanceT;
 string prefix;
 bool stop = false;
-std::vector<CTemporal*> models;
 string stc_fname;
-string tmp_param="shit";
 bool statistics = false;
 int f_index = 0;
 int last_size = 0;
 uint32_t currentTime = time(NULL);
 uint32_t time_1;
+PredictionController* predictor;
 
 /*map to be preloaded*/
 vector<vector<KeyPoint> > keypointsMap;
@@ -160,7 +158,7 @@ int loadMaps()
 			fs["Ratings"]>>ratings;
 			for (int j = ratings.size(); j < keypoints_1.size(); j++) ratings.push_back(0);
 			fs.release();
-			
+
 			timesMap.push_back((uint32_t)times);
 			time_1 = (uint32_t)times;
 			keypointsMap.push_back(keypoints_1);
@@ -314,108 +312,108 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 			double stcs[len];
 			if(keypoints_1.size()>0 && statistics)
 			{
-				ROS_ERROR("Index = %d",f_index);
-				ROS_ERROR("time = %u",currentTime);
-
-
-				ifstream f(stc_fname.c_str());
-				if (f.is_open())
-				{
-					string type;
-					bool map_models_found = false;
-					vector<double> scores;
-					scores.clear();
-					for (size_t i = 0; i < keypoints_1.size(); i++) {
-						scores.push_back(0);
-					}
-
-					string f_id = to_string(0) + "_" + currentMapName;
-					while(f_index<models.size() && !map_models_found){
-						if(f_id.compare(models[f_index]->fid)==0){
-							map_models_found = true;
-							ROS_WARN("model found f_index =%d fid = %s mid = %s",f_index,f_id.c_str(),models[f_index]->fid.c_str());
-						}else{
-							f_index += last_size;
-							continue;
-						}
-						for(int j = 0; j<keypoints_1.size() && map_models_found;j++){
-							CTemporal* model = models[f_index+j];
-							model->update(stc_model_param);
-							model->print();
-							scores[j] = model->predict(currentTime);
-						}
-
-					}
-					if(!map_models_found){
-						string line;
-						bool id_found = false;
-						CTemporal* model;
-						int i = 0;
-						int l_index =-1;
-
-
-						while ( getline (f,line))
-						{
-							l_index++;
-							if(f_index > l_index){
-								continue;
-							}
-							if(f_index+keypoints_1.size()<=l_index){
-								break;
-							}
-
-							istringstream l(line);
-							string s;
-							string id = to_string(i) + "_" + currentMapName;
-							if(getline(l, s, ' ')){
-								id_found = id.compare(s)==0;
-							}
-							if(!id_found){
-								continue;
-							}
-							models.push_back(spawnTemporalModel(stc_model_type.c_str(), id, stc_model_param));
-							model = models[f_index + i];
-							for(int j = 0; j<6;j++){
-								getline(l, s, ' ');
-							}
-							while (getline(l, s, ' '))
-							{
-								uint32_t t = atoi(s.c_str());
-
-								getline(l, s, ' ');
-								float state = (float)atoi(s.c_str());
-								model->add(t,state);
-							}
-							id_found = false;
-							model->update(stc_model_param);
-							model->print();
-							double score = model->predict(currentTime);
-							scores[i] = score;
-							i++;
-						}
-
-					}
-
-
-					last_size = keypoints_1.size();
-
-					f.close();
-
+				// ROS_ERROR("Index = %d",f_index);
+				// ROS_ERROR("time = %u",currentTime);
+				//
+				//
+				// ifstream f(stc_fname.c_str());
+				// if (f.is_open())
+				// {
+				// 	string type;
+				// 	bool map_models_found = false;
+				// 	vector<double> scores;
+				// 	scores.clear();
+				// 	for (size_t i = 0; i < keypoints_1.size(); i++) {
+				// 		scores.push_back(0);
+				// 	}
+				//
+				// 	string f_id = to_string(0) + "_" + currentMapName;
+				// 	while(f_index<models.size() && !map_models_found){
+				// 		if(f_id.compare(models[f_index]->fid)==0){
+				// 			map_models_found = true;
+				// 			ROS_WARN("model found f_index =%d fid = %s mid = %s",f_index,f_id.c_str(),models[f_index]->fid.c_str());
+				// 		}else{
+				// 			f_index += last_size;
+				// 			continue;
+				// 		}
+				// 		for(int j = 0; j<keypoints_1.size() && map_models_found;j++){
+				// 			CTemporal* model = models[f_index+j];
+				// 			model->update(stc_model_param);
+				// 			model->print();
+				// 			scores[j] = model->predict(currentTime);
+				// 		}
+				//
+				// 	}
+				// 	if(!map_models_found){
+				// 		string line;
+				// 		bool id_found = false;
+				// 		CTemporal* model;
+				// 		int i = 0;
+				// 		int l_index =-1;
+				//
+				//
+				// 		while ( getline (f,line))
+				// 		{
+				// 			l_index++;
+				// 			if(f_index > l_index){
+				// 				continue;
+				// 			}
+				// 			if(f_index+keypoints_1.size()<=l_index){
+				// 				break;
+				// 			}
+				//
+				// 			istringstream l(line);
+				// 			string s;
+				// 			string id = to_string(i) + "_" + currentMapName;
+				// 			if(getline(l, s, ' ')){
+				// 				id_found = id.compare(s)==0;
+				// 			}
+				// 			if(!id_found){
+				// 				continue;
+				// 			}
+				// 			models.push_back(spawnTemporalModel(stc_model_type.c_str(), id, stc_model_param));
+				// 			model = models[f_index + i];
+				// 			for(int j = 0; j<6;j++){
+				// 				getline(l, s, ' ');
+				// 			}
+				// 			while (getline(l, s, ' '))
+				// 			{
+				// 				uint32_t t = atoi(s.c_str());
+				//
+				// 				getline(l, s, ' ');
+				// 				float state = (float)atoi(s.c_str());
+				// 				model->add(t,state);
+				// 			}
+				// 			id_found = false;
+				// 			model->update(stc_model_param);
+				// 			model->print();
+				// 			double score = model->predict(currentTime);
+				// 			scores[i] = score;
+				// 			i++;
+				// 		}
+				//
+				// 	}
+				//
+				//
+				// 	last_size = keypoints_1.size();
+				//
+				// 	f.close();
+				//
 					Mat tmp_mat = descriptors_1.clone();
 					descriptors_1.release();
 
 					vector<KeyPoint> tmp(keypoints_1);
 					keypoints_1.clear();
-
+					predictor->filter_features(currentMapName,&tmp,&tmp_mat,&keypoints_1,&descriptors_1);
 					// ROS_ERROR("ARGUMENT %f",stc_strategy_param);
 
 					// ROS_ERROR("key size: %lu score size %lu\n",keypoints_1.size(),scores.size());
-					CStrategy* strategy = spawnStrategy(stc_strategy_type.c_str(),stc_strategy_param);
-					// ROS_ERROR("size before %lu model %s param %f stategy %s param %f",tmp.size(),stc_model_type.c_str(),stc_model_param,stc_strategy_type.c_str(),stc_strategy_param);
-					strategy->filterFeatures(&keypoints_1,&descriptors_1,&tmp,&tmp_mat, scores);
-
-					ROS_ERROR("size after %lu",keypoints_1.size());
-				}
+					// CStrategy* strategy = spawnStrategy(stc_strategy_type.c_str(),stc_strategy_param);
+					// // ROS_ERROR("size before %lu model %s param %f stategy %s param %f",tmp.size(),stc_model_type.c_str(),stc_model_param,stc_strategy_type.c_str(),stc_strategy_param);
+					// strategy->filterFeatures(&keypoints_1,&descriptors_1,&tmp,&tmp_mat, scores);
+					//
+					// ROS_ERROR("size after %lu",keypoints_1.size());
+				// }
 			}
 
 			for(int i=0;i<keypoints_1.size();i++)
@@ -444,7 +442,7 @@ void distCallback(const std_msgs::Float32::ConstPtr& msg)
 				std_msgs::Header header;
 				cv_bridge::CvImage bridge(header, sensor_msgs::image_encodings::MONO8, imagesMap[mindex]);
 				sensor_msgs::ImagePtr ima =  bridge.toImageMsg();
-				ima->header.stamp.sec = time_1; 
+				ima->header.stamp.sec = time_1;
 				image_pub_.publish(ima);
 			}
 		}
@@ -467,6 +465,9 @@ int main(int argc, char** argv)
 		ros::param::get("~stc_strategy_type", stc_strategy_type);
 		ros::param::get("~stc_model_param", stc_model_param);
 		ros::param::get("~stc_strategy_param", stc_strategy_param);
+		predictor = new PredictionController(stc_model_type,stc_model_param,stc_strategy_type,stc_strategy_param,stc_fname);
+		predictor->build_models();
+		// predictor.update_all();
 	}
 	cmd_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd",1);
 	pathPub = nh_.advertise<stroll_bearnav::PathProfile>("/pathProfile",1);

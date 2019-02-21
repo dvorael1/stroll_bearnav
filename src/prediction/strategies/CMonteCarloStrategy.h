@@ -13,7 +13,8 @@ class CMonteCarloStrategy: public CStrategy{
     CMonteCarloStrategy();
 		~CMonteCarloStrategy();
 
-    void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score);
+    // void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *tmp, Mat *tmp_mat, vector<double> score);
+    vector<bool> select_features( vector<double> score ,vector<bool> selected);
 
     int n = 100;
 };

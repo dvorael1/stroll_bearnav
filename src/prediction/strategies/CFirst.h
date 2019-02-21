@@ -15,7 +15,8 @@ class CFirst: public CStrategy{
     CFirst();
 		~CFirst();
 
-    void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *keypoints_out, Mat *descriptors_out, vector<double> score);
+    // void filterFeatures(vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *keypoints_out, Mat *descriptors_out, vector<double> score);
+    vector<bool> select_features( vector<double> score,vector<bool> selected);
 
     int n = 100;
 };

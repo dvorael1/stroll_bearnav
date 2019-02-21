@@ -22,9 +22,9 @@ typedef enum{
 	TT_MEAN,
 	TT_HISTOGRAM,
 	TT_FREMEN,
+	TT_NUMBER,
 	TT_HYPER,
-	TT_HYPERMV,
-	TT_NUMBER
+	TT_HYPERMV
 }ETemporalType;
 
 class CTemporal
