@@ -11,7 +11,7 @@ PredictionController::~PredictionController(){
 
 }
 
-PredictionController::PredictionController(string stc_model_type_in, float stc_model_param_in, string stc_strategy_type_in, float stc_strategy_param_in, string file){
+void PredictionController::init(string stc_model_type_in, float stc_model_param_in, string stc_strategy_type_in, float stc_strategy_param_in, string file){
   stc_model_type = stc_model_type_in;
   stc_model_param = stc_model_param_in;
   stc_strategy_type = stc_strategy_type_in;
@@ -62,7 +62,7 @@ void PredictionController::build_models(){
   {
     string line;
     string map_name = "";
-
+    ROS_ERROR("creating models");
 
     while ( getline (f,line))
     {
@@ -98,4 +98,8 @@ void PredictionController::build_models(){
   }
 
   f.close();
+}
+
+void PredictionController::set_time(uint32_t t){
+  prediction_time = t;
 }

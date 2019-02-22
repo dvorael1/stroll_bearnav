@@ -75,11 +75,9 @@ string prefix;
 bool stop = false;
 string stc_fname;
 bool statistics = false;
-int f_index = 0;
-int last_size = 0;
 uint32_t currentTime = time(NULL);
 uint32_t time_1;
-PredictionController* predictor;
+PredictionController* predictor = new PredictionController();
 
 /*map to be preloaded*/
 vector<vector<KeyPoint> > keypointsMap;
@@ -193,8 +191,9 @@ int loadMaps()
 void callback(stroll_bearnav::listenerConfig &config, uint32_t level)
 {
 	currentTime=config.currentTime;
+	predictor->set_time(currentTime);
 	ROS_ERROR("mapPreprocessor setting time to %u ",currentTime);
-	f_index = 0;
+	// f_index = 0;
 }
 
 /* load map based on distance travelled  */
@@ -465,7 +464,7 @@ int main(int argc, char** argv)
 		ros::param::get("~stc_strategy_type", stc_strategy_type);
 		ros::param::get("~stc_model_param", stc_model_param);
 		ros::param::get("~stc_strategy_param", stc_strategy_param);
-		predictor = new PredictionController(stc_model_type,stc_model_param,stc_strategy_type,stc_strategy_param,stc_fname);
+		predictor->init(stc_model_type,stc_model_param,stc_strategy_type,stc_strategy_param,stc_fname);
 		predictor->build_models();
 		// predictor.update_all();
 	}

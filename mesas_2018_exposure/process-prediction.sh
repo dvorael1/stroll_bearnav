@@ -11,7 +11,7 @@ p=`pwd`
 
 mkdir "results_prediction"
 
-if [ 1 == 1 ] #tvorba history file
+if [ 1 == 0] #tvorba history file
 then
 source ~/bc_ros/devel/setup.bash
 
@@ -31,7 +31,7 @@ kill -2 $P2
 wait $P2
 fi
 
-if [ 0 == 1 ] # spusteni testovani
+if [ 1 = 1 ] # spusteni testovani
 then
 rosparam set names_map  [$(for i in $(seq -w 0 87);do echo -ne L087,;done)]
 rosparam set names_view [$(for i in $(seq -w 0 87);do echo -ne A0$i,;done)]
@@ -44,7 +44,7 @@ sps=(500)
 st=First
 
 
-for mt in Fremen #Dummy Histogram Sum W_Sum Mov_Avg 
+for mt in Dummy  #Dummy Histogram Sum W_Sum Mov_Avg Fremen
 do
 	mp=${mps[$imp]}
 		for sp in ${sps[*]}
