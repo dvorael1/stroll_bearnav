@@ -47,7 +47,11 @@ vector<bool> PredictionController::select_features (string map,vector<bool> vec)
 
 void PredictionController::filter_features (string map,vector<KeyPoint> *keypoints, Mat *descriptors, vector<KeyPoint> *keypoints_out, Mat *descriptors_out) {
   vector<bool> vec;
-  vec = select_features(map,vec);
+  if(precomputed){
+    vec = filters[map];
+  }else{
+    vec = select_features(map,vec);
+  }
   for (size_t i = 0; i < vec.size(); i++) {
     if(vec[i]){
       keypoints_out->push_back(keypoints->at(i));
@@ -102,4 +106,15 @@ void PredictionController::build_models(){
 
 void PredictionController::set_time(uint32_t t){
   prediction_time = t;
+}
+
+void PredictionController::precompute(string map, uint32_t t){
+  vector<double> score;
+  vector<bool> vec;
+  size_t size = models[map].size();
+  for (size_t i = 0; i < size; i++) {
+    score.push_back(models[map][i]->predict(t));
+  }
+  vec = strategy->select_features(score,vec);
+  filters[map] = vec;
 }

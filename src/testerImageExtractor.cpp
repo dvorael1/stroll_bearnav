@@ -178,8 +178,10 @@ int loadMaps(char* folder,char* prefix,vector<Mat> *images, vector<float> &tmpDi
 
 	numFeatures=0;
 	for (int i = 0;i<numMaps;i++){
-		sprintf(fileName,"%s/%s_%07.3f.yaml",folder,prefix,tmpDist[i]);
-		printf("Loading %s/%s_%07.3f.yaml\n",folder,prefix,tmpDist[i]);
+		sprintf(fileName,"%s/%s_%.3f.yaml",folder,prefix,tmpDist[i]);
+		printf("Loading %s/%s_%.3f.yaml\n",folder,prefix,tmpDist[i]);
+		// sprintf(fileName,"%s/%s_%07.3f.yaml",folder,prefix,tmpDist[i]);
+		// printf("Loading %s/%s_%07.3f.yaml\n",folder,prefix,tmpDist[i]);
 		FileStorage fs(fileName, FileStorage::READ);
 		if(fs.isOpened())
 		{

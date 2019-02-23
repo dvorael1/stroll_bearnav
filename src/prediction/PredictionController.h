@@ -70,6 +70,8 @@ class PredictionController {
     */
     float stc_strategy_param;
 
+    bool precomputed = false;
+
   public:
     /**
     * Default constructor with no parameters.
@@ -117,16 +119,24 @@ class PredictionController {
     void build_models();
 
     /**
-    *
+    * predict visibility score for features in map given as first argument.
     */
     vector<double> predict_score (string map,vector<double> score);
 
     /**
-    *
+    * Creates filter for map given as first argument.
     */
     vector<bool> select_features(string map,vector<bool> vec);
 
-    void set_time(uint32_t time);
+    /**
+    * Change default time of prediction.
+    */
+    void set_time(uint32_t t);
+
+    /**
+    * Precomputes filter for map given in string as first parameter at time t given as second parameter.
+    */
+    void precompute(string map, uint32_t t);
 };
 
 #endif

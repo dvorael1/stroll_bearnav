@@ -25,6 +25,7 @@
 #include <dynamic_reconfigure/Config.h>
 #include <std_msgs/Int32.h>
 
+
 using namespace cv;
 using namespace std;
 
@@ -117,6 +118,7 @@ void feedbackMapCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
 	numPrimaryMaps = feedback->numberOfMaps;
 	primaryMapIndex = feedback->mapIndex;
 	ROS_INFO("Primary map: %s %i %f",feedback->fileName.c_str(),primaryMapIndex,feedback->distance);
+  ROS_ERROR("--------------------------------------------");
 }
 
 void feedbackViewCb(const stroll_bearnav::loadMapFeedbackConstPtr& feedback)
@@ -235,8 +237,8 @@ int configureTime(const char*filename)
 	conf.ints.push_back(param);
 	srv_req.config = conf;
 
-  if (ros::service::call("/listener/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
-	if (ros::service::call("/map_preprocessor_map/set_parameters", srv_req, srv_resp) == false) ROS_WARN("Time module not configured.");
+  if (ros::service::call("/listener/set_parameters", srv_req, srv_resp) == false) ROS_WARN("litstener: Time module not configured.");
+	if (ros::service::call("/map_preprocessor_map/set_parameters", srv_req, srv_resp) == false) ROS_WARN("mapPreprocesor: Time module not configured.");
   return 0;
 }
 
