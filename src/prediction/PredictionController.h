@@ -70,6 +70,9 @@ class PredictionController {
     */
     float stc_strategy_param;
 
+    /**
+    * Defines if precomputed filters will be used or will be computed online.
+    */
     bool precomputed = false;
 
   public:
@@ -137,6 +140,11 @@ class PredictionController {
     * Precomputes filter for map given in string as first parameter at time t given as second parameter.
     */
     void precompute(string map, uint32_t t);
+
+    /**
+    * Precomputes filter for map given in string as first parameter at time t given as second parameter.
+    */
+    void precompute_all(uint32_t t);
 };
 
 #endif

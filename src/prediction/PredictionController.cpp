@@ -118,3 +118,14 @@ void PredictionController::precompute(string map, uint32_t t){
   vec = strategy->select_features(score,vec);
   filters[map] = vec;
 }
+
+void PredictionController::precompute_all( uint32_t t){
+  vector<bool> vec;
+  for (map<string,vector<CTemporal*> >::iterator it=models.begin(); it!=models.end(); ++it){
+    vector<double> score;
+    for (size_t i = 0; i < it->second.size(); i++) {
+      score.push_back(it->second[i]->predict(t));
+    }
+    strategy->select_features(score,filters[it->first]);
+  }
+}
